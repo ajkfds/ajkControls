@@ -302,6 +302,48 @@ namespace ajkControls
             }
         }
 
+        public int FindIndexOf(string targetString,int startIndex)
+        {
+            if (targetString.Length == 0) return -1;
+            for (int i = startIndex; i < Length-targetString.Length; i++)
+            {
+                if (targetString[0] != chars[i]) continue;
+                bool match = true;
+                for(int j = 1; j < targetString.Length; j++)
+                {
+                    if (targetString[j] != chars[i+j])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) return i;
+            }
+            return -1;
+        }
+
+        public int FindPreviousIndexOf(string targetString, int startIndex)
+        {
+            if (targetString.Length == 0) return -1;
+            if (startIndex > Length - targetString.Length) startIndex = Length - targetString.Length;
+
+            for (int i = startIndex; i >=0; i--)
+            {
+                if (targetString[0] != chars[i]) continue;
+                bool match = true;
+                for (int j = 1; j < targetString.Length; j++)
+                {
+                    if (targetString[j] != chars[i + j])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) return i;
+            }
+            return -1;
+        }
+
         public string CreateString()
         {
             char[] array = chars.CreateArray();
