@@ -30,7 +30,7 @@ namespace ajkControls
 
         public override Font Font
         {
-            get => base.Font;
+            get { return base.Font; }
             set
             {
                 base.Font = value;

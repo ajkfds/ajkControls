@@ -21,8 +21,9 @@ namespace ajkControls
         }
 
         public event EventHandler CarletLineChanged;
-        //        public delegate void CarletLineChangedHandler();
-        //        public event CarletLineChangedHandler CarletLineChanged;
+        public event KeyPressEventHandler AfterKeyPressed;
+        public event KeyEventHandler AfterKeyDown;
+
 
         private float size = 8;
         private void dbDrawBox_MouseWheel(object sender, MouseEventArgs e)
@@ -81,7 +82,7 @@ namespace ajkControls
 
         public override Font Font
         {
-            get => base.Font;
+            get { return base.Font; }
             set
             {
                 base.Font = value;
@@ -92,7 +93,7 @@ namespace ajkControls
 
         //
         public override Color BackColor {
-            get => base.BackColor;
+            get { return base.BackColor; }
             set
             {
                 if (base.BackColor != value) // avoid infinite loop on VS designer
@@ -123,6 +124,8 @@ namespace ajkControls
             UpdateVScrollBarRange();
         }
 
+
+        // character & mark graphics buffer
         volatile bool reGenarateBuffer = true;
         Bitmap[,] charBitmap = new Bitmap[16, 128];
         Bitmap[] markBitmap = new Bitmap[8];
@@ -224,6 +227,8 @@ namespace ajkControls
             wave
         }
 
+
+        // draw image
         private int tabSize = 4;
         private SolidBrush selectionBrush = new SolidBrush(Color.FromArgb(100, Color.Turquoise));
         private SolidBrush lineNumberBrush = new SolidBrush(Color.FromArgb(50, Color.SlateGray));
@@ -427,12 +432,19 @@ namespace ajkControls
             if (e.Button == MouseButtons.Left)
             {
                 int index = hitIndex(e.X, e.Y);
-                document.CaretIndex = index;
-                document.SelectionStart = index;
-                document.SelectionLast = index;
-                state = uiState.selecting;
-                selectionChanged();
-                Invoke(new Action(dbDrawBox.Refresh));
+                if(document.CaretIndex != index || document.SelectionStart != index || document.SelectionLast != index)
+                {
+                    document.CaretIndex = index;
+                    document.SelectionStart = index;
+                    document.SelectionLast = index;
+                    state = uiState.selecting;
+                    selectionChanged();
+                    Invoke(new Action(dbDrawBox.Refresh));
+                }
+                else
+                {
+                    state = uiState.selecting;
+                }
             }
         }
 
@@ -468,11 +480,18 @@ namespace ajkControls
                 if (state == uiState.selecting)
                 {
                     int index = hitIndex(e.X, e.Y);
-                    document.CaretIndex = index;
-                    document.SelectionLast = index;
-                    state = uiState.idle;
-                    selectionChanged();
-                    Invoke(new Action(dbDrawBox.Refresh));
+                    if(document.CaretIndex != index || document.SelectionLast != index)
+                    {
+                        document.CaretIndex = index;
+                        document.SelectionLast = index;
+                        state = uiState.idle;
+                        selectionChanged();
+                        Invoke(new Action(dbDrawBox.Refresh));
+                    }
+                    else
+                    {
+                        state = uiState.idle;
+                    }
                 }
             }
         }
@@ -498,11 +517,18 @@ namespace ajkControls
 
             if (state == uiState.selecting)
             {
-                document.CaretIndex = document.SelectionStart;
-                document.SelectionLast = document.SelectionStart;
-                state = uiState.idle;
-                selectionChanged();
-                Invoke(new Action(dbDrawBox.Refresh));
+                if(document.CaretIndex != document.SelectionStart || document.SelectionLast != document.SelectionStart)
+                {
+                    document.CaretIndex = document.SelectionStart;
+                    document.SelectionLast = document.SelectionStart;
+                    state = uiState.idle;
+                    selectionChanged();
+                    Invoke(new Action(dbDrawBox.Refresh));
+                }
+                else
+                {
+                    state = uiState.idle;
+                }
             }
             this.OnMouseDoubleClick(e);
         }
@@ -776,6 +802,7 @@ namespace ajkControls
                 default:
                     break;
             }
+            if (AfterKeyDown != null) AfterKeyDown(this, e);
         }
 
         private void dbDrawBox_KeyUp(object sender, KeyEventArgs e)
@@ -813,6 +840,7 @@ namespace ajkControls
                     document.SelectionLast = document.CaretIndex;
                     UpdateVScrollBarRange();
                 }
+                if (AfterKeyPressed != null) AfterKeyPressed(this, e);
                 Invoke(new Action(dbDrawBox.Refresh));
             }
         }
