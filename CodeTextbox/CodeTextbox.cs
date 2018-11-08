@@ -64,6 +64,25 @@ namespace ajkControls
 
         public bool Editable { get; set; } = true;
 
+        private bool multiLine = true;
+        public bool MultiLine {
+            get
+            {
+                return multiLine;
+            }
+            set
+            {
+                if (multiLine == value) return;
+                multiLine = value;
+                Invoke(new Action(dbDrawBox.Refresh));
+                if(multiLine == false)
+                {
+                    if (ScrollBarVisible) ScrollBarVisible = false;
+                    resizeCharSize();
+                    Height = charSizeY;
+                }
+            }
+        }
 
         private Document document;
         public Document Document
@@ -137,6 +156,10 @@ namespace ajkControls
             {
                 for (int i = 0; i < 128; i++)
                 {
+                    if(charBitmap[color, i] != null)
+                    {
+                        charBitmap[color, i].Dispose();
+                    }
                     charBitmap[color, i] = new Bitmap(charSizeX, charSizeY);
                     using (Graphics gc = Graphics.FromImage(charBitmap[color, i]))
                     {
@@ -179,10 +202,10 @@ namespace ajkControls
                         }
                     }
                 }
-
             }
             for (int mark = 0; mark < 8; mark++)
             {
+                if (markBitmap[mark] != null) markBitmap[mark].Dispose();
                 markBitmap[mark] = new Bitmap(charSizeX, charSizeY);
                 using (Graphics gc = Graphics.FromImage(markBitmap[mark]))
                 {
@@ -256,6 +279,7 @@ namespace ajkControls
             {
                 xOffset = document.Length.ToString().Length + 1;
                 int line = vScrollBar.Value;
+                if (!multiLine) line = document.Lines - 1;
                 while(line < document.Lines)
                 {
                     // draw line number (right padding)
@@ -615,6 +639,7 @@ namespace ajkControls
                     break;
                 case Keys.Up:
                     {
+                        if (!multiLine) break;
                         int line = document.GetLineAt(document.CaretIndex);
                         if (line == 0) break;
                         int headindex = document.GetLineStartIndex(line);
@@ -650,6 +675,7 @@ namespace ajkControls
                     break;
                 case Keys.Down:
                     {
+                        if (!multiLine) break;
                         int line = document.GetLineAt(document.CaretIndex);
                         if (line == document.Lines-1) break;
                         int headindex = document.GetLineStartIndex(line);
@@ -729,8 +755,7 @@ namespace ajkControls
                     e.Handled = true;
                     break;
                 case Keys.Enter:
-                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                    sw.Start();
+                    if (!multiLine) break;
                     if (e.Modifiers == Keys.Shift)
                     {
                         if (document.SelectionStart == document.SelectionLast)
@@ -766,8 +791,6 @@ namespace ajkControls
                     selectionChanged();
                     if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                     Invoke(new Action(dbDrawBox.Refresh));
-                    sw.Stop();
-                    System.Diagnostics.Debug.Print("return : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
                     e.Handled = true;
                     break;
                 case Keys.Tab:
