@@ -186,5 +186,48 @@ namespace ajkControls
         {
             Refresh();
         }
+
+        private void dbDrawBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (selectedNode == null) return;
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                    if (selectedNode.Exanded)
+                    {
+                        selectedNode.Exanded = false;
+                        Refresh();
+                    }
+                    break;
+                case Keys.Right:
+                    if (!selectedNode.Exanded && selectedNode.TreeNodes.Count != 0)
+                    {
+                        selectedNode.Exanded = true;
+                        Refresh();
+                    }
+                    break;
+                case Keys.Up:
+                    if(orderedNode.Contains(selectedNode) && orderedNode.IndexOf(selectedNode) != 0)
+                    {
+                        selectedNode = orderedNode[orderedNode.IndexOf(selectedNode) - 1];
+                        Refresh();
+                    }
+                    break;
+                case Keys.Down:
+                    if (orderedNode.Contains(selectedNode) && orderedNode.IndexOf(selectedNode) != orderedNode.Count-1)
+                    {
+                        selectedNode = orderedNode[orderedNode.IndexOf(selectedNode) + 1];
+                        Refresh();
+                    }
+                    break;
+                    break;
+
+            }
+        }
+
+        private void dbDrawBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+
+        }
     }
 }

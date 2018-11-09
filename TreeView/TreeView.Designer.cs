@@ -59,6 +59,8 @@
             this.dbDrawBox.Size = new System.Drawing.Size(336, 540);
             this.dbDrawBox.TabIndex = 2;
             this.dbDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dBDrawBox_DoubleBufferedPaint);
+            this.dbDrawBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dbDrawBox_KeyDown);
+            this.dbDrawBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dbDrawBox_KeyPress);
             this.dbDrawBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseDown);
             this.dbDrawBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseUp);
             // 
