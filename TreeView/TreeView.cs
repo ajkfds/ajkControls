@@ -28,6 +28,39 @@ namespace ajkControls
         //        public delegate void SelectedNodeChangedHandler(PaintEventArgs e);
         //        public event SelectedNodeChangedHandler SelectedNodeChanged;
 
+
+        private bool vScrollBarVisible = true;
+        public bool VScrollBarVisible
+        {
+            get
+            {
+                return vScrollBarVisible;
+            }
+            set
+            {
+                if (vScrollBarVisible == value) return;
+                vScrollBarVisible = value;
+                vScrollBar.Visible = value;
+            }
+        }
+
+
+        private bool hScrollBarVisible = true;
+        public bool HScrollBarVisible
+        {
+            get
+            {
+                return hScrollBarVisible;
+            }
+            set
+            {
+                if (hScrollBarVisible == value) return;
+                hScrollBarVisible = value;
+                hScrollBar.Visible = value;
+            }
+        }
+
+
         public override Font Font
         {
             get { return base.Font; }
