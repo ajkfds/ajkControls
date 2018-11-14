@@ -895,6 +895,9 @@ namespace ajkControls
             if (document.SelectionLast > document.Length) document.SelectionLast = document.Length;
         }
 
+        /// <summary>
+        /// move vscrollbar to carlet visible position
+        /// </summary>
         private void scrollToCaret()
         {
             if (document == null) return;
@@ -917,7 +920,14 @@ namespace ajkControls
                 }
                 else
                 {
-                    vScrollBar.Value = v;
+                    if (v + 1 < vScrollBar.Maximum)
+                    {
+                        vScrollBar.Value = v+1; // to skip half visible line 
+                    }
+                    else
+                    {
+                        vScrollBar.Value = v;
+                    }
                 }
             }
             else
