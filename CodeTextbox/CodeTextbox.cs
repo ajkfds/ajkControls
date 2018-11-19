@@ -23,7 +23,72 @@ namespace ajkControls
         public event EventHandler CarletLineChanged;
         public event KeyPressEventHandler AfterKeyPressed;
         public event KeyEventHandler AfterKeyDown;
+        public event KeyPressEventHandler BeforeKeyPressed;
+        public event KeyEventHandler BeforeKeyDown;
 
+        public void Cut()
+        {
+            if (document == null) return;
+            if (document.SelectionStart == document.SelectionLast) return;
+            document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
+            UpdateVScrollBarRange();
+            caretChanged();
+            selectionChanged();
+            Invoke(new Action(dbDrawBox.Refresh));
+        }
+
+        public void Copy()
+        {
+            if (document == null) return;
+            if (document.SelectionStart == document.SelectionLast) return;
+            string clipText = document.CreateString(document.SelectionStart, document.SelectionLast - document.SelectionStart);
+            Clipboard.SetText(clipText);
+            UpdateVScrollBarRange();
+            caretChanged();
+            selectionChanged();
+            Invoke(new Action(dbDrawBox.Refresh));
+        }
+
+        public void Paste()
+        {
+            if (document == null) return;
+            if (!Clipboard.ContainsText()) return;
+            string newText = Clipboard.GetText();
+            document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, newText);
+            document.CaretIndex = document.SelectionStart + newText.Length;
+            document.SelectionStart = document.CaretIndex;
+            document.SelectionLast = document.CaretIndex;
+            UpdateVScrollBarRange();
+            caretChanged();
+            selectionChanged();
+            Invoke(new Action(dbDrawBox.Refresh));
+        }
+
+        public void Undo()
+        {
+            document.Undo();
+            UpdateVScrollBarRange();
+            caretChanged();
+            scrollToCaret();
+            selectionChanged();
+            Invoke(new Action(dbDrawBox.Refresh));
+        }
+
+
+        private CodeDrawStyle style = new CodeDrawStyle();
+        public CodeDrawStyle Style
+        {
+            get
+            {
+                return style;
+            }
+            set
+            {
+                if (style == value) return;
+                style = value;
+                reGenarateBuffer = true;
+            }
+        }
 
         private float size = 8;
         private void dbDrawBox_MouseWheel(object sender, MouseEventArgs e)
@@ -44,6 +109,7 @@ namespace ajkControls
                 int value = vScrollBar.Value - e.Delta * SystemInformation.MouseWheelScrollLines / 4;
                 if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
                 if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
+                if (value < 0) value = 0;
                 vScrollBar.Value = value;
             }
         }
@@ -257,6 +323,9 @@ namespace ajkControls
         private SolidBrush lineNumberBrush = new SolidBrush(Color.FromArgb(50, Color.SlateGray));
 
         private int xOffset = 0;
+        private int caretX = 0;
+        private int caretY = 0;
+
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
             if (reGenarateBuffer)
@@ -303,6 +372,8 @@ namespace ajkControls
                         {
                             e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
                             e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                            caretX = x;
+                            caretY = y + charSizeY;
                         }
                     }
                     else
@@ -343,6 +414,8 @@ namespace ajkControls
                             {
                                 e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
                                 e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                                caretX = x;
+                                caretY = y + charSizeY;
                             }
 
                             // mark
@@ -360,7 +433,15 @@ namespace ajkControls
                             // selection
                             if (i >= document.SelectionStart && i < document.SelectionLast)
                             {
-                                e.Graphics.FillRectangle(selectionBrush, new Rectangle(x, y, charSizeX, charSizeY));
+                                if(ch == '\t')
+                                {
+                                    xIncrement = tabSize - (lineX % tabSize);
+                                    e.Graphics.FillRectangle(selectionBrush, new Rectangle(x, y, xIncrement * charSizeX, charSizeY));
+                                }
+                                else
+                                {
+                                    e.Graphics.FillRectangle(selectionBrush, new Rectangle(x, y, charSizeX, charSizeY));
+                                }
                             }
 
                             lineX = lineX + xIncrement;
@@ -380,6 +461,11 @@ namespace ajkControls
         public int GetIndexAt(int x,int y)
         {
             return hitIndex(x, y);
+        }
+
+        public Point GetCaretPoint()
+        {
+            return new Point(caretX, caretY);
         }
 
         private int hitIndex(int x,int y)
@@ -557,14 +643,6 @@ namespace ajkControls
             this.OnMouseDoubleClick(e);
         }
 
-        public void Undo()
-        {
-            document.Undo();
-            scrollToCaret();
-            selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
-        }
-
         public void ScrollToCaret()
         {
             scrollToCaret();
@@ -572,12 +650,54 @@ namespace ajkControls
             Invoke(new Action(dbDrawBox.Refresh));
         }
 
+        private bool skipKeyPress = false;
         private void dbDrawBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (document == null || !Editable) return;
+            skipKeyPress = false;
+             if (document == null || !Editable) return;
+            if (BeforeKeyDown != null) BeforeKeyDown(this, e);
+            if (e.Handled)
+            {
+                skipKeyPress = true;
+                scrollToCaret();
+                selectionChanged();
+                if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+                Invoke(new Action(dbDrawBox.Refresh));
+                return;
+            }
 
             switch (e.KeyCode)
             {
+                case Keys.C:
+                    if (e.Modifiers == Keys.Control)
+                    {
+                        Copy();
+                        scrollToCaret();
+                        selectionChanged();
+                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+                        e.Handled = true;
+                    }
+                    break;
+                case Keys.X:
+                    if (e.Modifiers == Keys.Control)
+                    {
+                        Cut();
+                        scrollToCaret();
+                        selectionChanged();
+                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+                        e.Handled = true;
+                    }
+                    break;
+                case Keys.V:
+                    if (e.Modifiers == Keys.Control)
+                    {
+                        Paste();
+                        scrollToCaret();
+                        selectionChanged();
+                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+                        e.Handled = true;
+                    }
+                    break;
                 case Keys.Z:
                     if(e.Modifiers == Keys.Control)
                     {
@@ -631,9 +751,8 @@ namespace ajkControls
                         {
                             document.SelectionStart = document.CaretIndex;
                             document.SelectionLast = document.CaretIndex;
+                            selectionChanged();
                         }
-                        selectionChanged();
-                        Invoke(new Action(dbDrawBox.Refresh));
                         e.Handled = true;
                     }
                     break;
@@ -669,7 +788,6 @@ namespace ajkControls
                         scrollToCaret();
                         selectionChanged();
                         if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
-                        Invoke(new Action(dbDrawBox.Refresh));
                         e.Handled = true;
                     }
                     break;
@@ -705,7 +823,6 @@ namespace ajkControls
                         scrollToCaret();
                         selectionChanged();
                         if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
-                        Invoke(new Action(dbDrawBox.Refresh));
                         e.Handled = true;
                     }
                     break;
@@ -728,7 +845,6 @@ namespace ajkControls
                     UpdateVScrollBarRange();
                     caretChanged();
                     selectionChanged();
-                    Invoke(new Action(dbDrawBox.Refresh));
                     e.Handled = true;
                     break;
                 case Keys.Back:
@@ -751,7 +867,6 @@ namespace ajkControls
                     UpdateVScrollBarRange();
                     caretChanged();
                     selectionChanged();
-                    Invoke(new Action(dbDrawBox.Refresh));
                     e.Handled = true;
                     break;
                 case Keys.Enter:
@@ -790,7 +905,6 @@ namespace ajkControls
                     scrollToCaret();
                     selectionChanged();
                     if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
-                    Invoke(new Action(dbDrawBox.Refresh));
                     e.Handled = true;
                     break;
                 case Keys.Tab:
@@ -819,13 +933,18 @@ namespace ajkControls
                     caretChanged();
                     scrollToCaret();
                     selectionChanged();
-                    Invoke(new Action(dbDrawBox.Refresh));
                     e.Handled = true;
                     break;
                 default:
                     break;
             }
+
             if (AfterKeyDown != null) AfterKeyDown(this, e);
+            if(e.Handled)
+            {
+                Invoke(new Action(dbDrawBox.Refresh));
+                skipKeyPress = true;
+            }
         }
 
         private void dbDrawBox_KeyUp(object sender, KeyEventArgs e)
@@ -836,6 +955,19 @@ namespace ajkControls
         private void dbDrawBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (document == null || !Editable) return;
+            if (skipKeyPress)
+            {
+                skipKeyPress = false;
+                e.Handled = true;
+                return;
+            }
+            if (BeforeKeyPressed != null) BeforeKeyPressed(this, e);
+            if (e.Handled)
+            {
+                Invoke(new Action(dbDrawBox.Refresh));
+                return;
+            }
+
             char inChar = e.KeyChar;
             int prevIndex = document.CaretIndex;
             if(document.GetLineStartIndex(document.GetLineAt(prevIndex)) != prevIndex && prevIndex != 0)
