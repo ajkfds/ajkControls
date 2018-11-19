@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            ajkControls.CodeDrawStyle codeDrawStyle2 = new ajkControls.CodeDrawStyle();
             this.codeTextbox = new ajkControls.CodeTextbox();
-            this.candidatesTreeView = new ajkControls.TreeView();
+            this.vScrollBar = new System.Windows.Forms.VScrollBar();
+            this.doubleBufferedDrawBox = new ajkControls.DoubleBufferedDrawBox();
             this.SuspendLayout();
             // 
             // codeTextbox
@@ -45,23 +47,34 @@
             this.codeTextbox.Name = "codeTextbox";
             this.codeTextbox.ScrollBarVisible = false;
             this.codeTextbox.Size = new System.Drawing.Size(283, 27);
+            this.codeTextbox.Style = codeDrawStyle2;
             this.codeTextbox.TabIndex = 0;
             // 
-            // candidatesTreeView
+            // vScrollBar
             // 
-            this.candidatesTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.candidatesTreeView.Location = new System.Drawing.Point(0, 27);
-            this.candidatesTreeView.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.candidatesTreeView.Name = "candidatesTreeView";
-            this.candidatesTreeView.Size = new System.Drawing.Size(283, 382);
-            this.candidatesTreeView.TabIndex = 1;
+            this.vScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
+            this.vScrollBar.Location = new System.Drawing.Point(257, 27);
+            this.vScrollBar.Name = "vScrollBar";
+            this.vScrollBar.Size = new System.Drawing.Size(26, 382);
+            this.vScrollBar.TabIndex = 1;
+            // 
+            // doubleBufferedDrawBox
+            // 
+            this.doubleBufferedDrawBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.doubleBufferedDrawBox.Location = new System.Drawing.Point(0, 27);
+            this.doubleBufferedDrawBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.doubleBufferedDrawBox.Name = "doubleBufferedDrawBox";
+            this.doubleBufferedDrawBox.Size = new System.Drawing.Size(257, 382);
+            this.doubleBufferedDrawBox.TabIndex = 2;
+            this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.doubleBufferedDrawBox_DoubleBufferedPaint);
             // 
             // SelectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 22F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(283, 409);
-            this.Controls.Add(this.candidatesTreeView);
+            this.Controls.Add(this.doubleBufferedDrawBox);
+            this.Controls.Add(this.vScrollBar);
             this.Controls.Add(this.codeTextbox);
             this.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -75,6 +88,7 @@
         #endregion
 
         private CodeTextbox codeTextbox;
-        private TreeView candidatesTreeView;
+        private System.Windows.Forms.VScrollBar vScrollBar;
+        private DoubleBufferedDrawBox doubleBufferedDrawBox;
     }
 }

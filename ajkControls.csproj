@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeTextbox\CodeDrawStyle.cs" />
     <Compile Include="CodeTextbox\CodeTextbox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -99,7 +100,6 @@
     <Compile Include="TreeView\TreeView.Designer.cs">
       <DependentUpon>TreeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Primitive\Style.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="CodeTextbox\CodeTextbox.resx">

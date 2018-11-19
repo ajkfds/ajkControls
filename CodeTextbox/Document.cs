@@ -162,6 +162,14 @@ namespace ajkControls
             byte[] color = new byte[text.Length];
             byte[] mark = new byte[text.Length];
 
+            if(colorIndex != 0)
+            {
+                for(int i = 0; i < text.Length; i++)
+                {
+                    color[i] = colorIndex;
+                }
+            }
+
             chars.Replace(index, replaceLength, array);
             colors.Replace(index, replaceLength, color);
             marks.Replace(index, replaceLength, mark);
