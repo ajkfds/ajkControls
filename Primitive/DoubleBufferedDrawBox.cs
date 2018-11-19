@@ -32,7 +32,11 @@ namespace ajkControls
         // 特殊キーの無効化
         protected override bool IsInputKey(Keys keyData)
         {
+            return true;
             if (keyData == (Keys.Z | Keys.Control)) return true;
+            if (keyData == (Keys.X | Keys.Control)) return true;
+            if (keyData == (Keys.C | Keys.Control)) return true;
+            if (keyData == (Keys.V | Keys.Control)) return true;
             if (keyData == Keys.Tab) return true;
             if (keyData == (Keys.Tab | Keys.Shift)) return true;
             if (keyData == (Keys.Down | Keys.Shift)) return true;
