@@ -15,7 +15,6 @@ namespace ajkControls
         public TreeView()
         {
             InitializeComponent();
-            grahics = dbDrawBox.CreateGraphics();
             resize();
         }
 
@@ -88,6 +87,7 @@ namespace ajkControls
         int width = 0;
         private void resize()
         {
+            if(grahics==null) grahics = dbDrawBox.CreateGraphics();
             Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(grahics, "A", Font, new Size(100, 100), TextFormatFlags.NoPadding);
             lineHeight = fontSize.Height;
 
