@@ -28,27 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            ajkControls.CodeDrawStyle codeDrawStyle2 = new ajkControls.CodeDrawStyle();
-            this.codeTextbox = new ajkControls.CodeTextbox();
+            ajkControls.CodeDrawStyle codeDrawStyle1 = new ajkControls.CodeDrawStyle();
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
             this.doubleBufferedDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.codeTextbox = new ajkControls.CodeTextbox();
             this.SuspendLayout();
-            // 
-            // codeTextbox
-            // 
-            this.codeTextbox.BackColor = System.Drawing.Color.White;
-            this.codeTextbox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.codeTextbox.Document = null;
-            this.codeTextbox.Editable = true;
-            this.codeTextbox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeTextbox.Location = new System.Drawing.Point(0, 0);
-            this.codeTextbox.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.codeTextbox.MultiLine = false;
-            this.codeTextbox.Name = "codeTextbox";
-            this.codeTextbox.ScrollBarVisible = false;
-            this.codeTextbox.Size = new System.Drawing.Size(283, 27);
-            this.codeTextbox.Style = codeDrawStyle2;
-            this.codeTextbox.TabIndex = 0;
             // 
             // vScrollBar
             // 
@@ -68,6 +52,25 @@
             this.doubleBufferedDrawBox.TabIndex = 2;
             this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.doubleBufferedDrawBox_DoubleBufferedPaint);
             // 
+            // codeTextbox
+            // 
+            this.codeTextbox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.codeTextbox.Dock = System.Windows.Forms.DockStyle.Top;
+            this.codeTextbox.Document = null;
+            this.codeTextbox.Editable = true;
+            this.codeTextbox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeTextbox.Location = new System.Drawing.Point(0, 0);
+            this.codeTextbox.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.codeTextbox.MultiLine = false;
+            this.codeTextbox.Name = "codeTextbox";
+            this.codeTextbox.ScrollBarVisible = false;
+            this.codeTextbox.Size = new System.Drawing.Size(283, 27);
+            this.codeTextbox.Style = codeDrawStyle1;
+            this.codeTextbox.TabIndex = 0;
+            this.codeTextbox.AfterKeyPressed += new System.Windows.Forms.KeyPressEventHandler(this.codeTextbox_AfterKeyPressed);
+            this.codeTextbox.BeforeKeyDown += new System.Windows.Forms.KeyEventHandler(this.codeTextbox_BeforeKeyDown);
+            this.codeTextbox.VisibleChanged += new System.EventHandler(this.codeTextbox_VisibleChanged);
+            // 
             // SelectionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 22F);
@@ -81,6 +84,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "SelectionForm";
             this.Text = "SelectionForm";
+            this.Deactivate += new System.EventHandler(this.SelectionForm_Deactivate);
             this.ResumeLayout(false);
 
         }

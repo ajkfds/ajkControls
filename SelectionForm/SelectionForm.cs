@@ -15,7 +15,12 @@ namespace ajkControls
         public SelectionForm()
         {
             InitializeComponent();
+            Document document = new Document();
+            codeTextbox.Document = document;
         }
+
+        public event EventHandler Selected;
+
 
         public void SetSelectionItems(List<SelectionItem> items)
         {
@@ -23,10 +28,21 @@ namespace ajkControls
             UpdateVisibleItems("");
         }
 
-        protected override bool ShowWithoutActivation
+        public override Font Font
         {
-            get { return true; }
+            get
+            {
+                return base.Font;
+            }
+
+            set
+            {
+                base.Font = value;
+                codeTextbox.Font = Font;
+                codeTextbox.Refresh();
+            }
         }
+
 
         private List<SelectionItem> items = new List<SelectionItem>();
         private List<SelectionItem> visibleItems = new List<SelectionItem>();
@@ -48,12 +64,12 @@ namespace ajkControls
                 visibleItems.Clear();
                 foreach (SelectionItem item in items)
                 {
-                    if (item.Text.StartsWith(inputText))
+                    if (item.Text.ToLower().StartsWith(inputText.ToLower()))
                     {
                         visibleItems.Add(item);
                         continue;
                     }
-                    if (item.Text.Contains(inputText))
+                    if (item.Text.ToLower().Contains(inputText.ToLower()))
                     {
                         partialMatch.Add(item);
                         continue;
@@ -92,7 +108,7 @@ namespace ajkControls
             return selectedItem;
         }
 
-        public void MoveDown()
+        public void moveDown()
         {
             if (!visibleItems.Contains(selectedItem)) return;
             int index = visibleItems.IndexOf(selectedItem);
@@ -104,7 +120,7 @@ namespace ajkControls
             UpdateVisibleItems();
         }
 
-        public void MoveUp()
+        public void moveUp()
         {
             if (!visibleItems.Contains(selectedItem)) return;
             int index = visibleItems.IndexOf(selectedItem);
@@ -164,7 +180,7 @@ namespace ajkControls
                     item.Draw(e.Graphics, leftMargin, y, Font, BackColor, out height);
                     if (setHeight)
                     {
-                        Height = height * visibleLines + topMargin + bottomMargin;
+                        Height = doubleBufferedDrawBox.Top+ height * visibleLines + topMargin + bottomMargin;
                         setHeight = false;
                     }
                     if (item == selectedItem)
@@ -175,5 +191,48 @@ namespace ajkControls
                 }
            }
         }
+
+        private void codeTextbox_VisibleChanged(object sender, EventArgs e)
+        {
+            if (Visible) codeTextbox.Focus();
+            if (codeTextbox.Document != null) codeTextbox.Document.Replace(0, codeTextbox.Document.Length, 0, "");
+            SelectedItem = null;
+        }
+
+        private void SelectionForm_Deactivate(object sender, EventArgs e)
+        {
+            Visible = false;
+        }
+
+        private void codeTextbox_AfterKeyPressed(object sender, KeyPressEventArgs e)
+        {
+            UpdateVisibleItems(codeTextbox.Document.CreateLineString(0));
+        }
+
+        private void codeTextbox_BeforeKeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Escape:
+                    Visible = false;
+                    break;
+                case Keys.Return:
+                    if (selectedItem == null) return;
+                    SelectedItem = selectedItem;
+                    if (Selected != null) Selected(this, EventArgs.Empty);
+                    Visible = false;
+                    break;
+                case Keys.Up:
+                    moveUp();
+                    break;
+                case Keys.Down:
+                    moveDown();
+                    break;
+            }
+        }
+
+        public SelectionItem SelectedItem { get; set; }
+
+
     }
 }
