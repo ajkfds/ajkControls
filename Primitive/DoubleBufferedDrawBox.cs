@@ -29,25 +29,13 @@ namespace ajkControls
             if (DoubleBufferedPaint != null) DoubleBufferedPaint(e);
         }
 
-        // 特殊キーの無効化
+        // activate scecial input keys
         protected override bool IsInputKey(Keys keyData)
         {
             return true;
-            if (keyData == (Keys.Z | Keys.Control)) return true;
-            if (keyData == (Keys.X | Keys.Control)) return true;
-            if (keyData == (Keys.C | Keys.Control)) return true;
-            if (keyData == (Keys.V | Keys.Control)) return true;
-            if (keyData == Keys.Tab) return true;
-            if (keyData == (Keys.Tab | Keys.Shift)) return true;
-            if (keyData == (Keys.Down | Keys.Shift)) return true;
-            if (keyData == (Keys.Up | Keys.Shift)) return true;
-            if (keyData == (Keys.Left | Keys.Shift)) return true;
-            if (keyData == (Keys.Right | Keys.Shift)) return true;
-            if (keyData == Keys.Right || keyData == Keys.Left || keyData == Keys.Up || keyData == Keys.Down) return true;
-            return base.IsInputKey(keyData);
         }
 
-        // IMEを有効にする
+        // enable ime
         public void SetImeEnable(bool value)
         {
             canEnableIme = value;
