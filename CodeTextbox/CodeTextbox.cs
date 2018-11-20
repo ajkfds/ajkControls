@@ -181,11 +181,10 @@ namespace ajkControls
             get { return base.BackColor; }
             set
             {
-                if (base.BackColor != value) // avoid infinite loop on VS designer
-                {
-                    base.BackColor = value;
-                    reGenarateBuffer = true;
-                }
+                if (base.BackColor == value) return; // avoid infinite loop on VS designer
+
+                base.BackColor = value;
+                reGenarateBuffer = true;
             }
         }
 
@@ -346,18 +345,30 @@ namespace ajkControls
             int y = 0;
             lock (document)
             {
-                xOffset = document.Length.ToString().Length + 1;
+                if (multiLine)
+                {
+                    xOffset = document.Length.ToString().Length + 1;
+                }
+                else
+                {
+                    xOffset = 0;
+                }
                 int line = vScrollBar.Value;
                 if (!multiLine) line = document.Lines - 1;
                 while(line < document.Lines)
                 {
+                    if (line > vScrollBar.Value + visibleLines + 2) break;
+
                     // draw line number (right padding)
                     x = (xOffset-2) * charSizeX;
-                    string lineString = line.ToString();
-                    for(int i = 0; i < lineString.Length; i++)
+                    if (multiLine)
                     {
-                        e.Graphics.DrawImage(charBitmap[0, lineString[lineString.Length-i-1]], new Point(x, y));
-                        x = x - charSizeX;
+                        string lineString = line.ToString();
+                        for (int i = 0; i < lineString.Length; i++)
+                        {
+                            e.Graphics.DrawImage(charBitmap[0, lineString[lineString.Length - i - 1]], new Point(x, y));
+                            x = x - charSizeX;
+                        }
                     }
 
                     // draw charactors
@@ -415,7 +426,7 @@ namespace ajkControls
                                 e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
                                 e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
                                 caretX = x;
-                                caretY = y + charSizeY;
+                                caretY = y;
                             }
 
                             // mark
@@ -463,9 +474,14 @@ namespace ajkControls
             return hitIndex(x, y);
         }
 
-        public Point GetCaretPoint()
+        public Point GetCaretTopPoint()
         {
             return new Point(caretX, caretY);
+        }
+
+        public Point GetCaretBottomPoint()
+        {
+            return new Point(caretX, caretY + charSizeY);
         }
 
         private int hitIndex(int x,int y)
