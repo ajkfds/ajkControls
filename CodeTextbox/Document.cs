@@ -142,6 +142,10 @@ namespace ajkControls
             replace(history.Index,history.Length,0,history.ChangedFrom);
         }
 
+        public void ClearHistory()
+        {
+            histories.Clear();
+        }
 
         public void Replace(int index, int replaceLength, byte colorIndex, string text)
         {
