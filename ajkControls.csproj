@@ -53,6 +53,9 @@
       <DependentUpon>CodeTextbox.cs</DependentUpon>
     </Compile>
     <Compile Include="CodeTextbox\Document.cs" />
+    <Compile Include="Json\IJson.cs" />
+    <Compile Include="Json\JsonReader.cs" />
+    <Compile Include="Json\JsonWriter.cs" />
     <Compile Include="Primitive\DoubleBufferedDrawBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -134,5 +137,6 @@
   <ItemGroup>
     <None Include="Resources\question.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

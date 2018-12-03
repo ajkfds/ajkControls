@@ -41,7 +41,7 @@ namespace ajkControls
             if (line < startLine)
             {
                 return "";
-            }else if(line - startLine > lineCache.Count)
+            }else if(line - startLine >= lineCache.Count)
             {
                 return "";
             }
