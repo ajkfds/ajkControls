@@ -63,7 +63,6 @@
       <DependentUpon>DoubleBufferedDrawBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Primitive\Icon.cs" />
-    <Compile Include="LogView\Log.cs" />
     <Compile Include="LogView\LogView.cs">
       <SubType>UserControl</SubType>
     </Compile>
