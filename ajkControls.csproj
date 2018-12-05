@@ -83,6 +83,14 @@
       <DependentUpon>SelectionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SelectionForm\SelectionItem.cs" />
+    <Compile Include="Shells\CommandShell.cs" />
+    <Compile Include="Shells\Shell.cs" />
+    <Compile Include="Shells\ShellPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Shells\ShellPanel.Designer.cs">
+      <DependentUpon>ShellPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="TabControl\TabControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -116,6 +124,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SelectionForm\SelectionForm.resx">
       <DependentUpon>SelectionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Shells\ShellPanel.resx">
+      <DependentUpon>ShellPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TextView\TextView.resx">
       <DependentUpon>TextView.cs</DependentUpon>
