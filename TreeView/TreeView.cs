@@ -19,14 +19,28 @@ namespace ajkControls
         }
 
         public event EventHandler<TreeNode> SelectedNodeChanged;
-        public event EventHandler<TreeNode> NodeClicked;
 
-        //        public delegate void TreeNodeClickedHandler(TreeNode treeNode);
-        //        public event TreeNodeClickedHandler TreeNodeClicked;
+        public class NodeClickedEventArgs : EventArgs
+        {
+            public NodeClickedEventArgs(MouseEventArgs e,TreeNode node)
+            {
+                this.TreeNode = node;
+                this.Button = e.Button;
+                this.Location = e.Location;
+            }
 
-        //        public delegate void SelectedNodeChangedHandler(PaintEventArgs e);
-        //        public event SelectedNodeChangedHandler SelectedNodeChanged;
+            public System.Windows.Forms.MouseButtons Button;
+            public Point Location;
+            public TreeNode TreeNode;
+        }
+        public delegate void NodeClickedEventHandler(object sender, NodeClickedEventArgs e);
+        public event NodeClickedEventHandler NodeClicked;
 
+
+        protected virtual void OnNodeClicked(NodeClickedEventArgs e)
+        {
+            if (NodeClicked != null) NodeClicked(this, e);
+        }
 
         private bool vScrollBarVisible = true;
         public bool VScrollBarVisible
@@ -135,6 +149,13 @@ namespace ajkControls
         private static Icon dotIcon = new Icon(Properties.Resources.dot);
 
         private TreeNode selectedNode = null;
+        public TreeNode SelectedNode
+        {
+            get
+            {
+                return selectedNode;
+            }
+        }
 
         private Color selectedColor = Color.SlateGray;
 
@@ -201,7 +222,7 @@ namespace ajkControls
             {
                 node.Exanded = !node.Exanded;
             }
-            if (NodeClicked != null) NodeClicked(this, node);
+            OnNodeClicked(new NodeClickedEventArgs(e, node));
             Refresh();
         }
 
@@ -261,6 +282,11 @@ namespace ajkControls
         private void dbDrawBox_KeyPress(object sender, KeyPressEventArgs e)
         {
 
+        }
+
+        private void dbDrawBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            OnMouseClick(e);
         }
     }
 }
