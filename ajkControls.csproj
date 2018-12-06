@@ -53,6 +53,8 @@
       <DependentUpon>CodeTextbox.cs</DependentUpon>
     </Compile>
     <Compile Include="CodeTextbox\Document.cs" />
+    <Compile Include="ftp\FileTransfer.cs" />
+    <Compile Include="ftp\FtpClient.cs" />
     <Compile Include="Json\IJson.cs" />
     <Compile Include="Json\JsonReader.cs" />
     <Compile Include="Json\JsonWriter.cs" />
