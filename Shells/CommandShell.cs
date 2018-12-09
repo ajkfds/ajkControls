@@ -8,10 +8,20 @@ namespace ajkControls
 {
     public class CommandShell : Shell
     {
-        System.Diagnostics.Process process = null;
-        public override event ReceivedHandler LineReceived;
+        public CommandShell()
+        {
+            initialize(
+                System.Environment.GetEnvironmentVariable("ComSpec"),   // cmd.exe
+                "" // @"/c dir c:\ /w"; // /c to close after execute
+                );
+        }
 
-        public override void Start()
+        public CommandShell(string command,string arguments)
+        {
+            initialize(command, arguments);
+        }
+
+        private void initialize(string command, string arguments)
         {
             process = new System.Diagnostics.Process();
 
@@ -23,8 +33,16 @@ namespace ajkControls
             process.OutputDataReceived += outputDataReceived;
             process.ErrorDataReceived += errorDataReceived;
 
-            process.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec"); // cmd.exe
-            process.StartInfo.Arguments = "";// @"/c dir c:\ /w"; // /c to close after execute
+            process.StartInfo.FileName = command;
+            process.StartInfo.Arguments = arguments;
+        }
+
+
+        System.Diagnostics.Process process = null;
+        public override event ReceivedHandler LineReceived;
+
+        public override void Start()
+        {
 
             process.Start();
             process.BeginOutputReadLine();
@@ -41,6 +59,25 @@ namespace ajkControls
             process.Close();
         }
 
+        private bool logging = false;
+
+        public override void StartLogging()
+        {
+            lock (logs)
+            {
+                logging = true;
+                logs.Clear();
+            }
+        }
+
+        public override void EndLogging()
+        {
+            lock (logs)
+            {
+                logging = false;
+            }
+        }
+
         public override void Execute(string command)
         {
             System.IO.StreamWriter sw = process.StandardInput;
@@ -51,7 +88,28 @@ namespace ajkControls
         }
 
         List<string> logs = new List<string>();
-        private const int maxLogs = 100;
+
+
+        public override void ClearLogs()
+        {
+            lock (logs)
+            {
+                logs.Clear();
+            }
+        }
+
+        public override List<string> GetLogs()
+        {
+            List<string> ret = new List<string>();
+            lock (logs)
+            {
+                for(int i = 0; i < logs.Count; i++)
+                {
+                    ret.Add(logs[i]);
+                }
+            }
+            return ret;
+        }
 
         public override string GetLastLine()
         {
@@ -72,8 +130,8 @@ namespace ajkControls
         {
             lock (logs)
             {
+                if (!logging) logs.Clear();
                 logs.Add(e.Data);
-                if (logs.Count > maxLogs) logs.RemoveAt(0);
                 if (LineReceived != null) LineReceived(e.Data);
             }
         }
@@ -83,8 +141,8 @@ namespace ajkControls
         {
             lock (logs)
             {
+                if (!logging) logs.Clear();
                 logs.Add(e.Data);
-                if (logs.Count > maxLogs) logs.RemoveAt(0);
                 if (LineReceived != null) LineReceived(e.Data);
             }
         }

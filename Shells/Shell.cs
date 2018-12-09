@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ajkControls
 {
-    public class Shell : IDisposable
+    public abstract class Shell : IDisposable
     {
         public delegate void ReceivedHandler(string lineString);
         public virtual event ReceivedHandler LineReceived;
@@ -19,8 +19,28 @@ namespace ajkControls
         {
         }
 
+        public virtual void StartLogging()
+        {
+
+        }
+
+        public virtual void EndLogging()
+        {
+
+        }
+
         public virtual void Execute(string command)
         {
+        }
+
+        public virtual void ClearLogs()
+        {
+
+        }
+
+        public virtual List<string> GetLogs()
+        {
+            return null;
         }
 
         public virtual string GetLastLine()
