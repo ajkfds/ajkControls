@@ -8,21 +8,49 @@ namespace ajkControls
 {
     public class CommandShell : Shell
     {
+
+        public CommandShell(List<string> commands)
+        {
+//            initializeCommands.Add("prompt "+prompt+"$G$_");
+
+            initialize(
+                System.Environment.GetEnvironmentVariable("ComSpec"),   // cmd.exe
+                "", // @"/c dir c:\ /w"; // /c to close after execute
+                commands
+                );
+        }
+
         public CommandShell()
         {
             initialize(
                 System.Environment.GetEnvironmentVariable("ComSpec"),   // cmd.exe
-                "" // @"/c dir c:\ /w"; // /c to close after execute
+                "", // @"/c dir c:\ /w"; // /c to close after execute
+                new List<string> { }
                 );
         }
 
-        public CommandShell(string command,string arguments)
+        public CommandShell(string command, string arguments)
         {
-            initialize(command, arguments);
+            initialize(
+                command,
+                arguments,
+                new List<string> { }
+                );
         }
 
-        private void initialize(string command, string arguments)
+        public CommandShell(string command, string arguments, List<string> commands)
         {
+            initialize(
+                command,
+                arguments,
+                commands
+                );
+        }
+
+        private void initialize(string command, string arguments,List<string> commands)
+        {
+            initialCommans = commands;
+
             process = new System.Diagnostics.Process();
 
             process.StartInfo.UseShellExecute = false;
@@ -40,6 +68,7 @@ namespace ajkControls
 
         System.Diagnostics.Process process = null;
         public override event ReceivedHandler LineReceived;
+        private List<string> initialCommans;
 
         public override void Start()
         {
@@ -47,15 +76,18 @@ namespace ajkControls
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-
-            process.StandardInput.WriteLine("prompt $P$G$_");
+            foreach(string command in initialCommans)
+            {
+                process.StandardInput.WriteLine(command);
+            }
         }
 
 
         public override void Dispose()
         {
-            process.Kill();
-            process.WaitForExit();
+            process.CloseMainWindow();
+//            process.Kill();
+//            process.WaitForExit();
             process.Close();
         }
 

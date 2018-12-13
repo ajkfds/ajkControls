@@ -130,6 +130,9 @@
     <EmbeddedResource Include="Shells\ShellPanel.resx">
       <DependentUpon>ShellPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="TabControl\TabControl.resx">
+      <DependentUpon>TabControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TextView\TextView.resx">
       <DependentUpon>TextView.cs</DependentUpon>
     </EmbeddedResource>
@@ -149,6 +152,8 @@
   <ItemGroup>
     <None Include="Resources\question.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\closeBottun.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
