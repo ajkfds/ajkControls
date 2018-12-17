@@ -85,10 +85,35 @@ namespace ajkControls
 
         public override void Dispose()
         {
-            process.CloseMainWindow();
-//            process.Kill();
-//            process.WaitForExit();
+            KillProcessAndChildrens(process.Id); // recursive process kill ( process.kill will not kill child process booted on cmd.exe );
+            
+            process.WaitForExit();
             process.Close();
+        }
+
+        private static void KillProcessAndChildrens(int pid)
+        {
+            System.Management.ManagementObjectSearcher processSearcher = new System.Management.ManagementObjectSearcher
+              ("Select * From Win32_Process Where ParentProcessID=" + pid);
+            System.Management.ManagementObjectCollection processCollection = processSearcher.Get();
+
+            try
+            {
+                System.Diagnostics.Process proc = System.Diagnostics.Process.GetProcessById(pid);
+                if (!proc.HasExited) proc.Kill();
+            }
+            catch (ArgumentException)
+            {
+                // already exited
+            }
+
+            if (processCollection != null)
+            {
+                foreach (System.Management.ManagementObject child in processCollection)
+                {
+                    KillProcessAndChildrens(Convert.ToInt32(child["ProcessID"]));
+                }
+            }
         }
 
         private bool logging = false;

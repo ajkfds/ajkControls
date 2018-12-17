@@ -123,7 +123,14 @@ namespace ajkControls
                     }
                 }
 
-                e.Graphics.DrawImage(bmp, tabRect.X, tabRect.Y, bmp.Width, bmp.Height);
+                if(state == System.Windows.Forms.VisualStyles.TabItemState.Selected)
+                {
+                    e.Graphics.DrawImage(bmp, tabRect.X, tabRect.Y, bmp.Width, bmp.Height);
+                }
+                else
+                {
+                    e.Graphics.DrawImage(bmp, tabRect.X, tabRect.Y+1, bmp.Width, bmp.Height);
+                }
 
                 bmp.Dispose();
             }
