@@ -26,9 +26,9 @@ namespace ajkControls
             if (MessageReceived != null) MessageReceived(this, e);
         }
 
-        public void Dispose() { }
+        public virtual void Dispose() { }
 
-        public bool KeepAlive { get; set; }
+        public virtual bool KeepAlive { get; set; }
 
         public virtual bool DownloadFile(string localPath, string serverPath)
         {
