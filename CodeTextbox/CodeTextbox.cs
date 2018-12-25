@@ -677,7 +677,7 @@ namespace ajkControls
                 skipKeyPress = true;
                 scrollToCaret();
                 selectionChanged();
-                if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+//                if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                 Invoke(new Action(dbDrawBox.Refresh));
                 return;
             }
@@ -924,6 +924,7 @@ namespace ajkControls
                     e.Handled = true;
                     break;
                 case Keys.Tab:
+                    // multiple lines indent
                     if (document.SelectionStart == document.SelectionLast) break;
                     int lineStart = document.GetLineAt(document.SelectionStart);
                     int lineLast = document.GetLineAt(document.SelectionLast);
@@ -997,7 +998,14 @@ namespace ajkControls
                 {
                     System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
                     sw.Start();
-                    document.Replace(document.CaretIndex, 0, document.GetColorAt(prevIndex), inChar.ToString());
+                    if(inChar == '\t' || inChar == ' ')
+                    {   // use default color for tab and space
+                        document.Replace(document.CaretIndex, 0, 0, inChar.ToString());
+                    }
+                    else
+                    {
+                        document.Replace(document.CaretIndex, 0, document.GetColorAt(prevIndex), inChar.ToString());
+                    }
                     document.CaretIndex++;
                     sw.Stop();
                     UpdateVScrollBarRange();
