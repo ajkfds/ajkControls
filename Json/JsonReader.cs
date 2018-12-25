@@ -64,10 +64,15 @@ namespace ajkControls
 
 
             if (nextToken == null) nextToken = getToken();
-            if (nextToken == null) return null;
-            if (nextToken == "}") return null;
+            if (nextToken == null || nextToken == "}")
+            {
+                Dispose();
+                return null;
+            }
+
             if(nextToken.Length < 2 || nextToken.First() != '\"' || nextToken.Last() != '\"')
             {
+                System.Diagnostics.Debugger.Break();
                 throw new Exception("illegal format");
             }
             string token = nextToken;
@@ -78,8 +83,11 @@ namespace ajkControls
             }
 
             nextToken = null;
-            return token.Substring(1, token.Length - 2);
+            Key = token.Substring(1, token.Length - 2);
+            return Key;
         }
+
+        public string Key { get; protected set; }
 
         public int GetNextIntValue()
         {
