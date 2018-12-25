@@ -30,6 +30,12 @@ namespace ajkControls
             return images[index];
         }
 
+        public System.Drawing.Icon GetSystemDrawingIcon(int size, ColorStyle color)
+        {
+            Image image = GetImage(size, color);
+            return System.Drawing.Icon.FromHandle(((System.Drawing.Bitmap)image).GetHicon());
+        }
+
         Dictionary<ColorStyle, Image> coloredImages = new Dictionary<ColorStyle, Image>();
         Dictionary<int, Image> images = new Dictionary<int, Image>();
 
