@@ -101,6 +101,11 @@ namespace ajkControls
             marks.CopyFrom(document.marks);
         }
 
+        public void CopyLineIndexFrom(Document document)
+        {
+            newLineIndex.CopyFrom(document.newLineIndex);
+        }
+
         public void CopyCharsFrom(Document document)
         {
             chars.CopyFrom(document.chars);
@@ -150,7 +155,7 @@ namespace ajkControls
         public void Replace(int index, int replaceLength, byte colorIndex, string text)
         {
             histories.Add(new History(index, text.Length, CreateString(index, replaceLength)));
-            EditID++;
+           EditID++;
             if (histories.Count > HistoryMaxLimit)
             {
                 histories.RemoveAt(0);
