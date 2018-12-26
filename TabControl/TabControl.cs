@@ -107,7 +107,7 @@ namespace ajkControls
                         }
                         if (tabPage != null && tabPage.CloseButtonEnable)
                         {
-                            g.DrawImage(closeButtonIcon.GetImage(FontHeight, Icon.ColorStyle.White), new Point(bmp.Width - FontHeight, 1));
+                            g.DrawImage(closeButtonIcon.GetImage(FontHeight, Icon.ColorStyle.White), new Point(bmp.Width - FontHeight, bmp.Height/2-FontHeight/2));
                             width = width - FontHeight;
                         }
 
