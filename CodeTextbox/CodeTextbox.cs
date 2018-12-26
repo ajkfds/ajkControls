@@ -670,7 +670,9 @@ namespace ajkControls
         private void dbDrawBox_KeyDown(object sender, KeyEventArgs e)
         {
             skipKeyPress = false;
-             if (document == null || !Editable) return;
+            if (document == null || !Editable) return;
+
+            int lineBeforeEdit = document.GetLineAt(document.CaretIndex);
             if (BeforeKeyDown != null) BeforeKeyDown(this, e);
             if (e.Handled)
             {
@@ -700,7 +702,6 @@ namespace ajkControls
                         Cut();
                         scrollToCaret();
                         selectionChanged();
-                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                         e.Handled = true;
                     }
                     break;
@@ -710,7 +711,6 @@ namespace ajkControls
                         Paste();
                         scrollToCaret();
                         selectionChanged();
-                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                         e.Handled = true;
                     }
                     break;
@@ -803,7 +803,6 @@ namespace ajkControls
                         }
                         scrollToCaret();
                         selectionChanged();
-                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                         e.Handled = true;
                     }
                     break;
@@ -838,7 +837,6 @@ namespace ajkControls
                         }
                         scrollToCaret();
                         selectionChanged();
-                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                         e.Handled = true;
                     }
                     break;
@@ -920,7 +918,6 @@ namespace ajkControls
                     caretChanged();
                     scrollToCaret();
                     selectionChanged();
-                    if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                     e.Handled = true;
                     break;
                 case Keys.Tab:
@@ -957,7 +954,13 @@ namespace ajkControls
             }
 
             if (AfterKeyDown != null) AfterKeyDown(this, e);
-            if(e.Handled)
+            int lineAfterEdit = document.GetLineAt(document.CaretIndex);
+            if(lineBeforeEdit != lineAfterEdit)
+            {
+                if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+            }
+
+            if (e.Handled)
             {
                 Invoke(new Action(dbDrawBox.Refresh));
                 skipKeyPress = true;
