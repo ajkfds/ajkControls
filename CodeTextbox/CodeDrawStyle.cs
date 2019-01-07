@@ -58,16 +58,16 @@ namespace ajkControls
             get
             {
                 return new CodeTextbox.MarkStyleEnum[8]
-        {
-            CodeTextbox.MarkStyleEnum.wave,    // 0
-            CodeTextbox.MarkStyleEnum.underLine,
-            CodeTextbox.MarkStyleEnum.underLine,
-            CodeTextbox.MarkStyleEnum.underLine,
-            CodeTextbox.MarkStyleEnum.underLine,
-            CodeTextbox.MarkStyleEnum.underLine,
-            CodeTextbox.MarkStyleEnum.underLine,
-            CodeTextbox.MarkStyleEnum.underLine
-        };
+                    {
+                        CodeTextbox.MarkStyleEnum.wave,    // 0
+                        CodeTextbox.MarkStyleEnum.underLine,
+                        CodeTextbox.MarkStyleEnum.underLine,
+                        CodeTextbox.MarkStyleEnum.underLine,
+                        CodeTextbox.MarkStyleEnum.underLine,
+                        CodeTextbox.MarkStyleEnum.underLine,
+                        CodeTextbox.MarkStyleEnum.underLine,
+                        CodeTextbox.MarkStyleEnum.underLine
+                    };
             }
         }
     }
