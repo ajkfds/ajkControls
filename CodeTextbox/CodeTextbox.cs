@@ -8,8 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using System.Runtime.InteropServices;
+
+
 namespace ajkControls
 {
+
     public partial class CodeTextbox : UserControl
     {
         public CodeTextbox()
@@ -19,6 +23,35 @@ namespace ajkControls
             resizeCharSize();
             this.dbDrawBox.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseWheel);
         }
+
+        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+        extern static int TextOut(IntPtr hdc, int x, int y, string text, int length);
+
+        [DllImport("gdi32.dll")]
+        private static extern int SelectObject(IntPtr hdc, IntPtr hgdiObj);
+
+        [DllImport("gdi32.dll")]
+        private static extern bool DeleteObject(IntPtr hObject);
+
+        [DllImport("gdi32.dll")]
+        private static extern int SetTextColor(IntPtr hdc, int color);
+
+        [DllImport("user32.dll", EntryPoint = "GetDC")]
+        static extern IntPtr GetDC(IntPtr hWnd);
+
+        [DllImport("gdi32.dll")]
+        static extern bool FillRgn(IntPtr hdc, IntPtr hrgn, IntPtr hbr);
+
+        [DllImport("gdi32.dll")]
+        static extern IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect,
+            int nBottomRect);
+
+        [DllImport("gdi32.dll")]
+        static extern IntPtr CreateSolidBrush(uint crColor);
+
+        [DllImport("gdi32.dll")]
+        static extern uint SetBkColor(IntPtr hdc, int crColor);
+
 
         public event EventHandler CarletLineChanged;
         public event KeyPressEventHandler AfterKeyPressed;
@@ -30,6 +63,8 @@ namespace ajkControls
         {
             if (document == null) return;
             if (document.SelectionStart == document.SelectionLast) return;
+            string clipText = document.CreateString(document.SelectionStart, document.SelectionLast - document.SelectionStart);
+            Clipboard.SetText(clipText);
             document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
             UpdateVScrollBarRange();
             caretChanged();
@@ -102,7 +137,8 @@ namespace ajkControls
                 this.Font = new Font(this.Font.FontFamily, size);
                 resizeCharSize();
                 reGenarateBuffer = true;
-                Invoke(new Action(dbDrawBox.Refresh));
+                dbDrawBox.Refresh();
+//                Invoke(new Action(dbDrawBox.Refresh));
             }
             else
             {
@@ -141,7 +177,7 @@ namespace ajkControls
                 if (multiLine == value) return;
                 multiLine = value;
                 Invoke(new Action(dbDrawBox.Refresh));
-                if(multiLine == false)
+                if (multiLine == false)
                 {
                     if (ScrollBarVisible) ScrollBarVisible = false;
                     resizeCharSize();
@@ -203,7 +239,7 @@ namespace ajkControls
             charSizeX = fontSize.Width;
             charSizeY = fontSize.Height;
 
-            visibleLines = (int)Math.Ceiling( (double)(dbDrawBox.Height / charSizeY) );
+            visibleLines = (int)Math.Ceiling((double)(dbDrawBox.Height / charSizeY));
             vScrollBar.LargeChange = visibleLines;
             UpdateVScrollBarRange();
         }
@@ -217,57 +253,81 @@ namespace ajkControls
         private void createGraphicsBuffer()
         {
             System.Diagnostics.Debug.Print("regen buffer");
-            for (int color = 0; color < 16; color++)
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
+            Bitmap bmp = new Bitmap(charSizeX, charSizeY);
+            Color controlColor = Color.DarkGray;
+            Pen controlPen = new Pen(controlColor);
+            
+            using (Graphics g = Graphics.FromImage(bmp))
             {
-                for (int i = 0; i < 128; i++)
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                for (int colorIndex = 0; colorIndex < 16; colorIndex++)
                 {
-                    if(charBitmap[color, i] != null)
-                    {
-                        charBitmap[color, i].Dispose();
-                    }
-                    charBitmap[color, i] = new Bitmap(charSizeX, charSizeY);
-                    using (Graphics gc = Graphics.FromImage(charBitmap[color, i]))
-                    {
-                        gc.Clear(BackColor);
-                        gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        if (i < 0x20)
-                        { // control codes
-                            Color controlColor = Color.DarkGray;
-                            Pen controlPen = new Pen(controlColor);
-                            switch (i)
-                            {
-                                case '\r':
-                                    gc.DrawLine(controlPen, new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
+                    Color color = Style.ColorPallet[colorIndex];
+                    int colorNo = (color.B << 16) + (color.G << 8) + color.R;
 
-                                    gc.DrawLine(controlPen, new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
-                                    gc.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.4)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
-                                    gc.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.8)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
-                                    break;
-                                case '\n':
-                                    gc.DrawLine(controlPen, new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                                    gc.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                                    gc.DrawLine(controlPen, new Point((int)(charSizeX * 0.8), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                                    break;
-                                default:
-                                    gc.DrawRectangle(new Pen(Color.DarkGray), new Rectangle(1, 1 + 2, charSizeX - 2, charSizeY - 2 - 2));
-                                    break;
-                            }
-
-                        }
-                        else
+                    for (int i = 0; i < 0x20; i++)
+                    {
+                        g.Clear(BackColor);
+                        // control codes
+                        switch (i)
                         {
-                            if (i == 0x26)
-                            {
-                                System.Windows.Forms.TextRenderer.DrawText(gc, "&&", Font, new Point(0, 0), Style.ColorPallet[color], BackColor, TextFormatFlags.NoPadding);
-                            }
-                            else
-                            {
-                                System.Windows.Forms.TextRenderer.DrawText(gc, ((char)i).ToString(), Font, new Point(0, 0), Style.ColorPallet[color], BackColor, TextFormatFlags.NoPadding);
-                            }
+                            case '\r':
+                                g.DrawLine(controlPen, new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
+
+                                g.DrawLine(controlPen, new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
+                                g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.4)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
+                                g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.8)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
+                                break;
+                            case '\n':
+                                g.DrawLine(controlPen, new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
+                                g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
+                                g.DrawLine(controlPen, new Point((int)(charSizeX * 0.8), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
+                                break;
+                            default:
+                                g.DrawRectangle(new Pen(Color.DarkGray), new Rectangle(1, 1 + 2, charSizeX - 2, charSizeY - 2 - 2));
+                                break;
                         }
+                        if (charBitmap[colorIndex, i] != null) charBitmap[colorIndex, i].Dispose();
+                        charBitmap[colorIndex, i] = (Bitmap)bmp.Clone();
                     }
                 }
+
+                System.Diagnostics.Debug.Print("regen buffer0 " + sw.ElapsedMilliseconds.ToString() + "ms");
+                for (int colorIndex = 0; colorIndex < 16; colorIndex++)
+                {
+                    Color color = Style.ColorPallet[colorIndex];
+                    int colorNo = (color.B << 16) + (color.G << 8) + color.R;
+
+                    for (int i = 0x20; i < 128; i++)
+                    {
+                        //if (i == 0x26)
+                        //{
+                        //    System.Windows.Forms.TextRenderer.DrawText(gc, "&&", Font, new Point(0, 0), Style.ColorPallet[color], BackColor, TextFormatFlags.NoPadding);
+                        //}
+                        //else
+                        //{
+                        //    System.Windows.Forms.TextRenderer.DrawText(gc, ((char)i).ToString(), Font, new Point(0, 0), Style.ColorPallet[color], BackColor, TextFormatFlags.NoPadding);
+                        //}
+                        IntPtr hDC = g.GetHdc();
+                        IntPtr hFont = this.Font.ToHfont();
+                        IntPtr hOldFont = (IntPtr)SelectObject(hDC, hFont);
+
+                        SetTextColor(hDC, colorNo);
+                        TextOut(hDC, 0, 0, ((char)i).ToString(), 1);
+
+                        DeleteObject((IntPtr)SelectObject(hDC, hOldFont));
+                        g.ReleaseHdc(hDC);
+                        if (charBitmap[colorIndex, i] != null) charBitmap[colorIndex, i].Dispose();
+                        charBitmap[colorIndex, i] = (Bitmap)bmp.Clone();
+                    }
+                }
+
             }
+            System.Diagnostics.Debug.Print("regen buffer1 " + sw.ElapsedMilliseconds.ToString() + "ms");
             for (int mark = 0; mark < 8; mark++)
             {
                 if (markBitmap[mark] != null) markBitmap[mark].Dispose();
@@ -275,24 +335,24 @@ namespace ajkControls
                 using (Graphics gc = Graphics.FromImage(markBitmap[mark]))
                 {
                     gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                    Pen controlPen = new Pen(Style.MarkColor[mark]);
+                    controlPen = new Pen(Style.MarkColor[mark]);
                     switch (Style.MarkStyle[mark])
                     {
                         case MarkStyleEnum.underLine:
                             for (int i = 0; i < 2; i++)
                             {
                                 gc.DrawLine(controlPen,
-                                new Point(0, (int)(charSizeY * 0.8)+i),
-                                new Point((int)charSizeX, (int)(charSizeY * 0.8)+i)
+                                new Point(0, (int)(charSizeY * 0.8) + i),
+                                new Point((int)charSizeX, (int)(charSizeY * 0.8) + i)
                                 );
                             }
                             break;
                         case MarkStyleEnum.wave:
-                            for(int i = 0; i < 2; i++)
+                            for (int i = 0; i < 2; i++)
                             {
                                 gc.DrawLine(controlPen,
-                                    new Point((int)(charSizeX * 0.25 * 0), (int)(charSizeY * 0.85)+i),
-                                    new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8)+i)
+                                    new Point((int)(charSizeX * 0.25 * 0), (int)(charSizeY * 0.85) + i),
+                                    new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i)
                                     );
                                 gc.DrawLine(controlPen,
                                     new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i),
@@ -306,8 +366,11 @@ namespace ajkControls
                             break;
                     }
                 }
+
             }
+            System.Diagnostics.Debug.Print("regen buffer "+sw.ElapsedMilliseconds.ToString()+"ms");
         }
+
 
         public enum MarkStyleEnum
         {
@@ -318,7 +381,7 @@ namespace ajkControls
 
         // draw image
         private int tabSize = 4;
-        private SolidBrush selectionBrush = new SolidBrush(Color.FromArgb(100, Color.Turquoise));
+        private SolidBrush selectionBrush = new SolidBrush(Color.FromArgb(80, Color.SlateGray));
         private SolidBrush lineNumberBrush = new SolidBrush(Color.FromArgb(50, Color.SlateGray));
 
         private int xOffset = 0;
@@ -347,12 +410,15 @@ namespace ajkControls
             {
                 if (multiLine)
                 {
-                    xOffset = document.Length.ToString().Length + 1;
+                    int lines = document.Lines;
+                    if (lines < 1000) lines = 1000;
+                    xOffset = lines.ToString().Length + 1;
                 }
                 else
                 {
                     xOffset = 0;
                 }
+
                 int line = vScrollBar.Value;
                 if (!multiLine) line = document.Lines - 1;
                 while(line < document.Lines)
@@ -679,7 +745,6 @@ namespace ajkControls
                 skipKeyPress = true;
                 scrollToCaret();
                 selectionChanged();
-//                if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                 Invoke(new Action(dbDrawBox.Refresh));
                 return;
             }
