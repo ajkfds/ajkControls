@@ -16,6 +16,10 @@ namespace ajkControls
         {
             InitializeComponent();
             resize();
+            this.dbDrawBox.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseWheel);
+
+            this.vScrollBar.Width = Global.ScrollBarWidth;
+            this.hScrollBar.Height = Global.ScrollBarWidth;
         }
 
         public event EventHandler<TreeNode> SelectedNodeChanged;
@@ -205,6 +209,15 @@ namespace ajkControls
 
             node = orderedNode[index];
             if (x < (node.Depth+1) * lineHeight) leftArea = true;
+        }
+
+        private void dbDrawBox_MouseWheel(object sender, MouseEventArgs e)
+        {
+            int value = vScrollBar.Value - (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
+            if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
+            if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
+            if (value < 0) value = 0;
+            vScrollBar.Value = value;
         }
 
         private void dbDrawBox_MouseDown(object sender, MouseEventArgs e)

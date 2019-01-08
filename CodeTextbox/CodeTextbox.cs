@@ -22,6 +22,9 @@ namespace ajkControls
             dbDrawBox.SetImeEnable(true);
             resizeCharSize();
             this.dbDrawBox.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseWheel);
+
+            this.vScrollBar.Width = Global.ScrollBarWidth;
+            this.hScrollBar.Height = Global.ScrollBarWidth;
         }
 
         [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
@@ -138,11 +141,10 @@ namespace ajkControls
                 resizeCharSize();
                 reGenarateBuffer = true;
                 dbDrawBox.Refresh();
-//                Invoke(new Action(dbDrawBox.Refresh));
             }
             else
             {
-                int value = vScrollBar.Value - e.Delta * SystemInformation.MouseWheelScrollLines / 4;
+                int value = vScrollBar.Value - (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
                 if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
                 if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
                 if (value < 0) value = 0;

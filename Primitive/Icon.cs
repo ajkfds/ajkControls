@@ -53,10 +53,12 @@ namespace ajkControls
         {
             switch (style)
             {
+                case ColorStyle.Gray: return shiftImageColor(originalImage, 2f, 2f, 2f);
+                case ColorStyle.Red:  return shiftImageColor(originalImage, 5f, 2f, 2f);
                 case ColorStyle.Blue: return shiftImageColor(originalImage, 2f, 2.5f, 5f);
-                case ColorStyle.Red: return shiftImageColor(originalImage, 5f, 2f, 2f);
-                case ColorStyle.Green: return shiftImageColor(originalImage, 5f, 2f, 2f);
+                case ColorStyle.Green: return shiftImageColor(originalImage, 2f, 5f, 2f);
                 case ColorStyle.White: return shiftImageColor(originalImage, 3f, 3f, 3f);
+
                 default:    return originalImage;
             }
         }
@@ -73,6 +75,12 @@ namespace ajkControls
 
             return resizeBmp;
         }
+
+        // original image
+        // 0x00 ,0x40, 0xff
+        // after
+        // x, x*2, 0xff
+
 
 
         // value

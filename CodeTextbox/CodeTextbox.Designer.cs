@@ -36,17 +36,17 @@
             // hScrollBar
             // 
             this.hScrollBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.hScrollBar.Location = new System.Drawing.Point(0, 531);
+            this.hScrollBar.Location = new System.Drawing.Point(0, 537);
             this.hScrollBar.Name = "hScrollBar";
-            this.hScrollBar.Size = new System.Drawing.Size(493, 26);
+            this.hScrollBar.Size = new System.Drawing.Size(493, 20);
             this.hScrollBar.TabIndex = 1;
             // 
             // vScrollBar
             // 
             this.vScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.vScrollBar.Location = new System.Drawing.Point(467, 0);
+            this.vScrollBar.Location = new System.Drawing.Point(473, 0);
             this.vScrollBar.Name = "vScrollBar";
-            this.vScrollBar.Size = new System.Drawing.Size(26, 531);
+            this.vScrollBar.Size = new System.Drawing.Size(20, 537);
             this.vScrollBar.TabIndex = 2;
             this.vScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScrollBar_Scroll);
             this.vScrollBar.ValueChanged += new System.EventHandler(this.vScrollBar_ValueChanged);
@@ -58,7 +58,7 @@
             this.dbDrawBox.Location = new System.Drawing.Point(0, 0);
             this.dbDrawBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.dbDrawBox.Name = "dbDrawBox";
-            this.dbDrawBox.Size = new System.Drawing.Size(467, 531);
+            this.dbDrawBox.Size = new System.Drawing.Size(473, 537);
             this.dbDrawBox.TabIndex = 0;
             this.dbDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dbDrawBox_DoubleBufferedPaint);
             this.dbDrawBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dbDrawBox_KeyDown);

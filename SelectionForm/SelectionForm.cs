@@ -17,6 +17,8 @@ namespace ajkControls
             InitializeComponent();
             Document document = new Document();
             codeTextbox.Document = document;
+
+            this.Font = Global.UiDefaultFont;
         }
 
         public event EventHandler Selected;
