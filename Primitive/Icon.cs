@@ -46,18 +46,20 @@ namespace ajkControls
             Red = 2,
             Blue = 3,
             Green = 4,
-            White = 5
+            White = 5,
+            Orange = 6,
         }
 
         private Image CreateColorImage(ColorStyle style,Image originalImage)
         {
             switch (style)
             {
-                case ColorStyle.Gray: return shiftImageColor(originalImage, 2f, 2f, 2f);
-                case ColorStyle.Red:  return shiftImageColor(originalImage, 5f, 2f, 2f);
-                case ColorStyle.Blue: return shiftImageColor(originalImage, 2f, 2.5f, 5f);
-                case ColorStyle.Green: return shiftImageColor(originalImage, 2f, 5f, 2f);
-                case ColorStyle.White: return shiftImageColor(originalImage, 3f, 3f, 3f);
+                case ColorStyle.Gray:   return shiftImageColor(originalImage, Color.DarkGray,  Color.LightGray);
+                case ColorStyle.Red:    return shiftImageColor(originalImage, Color.DarkRed,   Color.LightPink);
+                case ColorStyle.Blue:   return shiftImageColor(originalImage, Color.DarkBlue,  Color.LightBlue);
+                case ColorStyle.Green:  return shiftImageColor(originalImage, Color.DarkGreen, Color.FromArgb(180, 255, 180) );
+                case ColorStyle.White:  return shiftImageColor(originalImage, Color.FromArgb(16,16,16) , Color.White);
+                case ColorStyle.Orange: return shiftImageColor(originalImage, Color.DarkOrange, Color.LemonChiffon);
 
                 default:    return originalImage;
             }
@@ -76,41 +78,38 @@ namespace ajkControls
             return resizeBmp;
         }
 
-        // original image
-        // 0x00 ,0x40, 0xff
-        // after
-        // x, x*2, 0xff
+        // --- original image ---
+        // 0 ->     0.25 -> 1
+        // ------ after ---------
+        // line ->  fill -> white
 
+        // after = original * ratio + shift
 
+        // line = 0 * ratio + shift
+        // fill = 0.25 * ratio + shift
+        // 1 <= 1*ratio + fill
 
-        // value
-        // value * ratio + shift
+        // shift = line
+        // ratio = (fill-line)*4
 
-        // 0 * ratio + shift
-        // 0.5 * ratio + shift
-        // 1 * ratio + shift
-
-        private Image shiftImageColor(Image sourceImage,float rShift,float gShift,float bShift)
+       
+        private Image shiftImageColor(Image sourceImage, Color lineColor,Color fillColor)
         {
-            // keep black & white
-            // shift intermediate colors
+            float rShift = (float)lineColor.R / 256;
+            float gShift = (float)lineColor.G / 256;
+            float bShift = (float)lineColor.B / 256;
 
-/*            float[][] matrixElement =
-            {
-                new float[]{rShift, 0,      0,      0,      0},
-                new float[]{0,      gShift, 0,      0,      0},
-                new float[]{0,      0,      bShift, 0,      0},
-                new float[]{0,      0,      0,      1,      0},
-                new float[]{0,      0,      0,      0,      1} // shift
-            };
-            */
+            float rRatio = (float)(fillColor.R - lineColor.R) / 256*4;
+            float gRatio = (float)(fillColor.G - lineColor.G) / 256*4;
+            float bRatio = (float)(fillColor.B - lineColor.B) / 256*4;
+
             float[][] matrixElement =
             {
-                new float[]{rShift, 0,      0,      0,      0},
-                new float[]{0,      gShift, 0,      0,      0},
-                new float[]{0,      0,      bShift, 0,      0},
+                new float[]{rRatio, 0,      0,      0,      0},
+                new float[]{0,      gRatio, 0,      0,      0},
+                new float[]{0,      0,      bRatio, 0,      0},
                 new float[]{0,      0,      0,      1,      0},
-                new float[]{rShift/10, gShift/10, bShift/10, 0,      1} // shift
+                new float[]{rShift, gShift, bShift, 0,      1} // shift
             };
 
             var matrix = new System.Drawing.Imaging.ColorMatrix(matrixElement);
@@ -123,15 +122,15 @@ namespace ajkControls
 
             Bitmap changedImage = new Bitmap(imageWidth, imageHeight);
 
-            Graphics g = Graphics.FromImage(changedImage);
+            Graphics gr = Graphics.FromImage(changedImage);
 
-            g.DrawImage(sourceImage,
+            gr.DrawImage(sourceImage,
                     new Rectangle(0, 0, imageWidth, imageHeight),
                     0, 0, imageWidth, imageHeight,
                     GraphicsUnit.Pixel,
                     attr);
 
-            g.Dispose();
+            gr.Dispose();
 
             return changedImage;
         }
