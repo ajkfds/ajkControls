@@ -1,4 +1,24 @@
-﻿using System;
+﻿//Copyright(c) 2018 ajkfds
+
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -138,8 +158,6 @@ namespace ajkControls
                 if (size < 5) size = 5;
                 if (size > 20) size = 20;
                 this.Font = new Font(this.Font.FontFamily, size);
-                resizeCharSize();
-                reGenarateBuffer = true;
                 dbDrawBox.Refresh();
             }
             else
@@ -182,8 +200,8 @@ namespace ajkControls
                 if (multiLine == false)
                 {
                     if (ScrollBarVisible) ScrollBarVisible = false;
-                    resizeCharSize();
                     Height = charSizeY;
+                    resizeDrawBuffer();
                 }
             }
         }
@@ -210,7 +228,7 @@ namespace ajkControls
             {
                 base.Font = value;
                 size = value.SizeInPoints;
-                reGenarateBuffer = true;
+                resizeCharSize();
             }
         }
 
@@ -228,20 +246,35 @@ namespace ajkControls
 
         private void CodeTextbox_Resize(object sender, EventArgs e)
         {
-            resizeCharSize();
+            System.Diagnostics.Debug.Print("codeTextbox_resize");
+            resizeDrawBuffer();
         }
+
+        private void dbDrawBox_Resize(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.Print("dbDrawdbox_resize");
+            //            resizeCharSize();
+        }
+
 
         int charSizeX = 0;
         int charSizeY = 0;
         int visibleLines = 10;
         private void resizeCharSize()
         {
+            System.Diagnostics.Debug.Print("risezicharsize");
             Graphics g = dbDrawBox.CreateGraphics();
             Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(g, "A", Font, new Size(100, 100), TextFormatFlags.NoPadding);
             charSizeX = fontSize.Width;
             charSizeY = fontSize.Height;
+            resizeDrawBuffer();
+            reGenarateBuffer = true;
+        }
 
+        private void resizeDrawBuffer()
+        {
             visibleLines = (int)Math.Ceiling((double)(dbDrawBox.Height / charSizeY));
+            System.Diagnostics.Debug.Print("risezicharsize visibleLines " + visibleLines.ToString());
             vScrollBar.LargeChange = visibleLines;
             UpdateVScrollBarRange();
         }
@@ -297,8 +330,9 @@ namespace ajkControls
                         charBitmap[colorIndex, i] = (Bitmap)bmp.Clone();
                     }
                 }
+                g.Clear(BackColor);
 
-                System.Diagnostics.Debug.Print("regen buffer0 " + sw.ElapsedMilliseconds.ToString() + "ms");
+                //                System.Diagnostics.Debug.Print("regen buffer0 " + sw.ElapsedMilliseconds.ToString() + "ms");
                 for (int colorIndex = 0; colorIndex < 16; colorIndex++)
                 {
                     Color color = Style.ColorPallet[colorIndex];
@@ -329,7 +363,7 @@ namespace ajkControls
                 }
 
             }
-            System.Diagnostics.Debug.Print("regen buffer1 " + sw.ElapsedMilliseconds.ToString() + "ms");
+//            System.Diagnostics.Debug.Print("regen buffer1 " + sw.ElapsedMilliseconds.ToString() + "ms");
             for (int mark = 0; mark < 8; mark++)
             {
                 if (markBitmap[mark] != null) markBitmap[mark].Dispose();
@@ -392,12 +426,12 @@ namespace ajkControls
 
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
+            System.Diagnostics.Debug.Print("dbDrawBox_DoubleBufferedPaint "+visibleLines.ToString());
             if (reGenarateBuffer)
             {
                 createGraphicsBuffer();
                 reGenarateBuffer = false;
             }
-
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
@@ -421,11 +455,12 @@ namespace ajkControls
                     xOffset = 0;
                 }
 
-                int line = vScrollBar.Value;
+                int lineStart = vScrollBar.Value;
+                int line = lineStart;
                 if (!multiLine) line = document.Lines - 1;
                 while(line < document.Lines)
                 {
-                    if (line > vScrollBar.Value + visibleLines + 2) break;
+                    if (line > lineStart + visibleLines + 2) break;
 
                     // draw line number (right padding)
                     x = (xOffset-2) * charSizeX;

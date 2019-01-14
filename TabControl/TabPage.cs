@@ -8,7 +8,7 @@ namespace ajkControls
 {
     public class TabPage : System.Windows.Forms.TabPage
     {
-        public virtual Icon Icon
+        public virtual IconImage Icon
         {
             get;
             set;

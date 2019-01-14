@@ -33,7 +33,20 @@ namespace ajkControls
         private const int WM_SETFONT = 0x30;
         private const int WM_FONTCHANGE = 0x1d;
 
-        public static Icon closeButtonIcon = new Icon(Properties.Resources.closeBottun);
+        public static IconImage closeButtonIcon = new IconImage(Properties.Resources.closeBottun);
+
+
+        private Color backgoundColor = Color.White;
+        public Color BackgroundColor { get { return backgoundColor; } set { backgoundColor = value; } }
+
+        private Color selectedBackgroundColor = Color.LightGray;
+        public Color SelectedBackgroundColor { get { return selectedBackgroundColor; } set { selectedBackgroundColor = value; } }
+
+        private Color selectedForeColor = Color.Black;
+        public Color SelectedForeColor { get { return selectedForeColor; } set { selectedForeColor = value; } }
+
+        private Color lineColor = Color.Black;
+        public Color LineColor { get { return lineColor; } set { lineColor = value; } }
 
         protected override void OnCreateControl()
         {
@@ -94,6 +107,15 @@ namespace ajkControls
                 Bitmap bmp = new Bitmap(tabRect.Width, tabRect.Height);
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
+                    if (state == System.Windows.Forms.VisualStyles.TabItemState.Selected)
+                    {
+                        g.Clear(SelectedBackgroundColor);
+                    }
+                    else
+                    {
+                        g.Clear(BackgroundColor);
+                    }
+
                     using (StringFormat sf = new StringFormat())
                     {
                         int left = 0;
@@ -101,13 +123,13 @@ namespace ajkControls
 
                         if (tabPage != null && tabPage.Icon != null)
                         {
-                            g.DrawImage(tabPage.Icon.GetImage(FontHeight, Icon.ColorStyle.Blue), new Point(0, 1));
+                            g.DrawImage(tabPage.Icon.GetImage(FontHeight, IconImage.ColorStyle.Blue), new Point(0, 1));
                             left = left + FontHeight;
                             width = width - FontHeight;
                         }
                         if (tabPage != null && tabPage.CloseButtonEnable)
                         {
-                            g.DrawImage(closeButtonIcon.GetImage(FontHeight, Icon.ColorStyle.White), new Point(bmp.Width - FontHeight, bmp.Height/2-FontHeight/2));
+                            g.DrawImage(closeButtonIcon.GetImage(FontHeight, IconImage.ColorStyle.White), new Point(bmp.Width - FontHeight-1, bmp.Height/2-FontHeight/2));
                             width = width - FontHeight;
                         }
 

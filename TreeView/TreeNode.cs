@@ -18,10 +18,10 @@ namespace ajkControls
         internal int Depth { get; set; }
         internal int Width { get; set; } = -1;
 
-        private static Icon questionIcon = new Icon(Properties.Resources.question);
+        private static IconImage questionIcon = new IconImage(Properties.Resources.question);
         public virtual void DrawNode(Graphics graphics,int x,int y,Font font,Color color,Color backgroundColor, Color selectedColor, int lineHeight,bool selected)
         {
-            graphics.DrawImage(questionIcon.GetImage(lineHeight, Icon.ColorStyle.Original),new Point(x,y));
+            graphics.DrawImage(questionIcon.GetImage(lineHeight, IconImage.ColorStyle.Original),new Point(x,y));
             Color bgColor = backgroundColor;
             if (selected) bgColor = selectedColor;
             System.Windows.Forms.TextRenderer.DrawText(

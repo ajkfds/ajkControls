@@ -7,9 +7,9 @@ using System.Drawing;
 
 namespace ajkControls
 {
-    public class Icon
+    public class IconImage
     {
-        public Icon(System.Drawing.Image image)
+        public IconImage(System.Drawing.Image image)
         {
             originalImage = image;
         }

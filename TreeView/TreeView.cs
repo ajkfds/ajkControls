@@ -148,9 +148,9 @@ namespace ajkControls
             }
         }
 
-        private static Icon plusIcon = new Icon(Properties.Resources.plus);
-        private static Icon minusIcon = new Icon(Properties.Resources.minus);
-        private static Icon dotIcon = new Icon(Properties.Resources.dot);
+        private static IconImage plusIcon = new IconImage(Properties.Resources.plus);
+        private static IconImage minusIcon = new IconImage(Properties.Resources.minus);
+        private static IconImage dotIcon = new IconImage(Properties.Resources.dot);
 
         private TreeNode selectedNode = null;
         public TreeNode SelectedNode
@@ -179,16 +179,16 @@ namespace ajkControls
                 {
                     if (node.Exanded)
                     {
-                        e.Graphics.DrawImage(minusIcon.GetImage(lineHeight, Icon.ColorStyle.White), new Point(x, y));
+                        e.Graphics.DrawImage(minusIcon.GetImage(lineHeight, IconImage.ColorStyle.White), new Point(x, y));
                     }
                     else
                     {
-                        e.Graphics.DrawImage(plusIcon.GetImage(lineHeight, Icon.ColorStyle.White), new Point(x, y));
+                        e.Graphics.DrawImage(plusIcon.GetImage(lineHeight, IconImage.ColorStyle.White), new Point(x, y));
                     }
                 }
                 else
                 {
-                    e.Graphics.DrawImage(dotIcon.GetImage(lineHeight, Icon.ColorStyle.Original), new Point(x, y));
+                    e.Graphics.DrawImage(dotIcon.GetImage(lineHeight, IconImage.ColorStyle.Original), new Point(x, y));
                 }
                 x = x + lineHeight;
                 bool selected = false;

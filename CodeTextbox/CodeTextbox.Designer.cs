@@ -69,6 +69,7 @@
             this.dbDrawBox.MouseLeave += new System.EventHandler(this.dbDrawBox_MouseLeave);
             this.dbDrawBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseMove);
             this.dbDrawBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseUp);
+            this.dbDrawBox.Resize += new System.EventHandler(this.dbDrawBox_Resize);
             // 
             // CodeTextbox
             // 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace ajkControls
 {
@@ -79,7 +80,7 @@ namespace ajkControls
             {
                 if(icon == null)
                 {
-                    icon = new Icon(Properties.Resources.question);
+                    icon = IconImages.Question.GetSystemDrawingIcon(48, IconImage.ColorStyle.White);
                 }
                 return icon;
             }
@@ -88,6 +89,17 @@ namespace ajkControls
                 icon = value;
             }
         }
+
+        public static class ColorMap
+        {
+            public static Color ControlBackGround = Color.GreenYellow;
+        }
+
+        public static class IconImages
+        {
+            public static IconImage Question = new IconImage(Properties.Resources.question);
+        }
+
 
     }
 }

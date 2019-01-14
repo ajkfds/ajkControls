@@ -19,6 +19,7 @@ namespace ajkControls
             codeTextbox.Document = document;
 
             this.Font = Global.UiDefaultFont;
+            this.ShowInTaskbar = false;
         }
 
         public event EventHandler Selected;

@@ -14,7 +14,7 @@ namespace ajkControls
             this.text = text;
             this.Color = color;
         }
-        public SelectionItem(string text, Color color, ajkControls.Icon icon, ajkControls.Icon.ColorStyle iconColorStyle)
+        public SelectionItem(string text, Color color, ajkControls.IconImage icon, ajkControls.IconImage.ColorStyle iconColorStyle)
         {
             this.text = text;
             this.Color = color;
@@ -22,8 +22,8 @@ namespace ajkControls
             this.iconColorStyle = iconColorStyle;
         }
 
-        private ajkControls.Icon icon = null;
-        private ajkControls.Icon.ColorStyle iconColorStyle;
+        private ajkControls.IconImage icon = null;
+        private ajkControls.IconImage.ColorStyle iconColorStyle;
 
         private string text;
         public string Text { get { return text; } }
