@@ -161,7 +161,18 @@ namespace ajkControls
             }
         }
 
-        private Color selectedColor = Color.SlateGray;
+        public Color selectedColor = Color.FromArgb(0xd8, 0xe0, 0xe8);
+        public Color SelectedColor
+        {
+            get
+            {
+                return selectedColor;
+            }
+            set
+            {
+                selectedColor = value;
+            }
+        }
 
         private void dBDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {

@@ -417,8 +417,46 @@ namespace ajkControls
 
         // draw image
         private int tabSize = 4;
-        private SolidBrush selectionBrush = new SolidBrush(Color.FromArgb(80, Color.SlateGray));
-        private SolidBrush lineNumberBrush = new SolidBrush(Color.FromArgb(50, Color.SlateGray));
+        public Color selectedColor = Color.FromArgb(60, Color.FromArgb(0x5b,0x7d,0x9f));
+        public Color SelectedColor {
+            get
+            {
+                return selectedColor;
+            }
+            set
+            {
+                selectedColor = value;
+            }
+        }
+
+        private SolidBrush selectionBrush
+        {
+            get
+            {
+                return new SolidBrush(selectedColor);
+            }
+        }
+
+        public Color lineNumberFillColor = Color.FromArgb(50, Color.SlateGray);
+        public Color LineNumberFillColor
+        {
+            get
+            {
+                return lineNumberFillColor;
+            }
+            set
+            {
+                lineNumberFillColor = value;
+            }
+        }
+
+        private SolidBrush lineNumberBrush
+        {
+            get
+            {
+                return new SolidBrush(lineNumberFillColor);
+            }
+        }
 
         private int xOffset = 0;
         private int caretX = 0;

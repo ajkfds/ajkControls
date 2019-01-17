@@ -36,11 +36,14 @@ namespace ajkControls
         public static IconImage closeButtonIcon = new IconImage(Properties.Resources.closeBottun);
 
 
-        private Color backgoundColor = Color.White;
+        private Color backgoundColor = Color.LightGray;
         public Color BackgroundColor { get { return backgoundColor; } set { backgoundColor = value; } }
 
-        private Color selectedBackgroundColor = Color.LightGray;
+        private Color selectedBackgroundColor = Color.White;
         public Color SelectedBackgroundColor { get { return selectedBackgroundColor; } set { selectedBackgroundColor = value; } }
+
+        private Color unselectedBackgroundColor = Color.Gray;
+        public Color UnselectedBackgroundColor { get { return unselectedBackgroundColor; } set { unselectedBackgroundColor = value; } }
 
         private Color selectedForeColor = Color.Black;
         public Color SelectedForeColor { get { return selectedForeColor; } set { selectedForeColor = value; } }
@@ -107,7 +110,7 @@ namespace ajkControls
                 Bitmap bmp = new Bitmap(tabRect.Width, tabRect.Height);
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
-                    if (state == System.Windows.Forms.VisualStyles.TabItemState.Selected)
+                    if ( state == System.Windows.Forms.VisualStyles.TabItemState.Selected)
                     {
                         g.Clear(SelectedBackgroundColor);
                     }
