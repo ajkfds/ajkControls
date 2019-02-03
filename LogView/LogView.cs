@@ -15,6 +15,7 @@ namespace ajkControls
         public LogView()
         {
             InitializeComponent();
+            vScrollBar.Width = Global.ScrollBarWidth;
         }
 
         private List<string> logs = new List<string>();
