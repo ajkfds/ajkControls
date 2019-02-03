@@ -641,7 +641,7 @@ namespace ajkControls
                 if (ch == '\r' || ch == '\n') break;
                 if(ch == '\t')
                 {
-                    xPos = xPos + tabSize;
+                    xPos = xPos + tabSize - (xPos % tabSize);
                 }
                 else
                 {
