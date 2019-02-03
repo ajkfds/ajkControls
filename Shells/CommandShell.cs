@@ -15,7 +15,7 @@ namespace ajkControls
 
             initialize(
                 System.Environment.GetEnvironmentVariable("ComSpec"),   // cmd.exe
-                "", // @"/c dir c:\ /w"; // /c to close after execute
+                "/K \"chcp 65001\"", // utf-8
                 commands
                 );
         }
@@ -24,7 +24,7 @@ namespace ajkControls
         {
             initialize(
                 System.Environment.GetEnvironmentVariable("ComSpec"),   // cmd.exe
-                "", // @"/c dir c:\ /w"; // /c to close after execute
+                "/K \"chcp 65001\"", // utf-8
                 new List<string> { }
                 );
         }
@@ -57,6 +57,9 @@ namespace ajkControls
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+            process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
+
             process.StartInfo.CreateNoWindow = true;
             process.OutputDataReceived += outputDataReceived;
             process.ErrorDataReceived += errorDataReceived;
