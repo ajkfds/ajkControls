@@ -65,6 +65,7 @@ namespace ajkControls
             SendMessage(this.Handle, WM_FONTCHANGE, IntPtr.Zero, IntPtr.Zero);
             this.UpdateStyles();
             paddingImages.ImageSize = new Size(FontHeight, FontHeight);
+            ItemSize = new Size(ItemSize.Width, FontHeight);
         }
 
         protected override void OnPaint(PaintEventArgs e)
