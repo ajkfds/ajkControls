@@ -33,7 +33,7 @@ namespace ajkControls
         private const int WM_SETFONT = 0x30;
         private const int WM_FONTCHANGE = 0x1d;
 
-        public static IconImage closeButtonIcon = new IconImage(Properties.Resources.closeBottun);
+        public static IconImage closeButtonIcon = new IconImage(Properties.Resources.whiteClose);
 
 
         private Color backgoundColor = Color.LightGray;
@@ -65,7 +65,7 @@ namespace ajkControls
             SendMessage(this.Handle, WM_FONTCHANGE, IntPtr.Zero, IntPtr.Zero);
             this.UpdateStyles();
             paddingImages.ImageSize = new Size(FontHeight, FontHeight);
-            ItemSize = new Size(ItemSize.Width, FontHeight);
+            ItemSize = new Size(ItemSize.Width, (int)((double)FontHeight * 1.2));
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -109,15 +109,19 @@ namespace ajkControls
                 }
 
                 Bitmap bmp = new Bitmap(tabRect.Width, tabRect.Height);
+                Brush textBrush;
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                     if ( state == System.Windows.Forms.VisualStyles.TabItemState.Selected)
                     {
                         g.Clear(SelectedBackgroundColor);
+                        textBrush = new SolidBrush(this.SelectedForeColor);
                     }
                     else
                     {
-                        g.Clear(BackgroundColor);
+                        g.Clear(UnselectedBackgroundColor);
+                        textBrush = new SolidBrush(Color.Black);
                     }
 
                     using (StringFormat sf = new StringFormat())
@@ -142,7 +146,7 @@ namespace ajkControls
                         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
                         g.DrawString(page.Text,
                             page.Font,
-                            SystemBrushes.ControlText,
+                            textBrush,
                             new RectangleF(left, 0, width, bmp.Height + 1),
                             sf);
                         g.DrawRectangle(SystemPens.WindowFrame, 0, 0, bmp.Width - 1, bmp.Height);

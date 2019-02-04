@@ -92,7 +92,7 @@ namespace ajkControls
 
         public static class ColorMap
         {
-            public static Color ControlBackGround = Color.GreenYellow;
+            public static Color ControlBackGround = Color.FromArgb(32, 56, 100);
         }
 
         public static class IconImages

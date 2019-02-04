@@ -66,7 +66,7 @@
     <Compile Include="Primitive\DoubleBufferedDrawBox.Designer.cs">
       <DependentUpon>DoubleBufferedDrawBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Primitive\Icon.cs" />
+    <Compile Include="Primitive\IconImage.cs" />
     <Compile Include="LogView\LogView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -156,6 +156,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\closeBottun.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\whiteClose.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
