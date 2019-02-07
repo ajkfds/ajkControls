@@ -8,10 +8,18 @@ namespace ajkControls
 {
     public class TabPage : System.Windows.Forms.TabPage
     {
-        public virtual IconImage Icon
+        private IconImage iconImage;
+        public virtual IconImage IconImage
         {
-            get;
-            set;
+            get
+            {
+                return iconImage;
+            }
+            set
+            {
+                iconImage = value;
+                resizeTab();
+            }
         }
 
         private bool closeButtonEnable = false;
@@ -24,16 +32,22 @@ namespace ajkControls
             set
             {
                 closeButtonEnable = value;
-                if (closeButtonEnable)
-                {
-                    ImageIndex = 0;
-                }
-                else
-                {
-                    ImageIndex = -1;
-                }
+                resizeTab();
             }
         }
+
+        private void resizeTab()
+        {
+            if (closeButtonEnable || IconImage != null)
+            {
+                ImageIndex = 0;
+            }
+            else
+            {
+                ImageIndex = -1;
+            }
+        }
+
 
         public virtual void CloseButtonClicked()
         {

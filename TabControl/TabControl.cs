@@ -19,7 +19,7 @@ namespace ajkControls
             this.SetStyle(ControlStyles.UserPaint, true);
             this.DoubleBuffered = true;
             this.ResizeRedraw = true;
-            this.Padding = new Point(this.Padding.X + FontHeight / 2, this.Padding.Y);
+            this.Padding = new Point(this.Padding.X + FontHeight/2 , this.Padding.Y);
             this.ImageList = paddingImages;
             paddingImages.ImageSize = new Size(FontHeight, FontHeight);
             paddingImages.Images.Add(new Bitmap(4, 4));
@@ -65,7 +65,7 @@ namespace ajkControls
             SendMessage(this.Handle, WM_FONTCHANGE, IntPtr.Zero, IntPtr.Zero);
             this.UpdateStyles();
             paddingImages.ImageSize = new Size(FontHeight, FontHeight);
-            ItemSize = new Size(ItemSize.Width, (int)((double)FontHeight * 1.2));
+            ItemSize = new Size(ItemSize.Width, (int)(FontHeight * 1.2));
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -129,9 +129,9 @@ namespace ajkControls
                         int left = 0;
                         int width = bmp.Width;
 
-                        if (tabPage != null && tabPage.Icon != null)
+                        if (tabPage != null && tabPage.IconImage != null)
                         {
-                            g.DrawImage(tabPage.Icon.GetImage(FontHeight, IconImage.ColorStyle.Blue), new Point(0, 1));
+                            g.DrawImage(tabPage.IconImage.GetImage(FontHeight, IconImage.ColorStyle.White), new Point(0, 1));
                             left = left + FontHeight;
                             width = width - FontHeight;
                         }
