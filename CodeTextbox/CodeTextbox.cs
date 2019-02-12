@@ -864,6 +864,12 @@ namespace ajkControls
                 case Keys.Left:
                     {
                         if (document.CaretIndex < 1) break;
+                        bool onSelectionLast = false;
+                        if(document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+                        {
+                            onSelectionLast = true;
+                        }
+
                         if (document.CaretIndex > 0 && document.GetCharAt(document.CaretIndex) == '\n' && document.GetCharAt(document.CaretIndex - 1) == '\r')
                         {
                             document.CaretIndex = document.CaretIndex - 2;
@@ -875,7 +881,14 @@ namespace ajkControls
                         caretChanged();
                         if (e.Modifiers == Keys.Shift)
                         {
-                            document.SelectionStart = document.CaretIndex;
+                            if (onSelectionLast)
+                            {
+                                document.SelectionLast = document.CaretIndex;
+                            }
+                            else
+                            {
+                                document.SelectionStart = document.CaretIndex;
+                            }
                         }
                         else
                         {
@@ -890,6 +903,11 @@ namespace ajkControls
                 case Keys.Right:
                     {
                         if (document.CaretIndex >= document.Length) break;
+                        bool onSelectionStart = false;
+                        if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+                        {
+                            onSelectionStart = true;
+                        }
                         if (document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex + 1) == '\n')
                         {
                             document.CaretIndex = document.CaretIndex + 2;
@@ -901,7 +919,14 @@ namespace ajkControls
                         caretChanged();
                         if (e.Modifiers == Keys.Shift)
                         {
-                            document.SelectionLast = document.CaretIndex;
+                            if (onSelectionStart)
+                            {
+                                document.SelectionStart = document.CaretIndex;
+                            }
+                            else
+                            {
+                                document.SelectionLast = document.CaretIndex;
+                            }
                         }
                         else
                         {
@@ -915,6 +940,11 @@ namespace ajkControls
                 case Keys.Up:
                     {
                         if (!multiLine) break;
+                        bool onSelectionLast = false;
+                        if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+                        {
+                            onSelectionLast = true;
+                        }
                         int line = document.GetLineAt(document.CaretIndex);
                         if (line == 0) break;
                         int headindex = document.GetLineStartIndex(line);
@@ -934,7 +964,14 @@ namespace ajkControls
                         caretChanged();
                         if (e.Modifiers == Keys.Shift)
                         {
-                            document.SelectionStart = document.CaretIndex;
+                            if(onSelectionLast)
+                            {
+                                document.SelectionLast = document.CaretIndex;
+                            }
+                            else
+                            {
+                                document.SelectionStart = document.CaretIndex;
+                            }
                         }
                         else
                         {
@@ -949,6 +986,11 @@ namespace ajkControls
                 case Keys.Down:
                     {
                         if (!multiLine) break;
+                        bool onSelectionStart = false;
+                        if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+                        {
+                            onSelectionStart = true;
+                        }
                         int line = document.GetLineAt(document.CaretIndex);
                         if (line == document.Lines-1) break;
                         int headindex = document.GetLineStartIndex(line);
@@ -968,7 +1010,14 @@ namespace ajkControls
                         caretChanged();
                         if (e.Modifiers == Keys.Shift)
                         {
-                            document.SelectionLast = document.CaretIndex;
+                            if (onSelectionStart)
+                            {
+                                document.SelectionStart = document.CaretIndex;
+                            }
+                            else
+                            {
+                                document.SelectionLast = document.CaretIndex;
+                            }
                         }
                         else
                         {
