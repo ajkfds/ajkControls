@@ -222,13 +222,27 @@ namespace ajkControls
             if (x < (node.Depth+1) * lineHeight) leftArea = true;
         }
 
+        private float size = 8;
         private void dbDrawBox_MouseWheel(object sender, MouseEventArgs e)
         {
-            int value = vScrollBar.Value - (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
-            if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
-            if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
-            if (value < 0) value = 0;
-            vScrollBar.Value = value;
+            if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                if (e.Delta < 0) size--;
+                if (e.Delta > 0) size++;
+                if (size < 5) size = 5;
+                if (size > 20) size = 20;
+                this.Font = new Font(this.Font.FontFamily, size);
+                dbDrawBox.Refresh();
+            }
+            else
+            {
+
+                int value = vScrollBar.Value - (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
+                if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
+                if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
+                if (value < 0) value = 0;
+                vScrollBar.Value = value;
+            }
         }
 
         private void dbDrawBox_MouseDown(object sender, MouseEventArgs e)
