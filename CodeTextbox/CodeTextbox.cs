@@ -1119,11 +1119,13 @@ namespace ajkControls
                     {
                         for (int i = lineStart; i < lineLast; i++)
                         {
-                            if(document.GetCharAt(document.GetLineStartIndex(i)) == '\t')
+                            if(document.GetCharAt(document.GetLineStartIndex(i)) == '\t' || document.GetCharAt(document.GetLineStartIndex(i)) == ' ')
                             {
                                 document.Replace(document.GetLineStartIndex(i), 1, 0, "");
                             }
                         }
+                        document.SelectionStart = document.GetLineStartIndex(lineStart);
+                        document.SelectionLast = document.GetLineStartIndex(lineLast);
                     }
                     else
                     {
@@ -1131,6 +1133,8 @@ namespace ajkControls
                         {
                             document.Replace(document.GetLineStartIndex(i), 0, 0, "\t");
                         }
+                        document.SelectionStart = document.GetLineStartIndex(lineStart);
+                        document.SelectionLast = document.GetLineStartIndex(lineLast);
                     }
                     UpdateVScrollBarRange();
                     caretChanged();
