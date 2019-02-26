@@ -603,6 +603,14 @@ namespace ajkControls
                     y = y + charSizeY;
                     line++;
                 }
+                if (document.Length == document.CaretIndex & Editable)
+                {
+                    y = y - charSizeY;
+                    e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
+                    e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                    caretX = x;
+                    caretY = y;
+                }
             }
             e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * xOffset, dbDrawBox.Height));
 
