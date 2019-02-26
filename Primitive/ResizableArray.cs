@@ -81,6 +81,7 @@ namespace ajkControls
 
         public T[] CreateArray(int index,int length)
         {
+            if (index < 0) System.Diagnostics.Debugger.Break();
             T[] array = new T[length];
             Array.Copy(buffer, index, array, 0, length);
             return array;
