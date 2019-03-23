@@ -16,23 +16,28 @@ namespace ajkControls
 
         private System.Drawing.Image originalImage;
 
-        public Image GetImage(int size,ColorStyle color)
+        public Image GetImage(int height,ColorStyle color)
         {
-            int index = size << 4 + (int)color;
+            int index = height << 4 + (int)color;
             if(!images.ContainsKey(index))
             {
                 if (!coloredImages.ContainsKey(color))
                 {
                     coloredImages.Add(color, CreateColorImage(color, originalImage));
                 }
-                images.Add(index, resizeImage(size,coloredImages[color]));
+                images.Add(index, resizeImage(height,coloredImages[color]));
             }
             return images[index];
         }
 
-        public System.Drawing.Icon GetSystemDrawingIcon(int size, ColorStyle color)
+        public int GetImageWidth(int height)
         {
-            Image image = GetImage(size, color);
+            return getImageWidth(height, originalImage);
+        }
+
+        public System.Drawing.Icon GetSystemDrawingIcon(int height, ColorStyle color)
+        {
+            Image image = GetImage(height, color);
             return System.Drawing.Icon.FromHandle(((System.Drawing.Bitmap)image).GetHicon());
         }
 
@@ -65,14 +70,18 @@ namespace ajkControls
             }
         }
 
-
-        private Image resizeImage(int size,Image originalImage)
+        private int getImageWidth(int height, Image originalImage)
         {
-            Bitmap resizeBmp = new Bitmap(size, size);
+            return originalImage.Width * height / originalImage.Height;
+        }
+
+        private Image resizeImage(int height,Image originalImage)
+        {
+            int width = getImageWidth(height, originalImage);
+            Bitmap resizeBmp = new Bitmap(width, height);
             Graphics g = Graphics.FromImage(resizeBmp);
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            g.DrawImage(originalImage, 0, 0, size, size);
+            g.DrawImage(originalImage, 0, 0, width, height);
             g.Dispose();
 
             return resizeBmp;

@@ -25,6 +25,34 @@ namespace ajkControls
             }
         }
 
+        private const float mainMenuIconSizeFor144Dpi = 24;
+        private static int mainMenuIconSize = -1;
+        public static int MainMenuIconSize
+        {
+            get
+            {
+                if (mainMenuIconSize == -1)
+                {
+                    mainMenuIconSize = (int)(Dpi / 144 * mainMenuIconSizeFor144Dpi);
+                }
+                return mainMenuIconSize;
+            }
+        }
+
+        private const float toolStripIconSizeFor144Dpi = 16;
+        private static int toolStripIconSize = -1;
+        public static int ToolStripIconSize
+        {
+            get
+            {
+                if (toolStripIconSize == -1)
+                {
+                    toolStripIconSize = (int)(Dpi / 144 * toolStripIconSizeFor144Dpi);
+                }
+                return toolStripIconSize;
+            }
+        }
+
         private const float scrollBarWidthFor144Dpi = 20;
         private static int scrollBarWidth = -1;
         public static int ScrollBarWidth
