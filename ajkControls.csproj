@@ -54,6 +54,7 @@
       <DependentUpon>CodeTextbox.cs</DependentUpon>
     </Compile>
     <Compile Include="CodeTextbox\Document.cs" />
+    <Compile Include="ColorLabel\ColorLabel.cs" />
     <Compile Include="ftp\FileTransfer.cs" />
     <Compile Include="ftp\FtpClient.cs" />
     <Compile Include="Global.cs" />
