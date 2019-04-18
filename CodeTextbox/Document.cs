@@ -10,6 +10,7 @@ namespace ajkControls
     {
         public Document()
         {
+            newLineIndex.Replace(0, 0, new int[] {0});
         }
 
         ResizableArray<char> chars = new ResizableArray<char>(1024, 256);
@@ -263,12 +264,51 @@ namespace ajkControls
 
         public int GetLineAt(int index)
         {
+/*          simple implementation
             for (int line = 0; line < newLineIndex.Length; line++)
             {
                 if (newLineIndex[line] >= index) return line;
             }
+            exception
+*/
+            //int lret = -1;
+            //for (int line = 0; line < newLineIndex.Length; line++)
+            //{
+            //    if (newLineIndex[line] >= index)
+            //    {
+            //        lret = line;
+            //        break;
+            //    }
+            //}
+            //            return lret;
+
+            int lineAfter = 0;
+            int lineBefore = newLineIndex.Length-1;
+
+            int l = lineBefore >> 1;
+
+            while (lineBefore-1 > lineAfter)
+            {
+                if (newLineIndex[l] >= index)
+                {
+                    lineBefore = l;
+                }
+                else if (newLineIndex[l] < index)
+                {
+                    lineAfter = l;
+                }
+                l = (lineBefore + lineAfter) >> 1;
+            }
+            if (newLineIndex[l] < index) l++;
+
+            return l;
+
+/*            for (int line = 0; line < newLineIndex.Length; line++)
+            {
+                if (newLineIndex[line] >= index) return line;
+            }
             return newLineIndex.Length;
-        }
+*/         }
 
 
         public int GetLineStartIndex(int line)
@@ -315,7 +355,7 @@ namespace ajkControls
         public int Lines
         {
             get {
-                return newLineIndex.Length+1;
+                return newLineIndex.Length;
             }
         }
 
