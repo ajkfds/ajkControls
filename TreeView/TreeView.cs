@@ -115,13 +115,11 @@ namespace ajkControls
         }
 
         public List<TreeNode> TreeNodes = new List<TreeNode>();
-        public List<TreeNode> orderedNode = new List<TreeNode>();
+        private List<TreeNode> orderedNode = new List<TreeNode>();
         private Graphics grahics = null;
 
         private void indexNodes()
         {
-            width = 0;
-
             int index = 0;
             orderedNode.Clear();
             foreach (TreeNode node in TreeNodes)
@@ -129,7 +127,6 @@ namespace ajkControls
                 indexHierarchy(node, ref index,0);
             }
             vScrollBar.Maximum = orderedNode.Count;
-            hScrollBar.Maximum = width;
         }
 
         private void indexHierarchy(TreeNode node, ref int index,int depth)
@@ -137,8 +134,6 @@ namespace ajkControls
             node.Index = index;
             node.Depth = depth;
             orderedNode.Add(node);
-            node.Width = node.MeasureWidth(grahics, Font, lineHeight);
-            if (width < node.Width + lineHeight * node.Depth) width = node.Width + lineHeight * node.Depth;
             index++;
             if (node.Exanded == false) return;
             depth++;
@@ -177,6 +172,15 @@ namespace ajkControls
         private void dBDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
             indexNodes();
+            width = 0;
+            for(int i= vScrollBar.Value;i<vScrollBar.Value+visibleLines;i++)
+            {
+                if (i >= orderedNode.Count) break;
+                TreeNode node = orderedNode[i];
+                node.Width = node.MeasureWidth(grahics, Font, lineHeight);
+                if (width < node.Width + lineHeight * node.Depth) width = node.Width + lineHeight * node.Depth;
+            }
+            hScrollBar.Maximum = width;
 
             int index = vScrollBar.Value;
             int y = 0;
@@ -312,8 +316,6 @@ namespace ajkControls
                         Refresh();
                     }
                     break;
-                    break;
-
             }
         }
 
