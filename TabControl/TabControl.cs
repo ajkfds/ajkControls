@@ -143,7 +143,7 @@ namespace ajkControls
 
                         sf.Alignment = StringAlignment.Center;
                         sf.LineAlignment = StringAlignment.Center;
-                        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
                         g.DrawString(page.Text,
                             page.Font,
                             textBrush,
