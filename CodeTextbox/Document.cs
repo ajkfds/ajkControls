@@ -338,17 +338,13 @@ namespace ajkControls
                     return newLineIndex[line];
                 }
             }
-            else if ( line == newLineIndex.Length)
-            {
-                return chars.Length - newLineIndex[newLineIndex.Length - 1]-1;
-            }
             else if (line == newLineIndex.Length + 1)
             {
                 return 0;
             }
             else
             {
-                return newLineIndex[line] - newLineIndex[line - 1];
+                return newLineIndex[line] - newLineIndex[line - 1]-1;
             }
         }
 
