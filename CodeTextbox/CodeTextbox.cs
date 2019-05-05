@@ -517,21 +517,22 @@ namespace ajkControls
                     lineX = 0;
                     int start = document.GetLineStartIndex(line);
                     int end = start+document.GetLineLength(line);
-                    if (start == end)
-                    { // blank line (for last line)
-                        // caret
-                        if (start == document.CaretIndex & Editable)
-                        {
-                            e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                            e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
-                            caretX = x;
-                            caretY = y + charSizeY;
-                        }
-                    }
-                    else
+                    //if (start == end)
+                    //{ // blank line (for last line)
+                    //    // caret
+                    //    if (start == document.CaretIndex & Editable)
+                    //    {
+                    //        e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
+                    //        e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                    //        caretX = x;
+                    //        caretY = y + charSizeY;
+                    //    }
+                    //}
+                    //else
                     {
-                        for (int i = start; i < end; i++)
+                        for (int i = start; i <= end; i++)
                         {
+                            if (i == document.Length) continue;
                             char ch = document.GetCharAt(i);
                             byte color = document.GetColorAt(i);
                             int xIncrement = 1;
@@ -547,7 +548,7 @@ namespace ajkControls
                             }
                             else if (ch == '\n')
                             {
-                                if (x == 0 || document.GetCharAt(i - 1) != '\r')
+                                if (i == 0 || document.GetCharAt(i - 1) != '\r')
                                 {
                                     e.Graphics.DrawImage(charBitmap[color, ch], new Point(x, y));
                                 }
