@@ -97,7 +97,7 @@ namespace ajkControls
         {
             get
             {
-                return (float)0.25;
+                return (float)0.05;
             }
         }
 
