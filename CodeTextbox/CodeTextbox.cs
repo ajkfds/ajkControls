@@ -493,9 +493,9 @@ namespace ajkControls
                     xOffset = 0;
                 }
 
-                int lineStart = vScrollBar.Value;
+                int lineStart = vScrollBar.Value+1;
                 int line = lineStart;
-                if (!multiLine) line = document.Lines - 1;
+                if (!multiLine) line = document.Lines;
                 while(line < document.Lines)
                 {
                     if (line > lineStart + visibleLines + 2) break;
@@ -636,7 +636,7 @@ namespace ajkControls
 
         private int hitIndex(int x,int y)
         {
-            int line = y / charSizeY + vScrollBar.Value;
+            int line = y / charSizeY + vScrollBar.Value+1;
             if (line > document.Lines-1) line = document.Lines-1;
             int hitX = x / charSizeX - xOffset;
 
@@ -955,7 +955,7 @@ namespace ajkControls
                             onSelectionLast = true;
                         }
                         int line = document.GetLineAt(document.CaretIndex);
-                        if (line == 0) break;
+                        if (line == 1) break;
                         int headindex = document.GetLineStartIndex(line);
                         int xPosition = document.CaretIndex - headindex;
                         line--;

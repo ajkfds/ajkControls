@@ -197,8 +197,8 @@ namespace ajkControls
                 lines.Add(i + index);
             }
 
-            int startLine = GetLineAt(index);
-            int endLine = GetLineAt(index + replaceLength);
+            int startLine = GetLineAt(index)-1;
+            int endLine = GetLineAt(index + replaceLength)-1;
             int changedLine = lines.Count+startLine- endLine;
 
             if(changedLine > 0)
@@ -301,7 +301,7 @@ namespace ajkControls
             }
             if (newLineIndex[l] < index) l++;
 
-            return l;
+            return l+1;
 
 /*            for (int line = 0; line < newLineIndex.Length; line++)
             {
@@ -314,20 +314,20 @@ namespace ajkControls
         public int GetLineStartIndex(int line)
         {
             System.Diagnostics.Debug.Assert(line <= newLineIndex.Length + 1);
-            if(line == 0)
+            if(line == 1)
             {
                 return 0;
             }
             else
             {
-                return newLineIndex[line - 1]+1;
+                return newLineIndex[line - 2]+1;
             }
         }
 
         public int GetLineLength(int line)
         {
 //            System.Diagnostics.Debug.Assert(line < newLineIndex.Length + 1);
-            if (line == 0)
+            if (line == 1)
             {
                 if(newLineIndex.Length == 0)
                 {
@@ -335,16 +335,16 @@ namespace ajkControls
                 }
                 else
                 {
-                    return newLineIndex[line];
+                    return newLineIndex[0];
                 }
             }
-            else if (line == newLineIndex.Length + 1)
+            else if (line == newLineIndex.Length)
             {
                 return 0;
             }
             else
             {
-                return newLineIndex[line] - newLineIndex[line - 1]-1;
+                return newLineIndex[line-1] - newLineIndex[line - 2] - 1;
             }
         }
 
