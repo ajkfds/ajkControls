@@ -152,7 +152,7 @@ namespace ajkControls
         private void dbDrawBox_MouseWheel(object sender, MouseEventArgs e)
         {
             if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
-            {
+            { // zoom up/down
                 if (e.Delta < 0) size--;
                 if (e.Delta > 0) size++;
                 if (size < 5) size = 5;
@@ -161,8 +161,14 @@ namespace ajkControls
                 dbDrawBox.Refresh();
             }
             else
-            {
-                int value = vScrollBar.Value - (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
+            { // 
+                int delta = (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
+                if(delta == 0)
+                {
+                    if (e.Delta > 0) delta = 1;
+                    if (e.Delta < 0) delta = -1;
+                }
+                int value = vScrollBar.Value - delta;
                 if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
                 if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
                 if (value < 0) value = 0;

@@ -240,8 +240,13 @@ namespace ajkControls
             }
             else
             {
-
-                int value = vScrollBar.Value - (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
+                int delta = (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
+                if(delta == 0)
+                {
+                    if (e.Delta < 0) delta = -1;
+                    if (e.Delta > 0) delta = 1;
+                }
+                int value = vScrollBar.Value - delta;
                 if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
                 if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
                 if (value < 0) value = 0;
