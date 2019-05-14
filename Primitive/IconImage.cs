@@ -61,7 +61,7 @@ namespace ajkControls
             {
                 case ColorStyle.Gray:   return shiftImageColor(originalImage, Color.DarkGray,  Color.LightGray);
                 case ColorStyle.Red:    return shiftImageColor(originalImage, Color.DarkRed,   Color.LightPink);
-                case ColorStyle.Blue:   return shiftImageColor(originalImage, Color.DarkBlue,  Color.LightBlue);
+                case ColorStyle.Blue:   return shiftImageColor(originalImage, Color.DarkBlue, Color.FromArgb(220, 240, 255));
                 case ColorStyle.Green:  return shiftImageColor(originalImage, Color.DarkGreen, Color.FromArgb(180, 255, 180) );
                 case ColorStyle.White:  return shiftImageColor(originalImage, Color.FromArgb(16,16,16) , Color.White);
                 case ColorStyle.Orange: return shiftImageColor(originalImage, Color.DarkOrange, Color.LemonChiffon);
