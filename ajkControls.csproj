@@ -102,6 +102,13 @@
     <Compile Include="TabControl\TabPage.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="TableView\TableItem.cs" />
+    <Compile Include="TableView\TableView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TableView\TableView.Designer.cs">
+      <DependentUpon>TableView.cs</DependentUpon>
+    </Compile>
     <Compile Include="TextView\TextView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -135,6 +142,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TabControl\TabControl.resx">
       <DependentUpon>TabControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TableView\TableView.resx">
+      <DependentUpon>TableView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TextView\TextView.resx">
       <DependentUpon>TextView.cs</DependentUpon>
