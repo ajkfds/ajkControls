@@ -87,7 +87,11 @@ namespace ajkControls
             if (document == null) return;
             if (document.SelectionStart == document.SelectionLast) return;
             string clipText = document.CreateString(document.SelectionStart, document.SelectionLast - document.SelectionStart);
-            Clipboard.SetText(clipText);
+            try
+            {
+                Clipboard.SetText(clipText);
+            }
+            catch { }
             document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
             UpdateVScrollBarRange();
             caretChanged();
@@ -100,7 +104,11 @@ namespace ajkControls
             if (document == null) return;
             if (document.SelectionStart == document.SelectionLast) return;
             string clipText = document.CreateString(document.SelectionStart, document.SelectionLast - document.SelectionStart);
-            Clipboard.SetText(clipText);
+            try
+            {
+                Clipboard.SetText(clipText);
+            }
+            catch { }
             UpdateVScrollBarRange();
             caretChanged();
             selectionChanged();
@@ -157,7 +165,7 @@ namespace ajkControls
                 if (e.Delta > 0) size++;
                 if (size < 5) size = 5;
                 if (size > 20) size = 20;
-                this.Font = new Font(this.Font.FontFamily, size);
+                this.Font = new Font(this.Font.FontFamily, size, this.Font.Style);
                 dbDrawBox.Refresh();
             }
             else
@@ -621,8 +629,12 @@ namespace ajkControls
             }
             e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * xOffset, dbDrawBox.Height));
 
+            if (Editable)
+            {
+                e.Graphics.DrawLine(new Pen(Color.FromArgb(100,Color.Black)), new Point(xOffset*charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
+            }
             sw.Stop();
-            System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
+//            System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
         }
 
         public int GetIndexAt(int x,int y)
@@ -644,6 +656,7 @@ namespace ajkControls
         {
             int line = y / charSizeY + vScrollBar.Value+1;
             if (line > document.Lines-1) line = document.Lines-1;
+            if (line < 1) line = 1;
             int hitX = x / charSizeX - xOffset;
 
             int index = document.GetLineStartIndex(line);
@@ -683,6 +696,7 @@ namespace ajkControls
             document.SelectionLast = index+length;
             selectionChanged();
             Invoke(new Action(dbDrawBox.Refresh));
+            System.Diagnostics.Debug.Print("setSelection:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
         }
 
 
@@ -737,17 +751,28 @@ namespace ajkControls
             if (state == uiState.selecting)
             {
                 int index = hitIndex(e.X, e.Y);
-                document.CaretIndex = index;
-                if(document.SelectionStart > index)
+                if (document.SelectionStart == document.SelectionLast)
                 {
-                    document.SelectionLast = document.SelectionStart;
+                    if(document.SelectionStart < index)
+                    {
+                        document.SelectionLast = index;
+                    }
+                    else
+                    {
+                        document.SelectionStart = index;
+                    }
+                }
+                else if (document.SelectionStart == document.CaretIndex)
+                {
                     document.SelectionStart = index;
                 }
-                else
+                else if(document.SelectionLast == document.CaretIndex)
                 {
                     document.SelectionLast = index;
                 }
+                document.CaretIndex = index;
                 selectionChanged();
+
                 Invoke(new Action(dbDrawBox.Refresh));
             }
             this.OnMouseMove(e);
@@ -1220,7 +1245,7 @@ namespace ajkControls
                     document.CaretIndex++;
                     sw.Stop();
                     UpdateVScrollBarRange();
-                    System.Diagnostics.Debug.Print("edit : " + sw.Elapsed.TotalMilliseconds.ToString()+"ms");
+//                    System.Diagnostics.Debug.Print("edit : " + sw.Elapsed.TotalMilliseconds.ToString()+"ms");
                 }
                 else
                 {
@@ -1251,8 +1276,9 @@ namespace ajkControls
         private void selectionChanged()
         {
             if (document == null) return;
+            System.Diagnostics.Debug.Print("to changed:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
 
-            if(document.SelectionStart > document.SelectionLast)
+            if (document.SelectionStart > document.SelectionLast)
             {
                 int last = document.SelectionLast;
                 document.SelectionLast = document.SelectionStart;
@@ -1260,6 +1286,7 @@ namespace ajkControls
             }
             if (document.SelectionStart > document.Length) document.SelectionStart = document.Length;
             if (document.SelectionLast > document.Length) document.SelectionLast = document.Length;
+            System.Diagnostics.Debug.Print("changed:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
         }
 
         /// <summary>
