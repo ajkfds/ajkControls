@@ -190,6 +190,7 @@ namespace ajkControls
         {
             lock (logs)
             {
+                if (e.Data == "") return;
                 if (!logging) logs.Clear();
                 logs.Add(e.Data);
                 if (LineReceived != null) LineReceived(e.Data);
@@ -201,6 +202,7 @@ namespace ajkControls
         {
             lock (logs)
             {
+                if (e.Data == "") return;
                 if (!logging) logs.Clear();
                 logs.Add(e.Data);
                 if (LineReceived != null) LineReceived(e.Data);
