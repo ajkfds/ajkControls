@@ -9,7 +9,7 @@ namespace ajkControls.TableView
 {
     public class TableItem
     {
-        public void Draw(Graphics g,List<Rectangle> rectangles,Font font)
+        public virtual void Draw(Graphics g,Font font,List<int> x,int y,int lineHeight)
         {
 
         }

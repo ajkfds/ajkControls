@@ -48,12 +48,23 @@ namespace ajkControls.TableView
 
         private void DoubleBufferedDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(e.Graphics, "A", Font, new Size(100, 100), TextFormatFlags.NoPadding);
             lineHeight = fontSize.Height;
             lines = (doubleBufferedDrawBox.Height - HeaderHeight) / lineHeight;
+            List<int> x = new List<int>();
+            int y = 0;
+            x.Add(0);
+            foreach(int width in Widths)
+            {
+                x.Add(x.Last() + width);
+            }
+
             for(int index = 0; index < TableItems.Count;index++)
             {
-
+                TableItems[index].Draw(e.Graphics, Font,x,y,lineHeight);
+                y = y + lineHeight + 2;
             }
         }
 
