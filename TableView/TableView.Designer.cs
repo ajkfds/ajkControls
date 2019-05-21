@@ -39,15 +39,18 @@
             this.vScrollBar.Name = "vScrollBar";
             this.vScrollBar.Size = new System.Drawing.Size(26, 606);
             this.vScrollBar.TabIndex = 0;
+            this.vScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.VScrollBar_Scroll);
             // 
             // doubleBufferedDrawBox
             // 
             this.doubleBufferedDrawBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.doubleBufferedDrawBox.Font = new System.Drawing.Font("Meiryo UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.doubleBufferedDrawBox.Location = new System.Drawing.Point(0, 0);
             this.doubleBufferedDrawBox.Name = "doubleBufferedDrawBox";
             this.doubleBufferedDrawBox.Size = new System.Drawing.Size(613, 606);
             this.doubleBufferedDrawBox.TabIndex = 1;
             this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.DoubleBufferedDrawBox_DoubleBufferedPaint);
+            this.doubleBufferedDrawBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.DoubleBufferedDrawBox_MouseMove);
             this.doubleBufferedDrawBox.Resize += new System.EventHandler(this.DoubleBufferedDrawBox_Resize);
             // 
             // TableView
