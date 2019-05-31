@@ -473,9 +473,14 @@ namespace ajkControls
             }
         }
 
+        private static IconImage plusIcon = new IconImage(Properties.Resources.plus);
+        private static IconImage minusIcon = new IconImage(Properties.Resources.minus);
+//        private static IconImage dotIcon = new IconImage(Properties.Resources.dot);
+
         private int xOffset = 0;
         private int caretX = 0;
         private int caretY = 0;
+        private int[] actualLineNumbers = new int[] { };
 
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
@@ -484,6 +489,10 @@ namespace ajkControls
             {
                 createGraphicsBuffer();
                 reGenarateBuffer = false;
+            }
+            if(actualLineNumbers.Length != visibleLines+2)
+            {
+                actualLineNumbers = new int[visibleLines+2];
             }
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -501,7 +510,7 @@ namespace ajkControls
                 {
                     int lines = document.Lines;
                     if (lines < 1000) lines = 1000;
-                    xOffset = lines.ToString().Length + 1;
+                    xOffset = lines.ToString().Length + 2;
                 }
                 else
                 {
@@ -509,16 +518,45 @@ namespace ajkControls
                 }
 
                 int lineStart = vScrollBar.Value+1;
+                int drawLine = 0;
                 int line = lineStart;
-                if (!multiLine) line = document.Lines;
+                if (!multiLine) drawLine = document.Lines;
                 while(line < document.Lines)
                 {
-                    if (line > lineStart + visibleLines + 2) break;
+                    if (drawLine >= visibleLines + 2)
+                    {
+                        break;
+                    }
+                    if (!document.IsVisibleLine(line))
+                    {
+                        e.Graphics.DrawLine(new Pen(Color.FromArgb(50, Color.Black)), new Point(xOffset * charSizeX, y - 1), new Point(dbDrawBox.Width, y -1));
+                        line++;
+                        while (line < document.Lines)
+                        {
+                            if (document.IsVisibleLine(line)) break;
+                            line++;
+                        }
+                        continue;
+                    }
+                    actualLineNumbers[drawLine] = line;
 
                     // draw line number (right padding)
-                    x = (xOffset-2) * charSizeX;
+                    x = (xOffset-3) * charSizeX;
                     if (multiLine)
                     {
+                        if (document.IsBlockHeadLine(line))
+                        {
+                            if (document.IsCollapsed(line))
+                            {
+                                e.Graphics.DrawImage(plusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), new Point(x, y));
+                            }
+                            else
+                            {
+                                e.Graphics.DrawImage(minusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), new Point(x, y));
+                            }
+                        }
+                        x = x - charSizeX;
+
                         string lineString = line.ToString();
                         for (int i = 0; i < lineString.Length; i++)
                         {
@@ -532,18 +570,6 @@ namespace ajkControls
                     lineX = 0;
                     int start = document.GetLineStartIndex(line);
                     int end = start+document.GetLineLength(line);
-                    //if (start == end)
-                    //{ // blank line (for last line)
-                    //    // caret
-                    //    if (start == document.CaretIndex & Editable)
-                    //    {
-                    //        e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                    //        e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
-                    //        caretX = x;
-                    //        caretY = y + charSizeY;
-                    //    }
-                    //}
-                    //else
                     {
                         for (int i = start; i <= end; i++)
                         {
@@ -617,6 +643,7 @@ namespace ajkControls
                         }
                     }
                     y = y + charSizeY;
+                    drawLine++;
                     line++;
                 }
                 if (document.Length == document.CaretIndex & Editable)
@@ -628,7 +655,7 @@ namespace ajkControls
                     caretY = y;
                 }
             }
-            e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * xOffset, dbDrawBox.Height));
+            e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset-1)+charSizeX/2, dbDrawBox.Height));
 
             if (Editable)
             {
@@ -638,6 +665,11 @@ namespace ajkControls
 //            System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
         }
 
+        public int GetActualLineNo(int drawLineNumber)
+        {
+            if(actualLineNumbers.Length < drawLineNumber) return actualLineNumbers.Last();
+            return actualLineNumbers[drawLineNumber];
+        }
         public int GetIndexAt(int x,int y)
         {
             return hitIndex(x, y);
@@ -655,7 +687,8 @@ namespace ajkControls
 
         private int hitIndex(int x,int y)
         {
-            int line = y / charSizeY + vScrollBar.Value+1;
+            //int line = y / charSizeY + vScrollBar.Value+1;
+            int line = GetActualLineNo(y / charSizeY);
             if (line > document.Lines-1) line = document.Lines-1;
             if (line < 1) line = 1;
             int hitX = x / charSizeX - xOffset;
@@ -728,6 +761,22 @@ namespace ajkControls
 
             if (e.Button == MouseButtons.Left)
             {
+                if (e.X < xOffset * charSizeX)
+                {
+                    int drawLine = e.Y / charSizeY+1;
+                    int line = drawLine;
+                    if (document.IsCollapsed(line))
+                    {
+                        document.ExpandBlock(line);
+                    }
+                    else
+                    {
+                        document.CollapseBlock(line);
+                    }
+                    Invoke(new Action(dbDrawBox.Refresh));
+                    return;
+                }
+
                 int index = hitIndex(e.X, e.Y);
                 if(document.CaretIndex != index || document.SelectionStart != index || document.SelectionLast != index)
                 {
@@ -992,6 +1041,13 @@ namespace ajkControls
                         int xPosition = document.CaretIndex - headindex;
                         line--;
 
+                        // skip invisible lines
+                        while (line > 1 && !document.IsVisibleLine(line))
+                        {
+                            line--;
+                        }
+                        if(!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
+
                         headindex = document.GetLineStartIndex(line);
                         int lineLength = document.GetLineLength(line);
                         if (lineLength < xPosition)
@@ -1037,6 +1093,13 @@ namespace ajkControls
                         int headindex = document.GetLineStartIndex(line);
                         int xPosition = document.CaretIndex - headindex;
                         line++;
+
+                        // skip invisible lines
+                        while (line < document.Lines && !document.IsVisibleLine(line))
+                        {
+                            line++;
+                        }
+                        if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
 
                         headindex = document.GetLineStartIndex(line);
                         int lineLength = document.GetLineLength(line);

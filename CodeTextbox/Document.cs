@@ -10,13 +10,16 @@ namespace ajkControls
     {
         public Document()
         {
-            newLineIndex.Replace(0, 0, new int[] {0});
+            newLineIndex.Replace(0, 0, new int[] { 0 });
+            lineVisible.Replace(0, 0, new bool[] { true });
         }
 
         ResizableArray<char> chars = new ResizableArray<char>(1024, 256);
         ResizableArray<byte> colors = new ResizableArray<byte>(1024, 256);
         ResizableArray<byte> marks = new ResizableArray<byte>(1024, 256);
         ResizableArray<int> newLineIndex = new ResizableArray<int>(256, 256);
+        ResizableArray<bool> lineVisible = new ResizableArray<bool>(256, 256);
+        List<int> collapsedLines = new List<int>();
 
         public int EditID { get; private set; } = 0;
 
@@ -42,6 +45,94 @@ namespace ajkControls
             {
                 return chars.Length;
             }
+        }
+
+        List<int> blockStartIndexs = new List<int>();
+        List<int> blockEndIndexs = new List<int>();
+
+        // block infomation cash
+        bool blockCashActive = false;
+        List<int> blockStartLines = new List<int>();
+        List<int> blockEndLines = new List<int>();
+        private void createBlockCash()
+        {
+            blockStartLines.Clear();
+            blockEndLines.Clear();
+            for(int i = 0; i < blockStartIndexs.Count; i++)
+            {
+                blockStartLines.Add(GetLineAt(blockStartIndexs[i]));
+                blockEndLines.Add(GetLineAt(blockEndIndexs[i]));
+            }
+        }
+
+        private void refreshVisibleLines()
+        {
+            for(int i = 0; i < lineVisible.Length; i++)
+            {
+                lineVisible[i] = true;
+            }
+            foreach(int collapsedLine in collapsedLines)
+            {
+                int j = blockStartLines.IndexOf(collapsedLine);
+                for(int k = blockStartLines[j]+1; k < blockEndLines[j]; k++)
+                {
+                    lineVisible[k] = false;
+                }
+            }
+        }
+
+
+        public void ClearBlock()
+        {
+            blockCashActive = false;
+            blockStartIndexs.Clear();
+            blockEndIndexs.Clear();
+        }
+        public void AppendBlock(int startIndex,int endIndex)
+        {
+            blockCashActive = false;
+            blockStartIndexs.Add(startIndex);
+            blockEndIndexs.Add(endIndex);
+        }
+
+        public bool IsVisibleLine(int lineNo)
+        {
+            if (!blockCashActive) createBlockCash();
+            return lineVisible[lineNo];
+        }
+        public bool IsBlockHeadLine(int lineNo)
+        {
+            if (!blockCashActive) createBlockCash();
+            return blockStartLines.Contains(lineNo) ;
+        }
+
+        public void CollapseBlock(int lineNo)
+        {
+            if (!blockCashActive) createBlockCash();
+            if (!blockStartLines.Contains(lineNo)) return;
+            if(!collapsedLines.Contains(lineNo))
+            {
+                collapsedLines.Add(lineNo);
+                refreshVisibleLines();
+            }
+        }
+
+        public void ExpandBlock(int lineNo)
+        {
+            if (!blockCashActive) createBlockCash();
+            if (!blockStartLines.Contains(lineNo)) return;
+            if (collapsedLines.Contains(lineNo))
+            {
+                collapsedLines.Remove(lineNo);
+                refreshVisibleLines();
+            }
+        }
+
+        public bool IsCollapsed(int lineNo)
+        {
+            if (!blockStartLines.Contains(lineNo)) return false;
+            if (collapsedLines.Contains(lineNo)) return true;
+            return false;
         }
 
         int selectionStart;
@@ -112,6 +203,13 @@ namespace ajkControls
             chars.CopyFrom(document.chars);
             colors.Resize(document.Length);
             marks.Resize(document.Length);
+        }
+
+        public void CopyBlocksFrom(Document document)
+        {
+            blockCashActive = false;
+            blockStartIndexs = document.blockStartIndexs;
+            blockEndIndexs = document.blockEndIndexs;
         }
 
         public byte GetMarkAt(int index)
@@ -204,14 +302,17 @@ namespace ajkControls
             if(changedLine > 0)
             {
                 newLineIndex.Resize(newLineIndex.Length + changedLine);
+                lineVisible.Resize(newLineIndex.Length + changedLine);
 
                 for (int i = newLineIndex.Length - 1; i >= startLine + lines.Count; i--)
                 {
                     newLineIndex[i] = newLineIndex[i - changedLine] + text.Length - replaceLength;
+                    lineVisible[i] = lineVisible[i - changedLine];
                 }
                 for (int i = 0; i < lines.Count; i++)
                 {
                     newLineIndex[startLine + i] = lines[i];
+                    lineVisible[startLine + i] = true;
                 }
             }
             else if (changedLine < 0)
@@ -219,23 +320,28 @@ namespace ajkControls
                 for( int i = startLine + lines.Count; i < newLineIndex.Length + changedLine;i++)
                 {
                     newLineIndex[i] = newLineIndex[i - changedLine] + text.Length - replaceLength;
+                    lineVisible[i] = lineVisible[i - changedLine];
                 }
                 for (int i = 0; i < lines.Count; i++)
                 {
                     newLineIndex[startLine + i] = lines[i];
+                    lineVisible[startLine + i] = lineVisible[i];
                 }
 
                 newLineIndex.Resize(newLineIndex.Length + changedLine);
+                lineVisible.Resize(newLineIndex.Length + changedLine);
             }
             else
             {
                 for (int i = newLineIndex.Length + changedLine - 1; i >= startLine + lines.Count; i--)
                 {
                     newLineIndex[i] = newLineIndex[i - changedLine] + text.Length - replaceLength;
+                    lineVisible[i] = lineVisible[i - changedLine];
                 }
                 for (int i = 0; i < lines.Count; i++)
                 {
                     newLineIndex[startLine + i] = lines[i];
+                    lineVisible[startLine + i] = lineVisible[i];
                 }
             }
         }
