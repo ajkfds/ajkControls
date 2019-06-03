@@ -209,7 +209,7 @@ namespace ajkControls
 
         private void codeTextbox_AfterKeyPressed(object sender, KeyPressEventArgs e)
         {
-            UpdateVisibleItems(codeTextbox.Document.CreateLineString(0));
+            UpdateVisibleItems(codeTextbox.Document.CreateLineString(1));
         }
 
         private void codeTextbox_BeforeKeyDown(object sender, KeyEventArgs e)

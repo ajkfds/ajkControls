@@ -12,6 +12,7 @@ namespace ajkControls
         {
             newLineIndex.Replace(0, 0, new int[] { 0 });
             lineVisible.Replace(0, 0, new bool[] { true });
+            visibleLines = 1;
         }
 
         ResizableArray<char> chars = new ResizableArray<char>(1024, 256);
@@ -19,6 +20,7 @@ namespace ajkControls
         ResizableArray<byte> marks = new ResizableArray<byte>(1024, 256);
         ResizableArray<int> newLineIndex = new ResizableArray<int>(256, 256);
         ResizableArray<bool> lineVisible = new ResizableArray<bool>(256, 256);
+        private int visibleLines = 0;
         List<int> collapsedLines = new List<int>();
 
         public int EditID { get; private set; } = 0;
@@ -71,13 +73,24 @@ namespace ajkControls
             {
                 lineVisible[i] = true;
             }
-            foreach(int collapsedLine in collapsedLines)
+            visibleLines = Lines;
+            foreach (int collapsedLine in collapsedLines)
             {
                 int j = blockStartLines.IndexOf(collapsedLine);
                 for(int k = blockStartLines[j]+1; k < blockEndLines[j]; k++)
                 {
                     lineVisible[k] = false;
+                    visibleLines--;
                 }
+            }
+        }
+
+
+        public int VisibleLines
+        {
+            get
+            {
+                return visibleLines;
             }
         }
 
@@ -302,7 +315,7 @@ namespace ajkControls
             if(changedLine > 0)
             {
                 newLineIndex.Resize(newLineIndex.Length + changedLine);
-                lineVisible.Resize(newLineIndex.Length + changedLine);
+                lineVisible.Resize(lineVisible.Length + changedLine);
 
                 for (int i = newLineIndex.Length - 1; i >= startLine + lines.Count; i--)
                 {
@@ -329,7 +342,7 @@ namespace ajkControls
                 }
 
                 newLineIndex.Resize(newLineIndex.Length + changedLine);
-                lineVisible.Resize(newLineIndex.Length + changedLine);
+                lineVisible.Resize(lineVisible.Length + changedLine);
             }
             else
             {
@@ -344,6 +357,9 @@ namespace ajkControls
                     lineVisible[startLine + i] = lineVisible[i];
                 }
             }
+            visibleLines = visibleLines + changedLine;
+
+//            System.Diagnostics.Debug.Print("line,lineVisibles "+ newLineIndex.Length.ToString()+","+ lineVisible.Length.ToString()+","+ VisibleLines.ToString());
         }
 
         private void updateIndex(ref int index,int modifyIndex,int modifyLength,int modifiedToLength)
@@ -377,17 +393,6 @@ namespace ajkControls
             }
             exception
 */
-            //int lret = -1;
-            //for (int line = 0; line < newLineIndex.Length; line++)
-            //{
-            //    if (newLineIndex[line] >= index)
-            //    {
-            //        lret = line;
-            //        break;
-            //    }
-            //}
-            //            return lret;
-
             int lineAfter = 0;
             int lineBefore = newLineIndex.Length-1;
 
@@ -408,13 +413,17 @@ namespace ajkControls
             if (newLineIndex[l] < index) l++;
 
             return l+1;
+         }
 
-/*            for (int line = 0; line < newLineIndex.Length; line++)
+        public int GetVisibleLine(int line)
+        {
+            int visibleLine = 1;
+            for(int l = 0; l < line; l++)
             {
-                if (newLineIndex[line] >= index) return line;
+                if (lineVisible[l]) visibleLine++;   
             }
-            return newLineIndex.Length;
-*/         }
+            return visibleLine;
+        }
 
 
         public int GetLineStartIndex(int line)

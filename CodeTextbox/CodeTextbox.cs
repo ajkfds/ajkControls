@@ -773,6 +773,7 @@ namespace ajkControls
                     {
                         document.CollapseBlock(line);
                     }
+                    UpdateVScrollBarRange();
                     Invoke(new Action(dbDrawBox.Refresh));
                     return;
                 }
@@ -1360,7 +1361,7 @@ namespace ajkControls
         {
             if (document == null) return;
 
-            int line = document.GetLineAt(document.CaretIndex);
+            int line = document.GetVisibleLine(document.GetLineAt(document.CaretIndex));
 
             if (line < vScrollBar.Value)
             {
@@ -1398,8 +1399,8 @@ namespace ajkControls
         {
             if (document == null) return;
 
-            int startLine = document.GetLineAt(document.SelectionStart);
-            int lastLine = document.GetLineAt(document.SelectionLast);
+            int startLine = document.GetVisibleLine(document.GetLineAt(document.SelectionStart));
+            int lastLine = document.GetVisibleLine(document.GetLineAt(document.SelectionLast));
 
             if (startLine < vScrollBar.Value)
             {
@@ -1418,7 +1419,7 @@ namespace ajkControls
 
         private void UpdateVScrollBarRange()
         {
-            if (document != null) vScrollBar.Maximum = document.Lines;
+            if (document != null) vScrollBar.Maximum = document.VisibleLines;
         }
 
     }
