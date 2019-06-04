@@ -763,8 +763,8 @@ namespace ajkControls
             {
                 if (e.X < xOffset * charSizeX)
                 {
-                    int drawLine = e.Y / charSizeY+1;
-                    int line = drawLine;
+                    int drawLine = e.Y / charSizeY;
+                    int line = GetActualLineNo(drawLine);
                     if (document.IsCollapsed(line))
                     {
                         document.ExpandBlock(line);

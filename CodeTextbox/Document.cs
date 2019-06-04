@@ -74,13 +74,20 @@ namespace ajkControls
                 lineVisible[i] = true;
             }
             visibleLines = Lines;
-            foreach (int collapsedLine in collapsedLines)
+            for(int i = collapsedLines.Count-1; i >= 0; i--)
             {
-                int j = blockStartLines.IndexOf(collapsedLine);
-                for(int k = blockStartLines[j]+1; k < blockEndLines[j]; k++)
+                int j = blockStartLines.IndexOf(collapsedLines[i]);
+                if (j == -1)
                 {
-                    lineVisible[k] = false;
-                    visibleLines--;
+                    collapsedLines.RemoveAt(i);
+                }
+                else
+                {
+                    for (int k = blockStartLines[j] + 1; k < blockEndLines[j]; k++)
+                    {
+                        lineVisible[k] = false;
+                        visibleLines--;
+                    }
                 }
             }
         }
@@ -356,6 +363,11 @@ namespace ajkControls
                     newLineIndex[startLine + i] = lines[i];
                     lineVisible[startLine + i] = lineVisible[i];
                 }
+            }
+
+            for(int i = 0; i < collapsedLines.Count - 1; i++)
+            {
+                if (collapsedLines[i] > endLine) collapsedLines[i] = collapsedLines[i] + changedLine;
             }
             visibleLines = visibleLines + changedLine;
 
