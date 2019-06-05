@@ -365,13 +365,24 @@ namespace ajkControls
                 }
             }
 
-            for(int i = 0; i < collapsedLines.Count - 1; i++)
+            for (int i = collapsedLines.Count - 1; i >= 0; i--)
             {
-                if (collapsedLines[i] > endLine) collapsedLines[i] = collapsedLines[i] + changedLine;
+                if (collapsedLines[i] > endLine && changedLine != 0)
+                {
+                    collapsedLines[i] = collapsedLines[i] + changedLine;
+                    if (collapsedLines[i] < startLine) collapsedLines.RemoveAt(i);
+                }
+            }
+
+            
+            for (int i =　blockStartIndexs.Count - 1; i >= 0; i--)
+            {
+                if (blockStartIndexs[i] > index + replaceLength)
+                {
+                    blockStartIndexs[i] = blockStartIndexs[i] - replaceLength + array.Length;
+                }
             }
             visibleLines = visibleLines + changedLine;
-
-//            System.Diagnostics.Debug.Print("line,lineVisibles "+ newLineIndex.Length.ToString()+","+ lineVisible.Length.ToString()+","+ VisibleLines.ToString());
         }
 
         private void updateIndex(ref int index,int modifyIndex,int modifyLength,int modifiedToLength)
