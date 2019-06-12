@@ -49,6 +49,9 @@ namespace ajkControls
             }
         }
 
+
+        // block handling /////////////////////////////
+
         List<int> blockStartIndexs = new List<int>();
         List<int> blockEndIndexs = new List<int>();
 
@@ -85,8 +88,11 @@ namespace ajkControls
                 {
                     for (int k = blockStartLines[j] + 1; k < blockEndLines[j]; k++)
                     {
-                        lineVisible[k] = false;
-                        visibleLines--;
+                        if (lineVisible[k])
+                        {
+                            lineVisible[k] = false;
+                            visibleLines--;
+                        }
                     }
                 }
             }
@@ -100,7 +106,6 @@ namespace ajkControls
                 return visibleLines;
             }
         }
-
 
         public void ClearBlock()
         {
@@ -154,6 +159,9 @@ namespace ajkControls
             if (collapsedLines.Contains(lineNo)) return true;
             return false;
         }
+
+
+        /////////////////////////////////////////
 
         int selectionStart;
         public int SelectionStart {
