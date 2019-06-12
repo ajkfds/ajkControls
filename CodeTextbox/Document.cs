@@ -68,6 +68,7 @@ namespace ajkControls
                 blockStartLines.Add(GetLineAt(blockStartIndexs[i]));
                 blockEndLines.Add(GetLineAt(blockEndIndexs[i]));
             }
+            blockCashActive = true;
         }
 
         private void refreshVisibleLines()
@@ -107,6 +108,32 @@ namespace ajkControls
             }
         }
 
+        public int GetVisibleLineNo(int lineNo)
+        {
+            if (!blockCashActive) createBlockCash();
+            if (collapsedLines.Count == 0) return lineNo;
+            int vline = 0;
+            for (int i = 0; i < lineNo; i++)
+            {
+                if (lineVisible[i]) vline++;
+            }
+            return vline;
+        }
+
+        public int GetActialLineNo(int visibleLineNo)
+        {
+            if (!blockCashActive) createBlockCash();
+            if (collapsedLines.Count == 0) return visibleLineNo;
+            int lineNo = 0;
+            int vLine = 0;
+            for (lineNo = 0; lineNo < Lines; lineNo++)
+            {
+                if (lineVisible[lineNo]) vLine++;
+                if (visibleLineNo == vLine) break;
+            }
+            if (lineNo == 0) lineNo = 1;
+            return lineNo;
+        }
         public void ClearBlock()
         {
             blockCashActive = false;

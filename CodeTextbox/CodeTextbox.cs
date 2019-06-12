@@ -517,7 +517,8 @@ namespace ajkControls
                     xOffset = 0;
                 }
 
-                int lineStart = vScrollBar.Value+1;
+                int lineStart = document.GetActialLineNo(vScrollBar.Value+1);
+                System.Diagnostics.Debug.Print("ls" + lineStart.ToString());
                 int drawLine = 0;
                 int line = lineStart;
                 if (!multiLine) drawLine = document.Lines;
