@@ -15,6 +15,8 @@ namespace ajkControls.TableView
         public TableView()
         {
             InitializeComponent();
+
+            vScrollBar.Width = Global.ScrollBarWidth;
         }
 
         public int HeaderHeight
@@ -54,16 +56,46 @@ namespace ajkControls.TableView
             {
                 columns = value;
                 Widths.Clear();
-                for(int i = 0; i < columns; i++)
+                for (int i = 0; i < columns; i++)
                 {
                     Widths.Add(doubleBufferedDrawBox.Width / columns);
                 }
+                recalcWidth();
+            }
+        }
+
+        private int stretchableCoulmn = 0;
+        public int StretchableCoulmn
+        {
+            get
+            {
+                return stretchableCoulmn;
+            }
+            set
+            {
+                stretchableCoulmn = value;
+                recalcWidth();
+            }
+        }
+
+        private void recalcWidth()
+        {
+            int width = 0;
+            for (int i = 0; i < columns; i++)
+            {
+                if (i == stretchableCoulmn) continue;
+                width += Widths[i];
+            }
+            if( 0 <= stretchableCoulmn  && stretchableCoulmn < Widths.Count && (doubleBufferedDrawBox.Width - width) > 0)
+            {
+                Widths[stretchableCoulmn] = doubleBufferedDrawBox.Width - width;
             }
         }
 
         private void DoubleBufferedDrawBox_Resize(object sender, EventArgs e)
         {
             reCalcParameters();
+            recalcWidth();
         }
 
         private void VScrollBar_Scroll(object sender, ScrollEventArgs e)
@@ -82,6 +114,7 @@ namespace ajkControls.TableView
         private void reCalcParameters()
         {
             lines = (doubleBufferedDrawBox.Height - HeaderHeight) / lineHeight;
+            if (lines < 0) return;
             vScrollBar.LargeChange = lines;
             startLine = vScrollBar.Value;
         }

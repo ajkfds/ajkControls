@@ -57,6 +57,13 @@
     <Compile Include="ColorLabel\ColorLabel.cs" />
     <Compile Include="ftp\FileTransfer.cs" />
     <Compile Include="ftp\FtpClient.cs" />
+    <Compile Include="Git\GitCommit.cs" />
+    <Compile Include="Git\GitPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Git\GitPanel.Designer.cs">
+      <DependentUpon>GitPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Global.cs" />
     <Compile Include="Json\IJson.cs" />
     <Compile Include="Json\JsonReader.cs" />
@@ -127,6 +134,9 @@
     <EmbeddedResource Include="CodeTextbox\CodeTextbox.resx">
       <DependentUpon>CodeTextbox.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Git\GitPanel.resx">
+      <DependentUpon>GitPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LogView\LogView.resx">
       <DependentUpon>LogView.cs</DependentUpon>
     </EmbeddedResource>
@@ -171,5 +181,6 @@
   <ItemGroup>
     <None Include="Resources\whiteClose.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

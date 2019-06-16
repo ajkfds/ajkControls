@@ -131,13 +131,13 @@ namespace ajkControls
 
                         if (tabPage != null && tabPage.IconImage != null)
                         {
-                            g.DrawImage(tabPage.IconImage.GetImage(FontHeight, IconImage.ColorStyle.White), new Point((int)(bmp.Height*0.1), bmp.Height / 2 - FontHeight / 2));
+                            g.DrawImage(tabPage.IconImage.GetImage(FontHeight, tabPage.IconColor), new Point((int)(bmp.Height*0.1), bmp.Height / 2 - FontHeight / 2));
                             left = left + FontHeight;
                             width = width - FontHeight;
                         }
                         if (tabPage != null && tabPage.CloseButtonEnable)
                         {
-                            g.DrawImage(closeButtonIcon.GetImage(FontHeight, IconImage.ColorStyle.White), new Point(bmp.Width - FontHeight-1, bmp.Height/2-FontHeight/2));
+                            g.DrawImage(closeButtonIcon.GetImage(FontHeight, tabPage.IconColor), new Point(bmp.Width - FontHeight-1, bmp.Height/2-FontHeight/2));
                             width = width - FontHeight;
                         }
 

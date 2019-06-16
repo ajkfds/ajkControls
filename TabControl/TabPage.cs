@@ -22,6 +22,19 @@ namespace ajkControls
             }
         }
 
+        private IconImage.ColorStyle iconColor = IconImage.ColorStyle.White;
+        public virtual IconImage.ColorStyle IconColor
+        {
+            get
+            {
+                return iconColor;
+            }
+            set
+            {
+                iconColor = value;
+            }
+        }
+
         private bool closeButtonEnable = false;
         public virtual bool CloseButtonEnable
         {
