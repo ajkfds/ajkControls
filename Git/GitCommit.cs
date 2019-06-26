@@ -92,6 +92,7 @@ namespace ajkControls.Git
             {
                 foreach (GitPanel.Connection connection in Connections)
                 {
+                    treePen = new Pen(Color.FromArgb(100, connection.Color),4);
                     g.DrawLine(treePen, 
                         rectangles[0].Left + size / 2 + size/2 * connection.From, 
                         y - size/2,

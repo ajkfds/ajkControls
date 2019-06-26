@@ -20,7 +20,7 @@ namespace ajkControls.Git
 
             shell.LineReceived += shell_Received;
 
-            mustrefresh = true;
+            mustRefresh = true;
         }
         private string path;
 
@@ -30,27 +30,69 @@ namespace ajkControls.Git
             base.Dispose();
         }
 
+        public void RefreshLog()
+        {
+            refreshLog();
+        }
+
+        public void Fetch()
+        {
+            fetch();
+        }
+
+
         private ajkControls.CommandShell shell = new ajkControls.CommandShell();
 
-        volatile bool mustrefresh = false;
+        volatile bool mustRefresh = false;
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (mustrefresh)
+            if (mustRefresh)
             {
                 refreshLog();
-                mustrefresh = false;
+                mustRefresh = false;
             }
         }
 
         public class Connection
         {
-            public Connection(int from,int to)
+            public Connection(int from,int to,System.Drawing.Color color)
             {
                 From = from;
                 To = to;
+                Color = color;
             }
             public int From;
             public int To;
+            public System.Drawing.Color Color;
+        }
+
+        private void fetch()
+        {
+            shell.Execute("cd " + path);
+            shell.Execute("");
+            shell.StartLogging();
+            shell.Execute(@"git fetch");
+            shell.Execute("echo <complete>");
+            while (!shell.GetLastLine().EndsWith("echo <complete>"))
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            shell.EndLogging();
+        }
+        private void getStatus()
+        {
+            shell.Execute("cd " + path);
+            shell.Execute("");
+            shell.StartLogging();
+            shell.Execute(@"git branch");
+            shell.Execute("echo <complete>");
+            while (!shell.GetLastLine().EndsWith("echo <complete>"))
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            List<string> lines = shell.GetLogs();
+
+            shell.EndLogging();
         }
 
         private void refreshLog()
@@ -58,13 +100,14 @@ namespace ajkControls.Git
             shell.Execute("cd " + path);
             shell.Execute("");
             shell.StartLogging();
-            shell.Execute(@"git log --pretty=""format:<%H> <%cd> <%an> %s %d "" --date=format:""%Y/%m/%d %H:%M:%S"" --all --graph");
+            shell.Execute(@"git log --pretty=""format:<%H> <%cd> <%an> %s %d "" --date=format:""%Y/%m/%d %H:%M:%S"" --all --graph --color");
             shell.Execute("echo <complete>");
             while (!shell.GetLastLine().EndsWith("echo <complete>"))
             {
                 System.Threading.Thread.Sleep(10);
             }
             List<string> lines = shell.GetLogs();
+
 
             List<Connection> connections = new List<Connection>();
 
@@ -73,10 +116,12 @@ namespace ajkControls.Git
 
             foreach (string line in lines)
             {
-                GitCommit commit = GitCommit.Create(line,Color.AliceBlue);
+                Primitive.ColoredString cs = new Primitive.ColoredString(line);
+
+                GitCommit commit = GitCommit.Create(cs.Text,Color.AliceBlue);
                 if (commit == null)
                 {
-                    commit = GitCommit.CreateBlank(line);
+                    commit = GitCommit.CreateBlank(cs.Text);
                     if (commit == null) continue;
 
                     List<Connection> newconnections = new List<Connection>();
@@ -89,7 +134,7 @@ namespace ajkControls.Git
                                 {
                                     if (connections[j].To == i)
                                     {
-                                        newconnections.Add(new Connection(connections[j].From, i));
+                                        newconnections.Add(new Connection(connections[j].From, i,cs.Colors[i]));
                                     }
                                 }
                                 break;
@@ -98,7 +143,7 @@ namespace ajkControls.Git
                                 {
                                     if(connections[j].To == i - 1)
                                     {
-                                        newconnections.Add(new Connection(connections[j].From, i + 1));
+                                        newconnections.Add(new Connection(connections[j].From, i + 1, cs.Colors[i]));
                                     }
                                 }
                                 break;
@@ -107,7 +152,7 @@ namespace ajkControls.Git
                                 {
                                     if (connections[j].To == i + 1)
                                     {
-                                        newconnections.Add(new Connection(connections[j].From, i - 1));
+                                        newconnections.Add(new Connection(connections[j].From, i - 1, cs.Colors[i]));
                                     }
                                 }
                                 break;
@@ -116,22 +161,31 @@ namespace ajkControls.Git
                         }
                     }
                     connections = newconnections;
-                }
-                else {
+                } else {
                     // normal commit
                     tableView.TableItems.Add(commit);
+
                     commit.Connections = connections;
-
-                    connections = new List<Connection>();
-
+                    var newconnections = new List<Connection>();
 
                     for(int i=0;i<commit.Tree.Length;i++)
                     {
+                        if (commit.Tree[i] == '|')
+                        {
+                            for (int j = 0; j < connections.Count; j++)
+                            {
+                                if (connections[j].To == i)
+                                {
+                                    newconnections.Add(new Connection(i, i, cs.Colors[i]));
+                                }
+                            }
+                        }else 
                         if (commit.Tree[i] != ' ')
                         {
-                            connections.Add(new Connection(i,i));
+                            newconnections.Add(new Connection(i,i,Color.White));
                         }
                     }
+                    connections = newconnections;
                 }
             }
             tableView.Refresh();
@@ -152,6 +206,11 @@ namespace ajkControls.Git
         private void PullBtn_Click(object sender, EventArgs e)
         {
             refreshLog();
+        }
+
+        private void FetchBtn_Click(object sender, EventArgs e)
+        {
+            fetch();
         }
 
 

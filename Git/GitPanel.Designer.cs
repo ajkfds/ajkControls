@@ -32,13 +32,13 @@
             this.refreshBtn = new System.Windows.Forms.Button();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel = new System.Windows.Forms.Panel();
+            this.fetchBtn = new System.Windows.Forms.Button();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.tableView = new ajkControls.TableView.TableView();
             this.logView = new ajkControls.LogView();
-            this.pullBtn = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.treeView = new ajkControls.TreeView();
             this.splitter2 = new System.Windows.Forms.Splitter();
-            this.treeView1 = new ajkControls.TreeView();
             this.panel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -67,7 +67,7 @@
             // 
             // panel
             // 
-            this.panel.Controls.Add(this.pullBtn);
+            this.panel.Controls.Add(this.fetchBtn);
             this.panel.Controls.Add(this.refreshBtn);
             this.panel.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel.Location = new System.Drawing.Point(0, 0);
@@ -75,6 +75,18 @@
             this.panel.Name = "panel";
             this.panel.Size = new System.Drawing.Size(759, 104);
             this.panel.TabIndex = 4;
+            // 
+            // fetchBtn
+            // 
+            this.fetchBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.fetchBtn.Location = new System.Drawing.Point(100, 4);
+            this.fetchBtn.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.fetchBtn.Name = "fetchBtn";
+            this.fetchBtn.Size = new System.Drawing.Size(91, 96);
+            this.fetchBtn.TabIndex = 2;
+            this.fetchBtn.Text = "fetch";
+            this.fetchBtn.UseVisualStyleBackColor = true;
+            this.fetchBtn.Click += new System.EventHandler(this.FetchBtn_Click);
             // 
             // timer
             // 
@@ -101,7 +113,7 @@
             // 
             this.logView.BackColor = System.Drawing.Color.Silver;
             this.logView.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.logView.Font = new System.Drawing.Font("Meiryo UI", 6F);
+            this.logView.Font = new System.Drawing.Font("Consolas", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.logView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.logView.Location = new System.Drawing.Point(184, 572);
             this.logView.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
@@ -110,25 +122,27 @@
             this.logView.Size = new System.Drawing.Size(575, 107);
             this.logView.TabIndex = 2;
             // 
-            // pullBtn
-            // 
-            this.pullBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.pullBtn.Location = new System.Drawing.Point(100, 4);
-            this.pullBtn.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.pullBtn.Name = "pullBtn";
-            this.pullBtn.Size = new System.Drawing.Size(91, 96);
-            this.pullBtn.TabIndex = 2;
-            this.pullBtn.Text = "pull";
-            this.pullBtn.UseVisualStyleBackColor = true;
-            // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.treeView1);
+            this.panel1.Controls.Add(this.treeView);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 104);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(181, 575);
             this.panel1.TabIndex = 5;
+            // 
+            // treeView
+            // 
+            this.treeView.BackColor = System.Drawing.Color.White;
+            this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView.HScrollBarVisible = true;
+            this.treeView.Location = new System.Drawing.Point(0, 0);
+            this.treeView.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.treeView.Name = "treeView";
+            this.treeView.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(224)))), ((int)(((byte)(232)))));
+            this.treeView.Size = new System.Drawing.Size(181, 575);
+            this.treeView.TabIndex = 0;
+            this.treeView.VScrollBarVisible = true;
             // 
             // splitter2
             // 
@@ -137,18 +151,6 @@
             this.splitter2.Size = new System.Drawing.Size(3, 575);
             this.splitter2.TabIndex = 6;
             this.splitter2.TabStop = false;
-            // 
-            // treeView1
-            // 
-            this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeView1.HScrollBarVisible = true;
-            this.treeView1.Location = new System.Drawing.Point(0, 0);
-            this.treeView1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(224)))), ((int)(((byte)(232)))));
-            this.treeView1.Size = new System.Drawing.Size(181, 575);
-            this.treeView1.TabIndex = 0;
-            this.treeView1.VScrollBarVisible = true;
             // 
             // GitPanel
             // 
@@ -178,9 +180,9 @@
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel;
         private System.Windows.Forms.Timer timer;
-        private System.Windows.Forms.Button pullBtn;
+        private System.Windows.Forms.Button fetchBtn;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Splitter splitter2;
-        private TreeView treeView1;
+        private TreeView treeView;
     }
 }

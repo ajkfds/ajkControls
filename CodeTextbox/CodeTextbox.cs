@@ -1342,7 +1342,6 @@ namespace ajkControls
         private void selectionChanged()
         {
             if (document == null) return;
-            System.Diagnostics.Debug.Print("to changed:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
 
             if (document.SelectionStart > document.SelectionLast)
             {
@@ -1352,7 +1351,6 @@ namespace ajkControls
             }
             if (document.SelectionStart > document.Length) document.SelectionStart = document.Length;
             if (document.SelectionLast > document.Length) document.SelectionLast = document.Length;
-            System.Diagnostics.Debug.Print("changed:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
         }
 
         /// <summary>
