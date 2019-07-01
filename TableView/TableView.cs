@@ -143,6 +143,23 @@ namespace ajkControls.TableView
                 }
 
                 TableItems[index].Draw(e.Graphics, Font, rectangles);
+
+                y = y + lineHeight + 2;
+            }
+
+            y = 0;
+            for (int index = 0; index < TableItems.Count; index++)
+            {
+                int x = 0;
+                rectangles.Clear();
+                foreach (int width in Widths)
+                {
+                    rectangles.Add(new Rectangle(x, y, width, lineHeight));
+                    x += width;
+                }
+
+                TableItems[index].PostDraw(e.Graphics, Font, rectangles);
+
                 if (TableItems[index] == SelectedItem)
                 {
                     e.Graphics.FillRectangle(selectionBrush, new Rectangle(0, y, doubleBufferedDrawBox.Width, lineHeight));

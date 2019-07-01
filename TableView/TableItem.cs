@@ -13,5 +13,9 @@ namespace ajkControls.TableView
         {
 
         }
+        public virtual void PostDraw(Graphics g, Font font, List<Rectangle> rectangles)
+        {
+
+        }
     }
 }

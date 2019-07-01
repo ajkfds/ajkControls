@@ -16,13 +16,21 @@ namespace ajkControls.Git
         {
             path = repositoryPath;
             InitializeComponent();
-            shell.Start();
 
+            treeView.TreeNodes.Add(branchesNode);
+            treeView.TreeNodes.Add(remotesNode);
+            treeView.TreeNodes.Add(stashesNode);
+
+            shell.Start();
+            shell.Execute("prompt GitPanel$G");
             shell.LineReceived += shell_Received;
 
             mustRefresh = true;
         }
         private string path;
+        private FolderTreeNode branchesNode = new FolderTreeNode("Branch", IconImage.ColorStyle.Gray);
+        private FolderTreeNode remotesNode = new FolderTreeNode("Remote", IconImage.ColorStyle.Gray);
+        private FolderTreeNode stashesNode = new FolderTreeNode("Stash", IconImage.ColorStyle.Gray);
 
         public new void Dispose()
         {
@@ -81,9 +89,14 @@ namespace ajkControls.Git
         }
         private void getStatus()
         {
+            shell.StartLogging();
             shell.Execute("cd " + path);
             shell.Execute("");
-            shell.StartLogging();
+            while (!shell.GetLastLine().StartsWith("GitPanel>"))
+            {
+                System.Threading.Thread.Sleep(10);
+            }
+            shell.ClearLogs();
             shell.Execute(@"git branch");
             shell.Execute("echo <complete>");
             while (!shell.GetLastLine().EndsWith("echo <complete>"))
@@ -92,11 +105,22 @@ namespace ajkControls.Git
             }
             List<string> lines = shell.GetLogs();
 
+            branchesNode.TreeNodes.Clear();
+            foreach(string line  in lines)
+            {
+                if(line.StartsWith("GitPanel>")) continue;
+                branchesNode.TreeNodes.Add(new BranchNode(line));
+            }
+            
+
+
             shell.EndLogging();
         }
 
         private void refreshLog()
         {
+            getStatus();
+
             shell.Execute("cd " + path);
             shell.Execute("");
             shell.StartLogging();
@@ -107,7 +131,7 @@ namespace ajkControls.Git
                 System.Threading.Thread.Sleep(10);
             }
             List<string> lines = shell.GetLogs();
-
+            Color defaultColor = Color.FromArgb(244, 244, 244);
 
             List<Connection> connections = new List<Connection>();
 
@@ -121,18 +145,17 @@ namespace ajkControls.Git
                 GitCommit commit = GitCommit.Create(cs.Text,Color.AliceBlue);
                 if (commit == null)
                 {
-                    commit = GitCommit.CreateBlank(cs.Text);
-                    if (commit == null) continue;
+                    if (!cs.Text.StartsWith("|")) continue;
 
                     List<Connection> newconnections = new List<Connection>();
-                    for (int i = 0; i < commit.Tree.Length; i++)
+                    for (int i = 0; i < cs.Text.Length; i++)
                     {
-                        switch (commit.Tree[i])
+                        switch (cs.Text[i])
                         {
                             case '|':
                                 for (int j = 0; j < connections.Count; j++)
                                 {
-                                    if (connections[j].To == i)
+                                    if (connections[j].To == i && (connections[j].Color == defaultColor | connections[j].Color == cs.Colors[i]))
                                     {
                                         newconnections.Add(new Connection(connections[j].From, i,cs.Colors[i]));
                                     }
@@ -141,7 +164,7 @@ namespace ajkControls.Git
                             case '\\':
                                 for (int j = 0; j < connections.Count; j++)
                                 {
-                                    if(connections[j].To == i - 1)
+                                    if(connections[j].To == i - 1 && (connections[j].Color == defaultColor | connections[j].Color == cs.Colors[i]))
                                     {
                                         newconnections.Add(new Connection(connections[j].From, i + 1, cs.Colors[i]));
                                     }
@@ -150,7 +173,7 @@ namespace ajkControls.Git
                             case '/':
                                 for (int j = 0; j< connections.Count;j++)
                                 {
-                                    if (connections[j].To == i + 1)
+                                    if (connections[j].To == i + 1 && (connections[j].Color == defaultColor | connections[j].Color == cs.Colors[i]))
                                     {
                                         newconnections.Add(new Connection(connections[j].From, i - 1, cs.Colors[i]));
                                     }
@@ -182,7 +205,7 @@ namespace ajkControls.Git
                         }else 
                         if (commit.Tree[i] != ' ')
                         {
-                            newconnections.Add(new Connection(i,i,Color.White));
+                            newconnections.Add(new Connection(i,i, defaultColor));
                         }
                     }
                     connections = newconnections;

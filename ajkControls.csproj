@@ -124,6 +124,7 @@
     <Compile Include="TextView\TextView.Designer.cs">
       <DependentUpon>TextView.cs</DependentUpon>
     </Compile>
+    <Compile Include="TreeView\FolderTreeNode.cs" />
     <Compile Include="TreeView\TreeNode.cs" />
     <Compile Include="TreeView\TreeView.cs">
       <SubType>UserControl</SubType>
@@ -183,6 +184,14 @@
   <ItemGroup>
     <None Include="Resources\whiteClose.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\folder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\openFolder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tree.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

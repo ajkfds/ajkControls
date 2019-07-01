@@ -5,19 +5,29 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace ajkControls.Git
+namespace ajkControls
 {
-    public class BranchNode : TreeNode
+    public class FolderTreeNode : TreeNode
     {
-        public BranchNode(string text)
+        public FolderTreeNode(string text, IconImage.ColorStyle colorStyle)
         {
-            this.Text = text;
+            Text = text;
+            this.colorStyle = colorStyle;
         }
+        IconImage.ColorStyle colorStyle;
 
-        private static IconImage branchIcon = new IconImage(Properties.Resources.tree);
+        private static IconImage openFolderIcon = new IconImage(Properties.Resources.openFolder);
+        private static IconImage closeFolderIcon = new IconImage(Properties.Resources.folder);
         public override void DrawNode(Graphics graphics, int x, int y, Font font, Color color, Color backgroundColor, Color selectedColor, int lineHeight, bool selected)
         {
-            graphics.DrawImage(branchIcon.GetImage(lineHeight, IconImage.ColorStyle.Original), new Point(x, y));
+            if(Exanded)
+            {
+                graphics.DrawImage(openFolderIcon.GetImage(lineHeight, IconImage.ColorStyle.Original), new Point(x, y));
+            }
+            else
+            {
+                graphics.DrawImage(closeFolderIcon.GetImage(lineHeight, IconImage.ColorStyle.Original), new Point(x, y));
+            }
 
             Color bgColor = backgroundColor;
             if (selected) bgColor = selectedColor;

@@ -11,13 +11,13 @@ namespace ajkControls.Git
     {
         protected GitCommit() { }
 
-        public static GitCommit CreateBlank(string line)
-        {
-            if (!line.StartsWith("|")) return null;
-            GitCommit commit = new GitCommit();
-            commit.Tree = line;
-            return commit;
-        }
+        //public static GitCommit CreateBlank(string line)
+        //{
+        //    if (!line.StartsWith("|")) return null;
+        //    GitCommit commit = new GitCommit();
+        //    commit.Tree = line;
+        //    return commit;
+        //}
 
         public static GitCommit Create(string line,Color color,int fromIndent)
         {
@@ -80,14 +80,6 @@ namespace ajkControls.Git
 
             if (CommitHash == null) return;
 
-            g.FillEllipse(
-                dotBrush,
-                rectangles[0].Left + size / 2 + size/2 * Indent - size/4,
-                y + size / 4,
-                size/2,
-                size/2
-                );
-
             if (Connections != null)
             {
                 foreach (GitPanel.Connection connection in Connections)
@@ -97,7 +89,7 @@ namespace ajkControls.Git
                         rectangles[0].Left + size / 2 + size/2 * connection.From, 
                         y - size/2,
                         rectangles[0].Left + size / 2 + size/2 * connection.To,
-                        y + size/2+1
+                        y + size/2+2
                         );
                 }
             }
@@ -106,6 +98,28 @@ namespace ajkControls.Git
             g.DrawString(CommitDate.ToString(), font, stringBrush, rectangles[2]);
             g.DrawString(AuthorName, font, stringBrush, rectangles[3]);
             g.DrawString(Subject, font, stringBrush, rectangles[4]);
+        }
+
+        public override void PostDraw(Graphics g, Font font, List<Rectangle> rectangles)
+        {
+            SolidBrush stringBrush = new SolidBrush(Color.DarkGray);
+            SolidBrush dotBrush = new SolidBrush(Color.White);
+            Pen treePen = new Pen(Color.FromArgb(100, Color.White));
+
+            int size = rectangles[0].Height;
+            //int r = size / 4;
+            int x = rectangles[0].Left;
+            int y = rectangles[0].Top;
+
+            if (CommitHash == null) return;
+
+            g.FillEllipse(
+                dotBrush,
+                rectangles[0].Left + size / 2 + size / 2 * Indent - size / 4,
+                y + size / 4,
+                size / 2,
+                size / 2
+                );
         }
     }
 }
