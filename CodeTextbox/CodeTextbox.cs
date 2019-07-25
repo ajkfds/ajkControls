@@ -1321,9 +1321,9 @@ namespace ajkControls
                     document.SelectionLast = document.CaretIndex;
                     UpdateVScrollBarRange();
                 }
-                if (AfterKeyPressed != null) AfterKeyPressed(this, e);
-                Invoke(new Action(dbDrawBox.Refresh));
             }
+            if (AfterKeyPressed != null) AfterKeyPressed(this, e);
+            Invoke(new Action(dbDrawBox.Refresh));
         }
 
 
