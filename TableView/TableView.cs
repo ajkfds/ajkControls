@@ -15,6 +15,7 @@ namespace ajkControls.TableView
         public TableView()
         {
             InitializeComponent();
+            this.doubleBufferedDrawBox.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.doubleBufferedDrawBox_MouseWheel);
 
             vScrollBar.Width = Global.ScrollBarWidth;
         }
@@ -64,6 +65,14 @@ namespace ajkControls.TableView
             }
         }
 
+        public int LineHeight
+        {
+            get
+            {
+                return lineHeight;
+            }
+        }
+
         private int stretchableCoulmn = 0;
         public int StretchableCoulmn
         {
@@ -101,6 +110,23 @@ namespace ajkControls.TableView
         private void VScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             reCalcParameters();
+            doubleBufferedDrawBox.Invalidate();
+        }
+        private void doubleBufferedDrawBox_MouseWheel(object sender, MouseEventArgs e)
+        {
+            int delta = (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
+            if (delta == 0)
+            {
+                if (e.Delta > 0) delta = 1;
+                if (e.Delta < 0) delta = -1;
+            }
+            int value = vScrollBar.Value - delta;
+            if (value < vScrollBar.Minimum) value = vScrollBar.Minimum;
+            if (value > vScrollBar.Maximum - vScrollBar.LargeChange) value = vScrollBar.Maximum - vScrollBar.LargeChange;
+            if (value < 0) value = 0;
+            vScrollBar.Value = value;
+            reCalcParameters();
+            doubleBufferedDrawBox.Invalidate();
         }
 
         public List<TableItem> TableItems = new List<TableItem>();
@@ -119,8 +145,12 @@ namespace ajkControls.TableView
             startLine = vScrollBar.Value;
         }
 
+
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         private void DoubleBufferedDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
+            sw.Reset();
+            sw.Start();
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -130,9 +160,10 @@ namespace ajkControls.TableView
             reCalcParameters();
 
             int y = 0;
+            int lineCount = 0;
 
             List<Rectangle> rectangles = new List<Rectangle>();
-            for (int index = 0; index < TableItems.Count; index++)
+            for (int index = startLine; index < TableItems.Count; index++)
             {
                 int x = 0;
                 rectangles.Clear();
@@ -145,10 +176,13 @@ namespace ajkControls.TableView
                 TableItems[index].Draw(e.Graphics, Font, rectangles);
 
                 y = y + lineHeight + 2;
+                lineCount++;
+                if (lineCount > lines) break;
             }
 
             y = 0;
-            for (int index = 0; index < TableItems.Count; index++)
+            lineCount = 0;
+            for (int index = startLine; index < TableItems.Count; index++)
             {
                 int x = 0;
                 rectangles.Clear();
@@ -166,7 +200,11 @@ namespace ajkControls.TableView
                 }
 
                 y = y + lineHeight + 2;
+                lineCount++;
+                if (lineCount > lines) break;
             }
+            sw.Stop();
+            System.Diagnostics.Debug.Print("table " + sw.ElapsedMilliseconds+"ms");
         }
 
         public TableItem HitTest(int x,int y)
