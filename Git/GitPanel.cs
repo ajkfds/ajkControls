@@ -131,12 +131,14 @@ namespace ajkControls.Git
                 System.Threading.Thread.Sleep(10);
             }
             List<string> lines = shell.GetLogs();
-            Color defaultColor = Color.FromArgb(244, 244, 244);
+            Color defaultColor = Color.FromArgb(80, 80, 80);
 
             List<Connection> connections = new List<Connection>();
 
             shell.EndLogging();
             tableView.TableItems.Clear();
+
+            int treeDepth = 1;
 
             foreach (string line in lines)
             {
@@ -209,12 +211,44 @@ namespace ajkControls.Git
                         }
                     }
                     connections = newconnections;
+                    if (treeDepth < connections.Count) treeDepth = connections.Count;
                 }
             }
-            tableView.Refresh();
+            // color conversion
+
+            for (int i = tableView.TableItems.Count - 1; i >= 0; i--)
+            {
+                if (i == tableView.TableItems.Count - 1) continue;
+                foreach (Connection connection in (tableView.TableItems[i] as GitCommit).Connections)
+                {
+                    if (connection.Color != defaultColor)
+                    {
+                        connection.Color = colorTable[connection.Color];
+                        continue;
+                    }
+                    int con = connection.To;
+                    foreach (Connection nextConnection in (tableView.TableItems[i + 1] as GitCommit).Connections)
+                    {
+                        if (nextConnection.Color == defaultColor) continue;
+                        if (nextConnection.From == con) connection.Color = nextConnection.Color;
+                    }
+                }
+            }
+            tableView.Widths[0] = (treeDepth+1) * tableView.LineHeight;
+            //            tableView.Refresh();
         }
 
-        private static List<Color> colorTable = new List<Color> { Color.AliceBlue, Color.Red, Color.Green, Color.Yellow, Color.Black };
+        private Dictionary<System.Drawing.Color, System.Drawing.Color> colorTable
+            = new Dictionary<Color, Color> {
+                {Color.Black,   Color.FromArgb(100,100,100)},
+                {Color.Red,     Color.FromArgb(200,100,100)},
+                {Color.Green,   Color.FromArgb(100,200,100)},
+                {Color.Yellow,  Color.FromArgb(200,200,50)},
+                {Color.Blue,    Color.FromArgb(100,100,200)},
+                {Color.Magenta, Color.FromArgb(200,100,200)},
+                {Color.Cyan,    Color.FromArgb(100,200,200)},
+                {Color.White,   Color.FromArgb(200,200,200)},
+            };
 
         private void shell_Received(string line)
         {

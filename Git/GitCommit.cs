@@ -66,10 +66,12 @@ namespace ajkControls.Git
         public Color Color = Color.AliceBlue;
         public List<GitPanel.Connection> Connections;
 
+        private SolidBrush stringBrush = new SolidBrush(Color.FromArgb(100,100,100));
+        private SolidBrush dotBrush = new SolidBrush(Color.FromArgb(255, 255, 255));
+        private Pen dotPen = new Pen(Color.FromArgb(150, 150, 150));
+
         public override void Draw(Graphics g, Font font, List<Rectangle> rectangles)
         {
-            SolidBrush stringBrush = new SolidBrush(Color.DarkGray);
-            SolidBrush dotBrush = new SolidBrush(Color.White);
             Pen treePen = new Pen(Color.FromArgb(100,Color.White));
 
             int size = rectangles[0].Height;
@@ -84,12 +86,12 @@ namespace ajkControls.Git
             {
                 foreach (GitPanel.Connection connection in Connections)
                 {
-                    treePen = new Pen(Color.FromArgb(100, connection.Color),4);
+                    treePen = new Pen(connection.Color,4);
                     g.DrawLine(treePen, 
                         rectangles[0].Left + size / 2 + size/2 * connection.From, 
                         y - size/2,
                         rectangles[0].Left + size / 2 + size/2 * connection.To,
-                        y + size/2+2
+                        y + size/2+3
                         );
                 }
             }
@@ -102,9 +104,6 @@ namespace ajkControls.Git
 
         public override void PostDraw(Graphics g, Font font, List<Rectangle> rectangles)
         {
-            SolidBrush stringBrush = new SolidBrush(Color.DarkGray);
-            SolidBrush dotBrush = new SolidBrush(Color.White);
-            Pen treePen = new Pen(Color.FromArgb(100, Color.White));
 
             int size = rectangles[0].Height;
             //int r = size / 4;
@@ -115,6 +114,13 @@ namespace ajkControls.Git
 
             g.FillEllipse(
                 dotBrush,
+                rectangles[0].Left + size / 2 + size / 2 * Indent - size / 4,
+                y + size / 4,
+                size / 2,
+                size / 2
+                );
+            g.DrawEllipse(
+                dotPen,
                 rectangles[0].Left + size / 2 + size / 2 * Indent - size / 4,
                 y + size / 4,
                 size / 2,

@@ -95,11 +95,11 @@
             // 
             // tableView
             // 
-            this.tableView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
+            this.tableView.BackColor = System.Drawing.Color.White;
             this.tableView.Columns = 5;
             this.tableView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableView.Font = new System.Drawing.Font("Meiryo UI", 8F);
-            this.tableView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(234)))), ((int)(((byte)(234)))));
+            this.tableView.ForeColor = System.Drawing.Color.Gray;
             this.tableView.HeaderHeight = 0;
             this.tableView.Location = new System.Drawing.Point(184, 104);
             this.tableView.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);

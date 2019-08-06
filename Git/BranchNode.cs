@@ -17,7 +17,7 @@ namespace ajkControls.Git
         private static IconImage branchIcon = new IconImage(Properties.Resources.tree);
         public override void DrawNode(Graphics graphics, int x, int y, Font font, Color color, Color backgroundColor, Color selectedColor, int lineHeight, bool selected)
         {
-            graphics.DrawImage(branchIcon.GetImage(lineHeight, IconImage.ColorStyle.Original), new Point(x, y));
+            graphics.DrawImage(branchIcon.GetImage(lineHeight, IconImage.ColorStyle.Blue), new Point(x, y));
 
             Color bgColor = backgroundColor;
             if (selected) bgColor = selectedColor;
