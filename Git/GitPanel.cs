@@ -216,6 +216,21 @@ namespace ajkControls.Git
             }
             // color conversion
 
+            for (int i = 0; i < tableView.TableItems.Count - 2; i++)
+            {
+                foreach (Connection connection in (tableView.TableItems[i] as GitCommit).Connections)
+                {
+                    if (connection.Color == defaultColor) continue;
+
+                    int con = connection.To;
+                    foreach (Connection nextConnection in (tableView.TableItems[i + 1] as GitCommit).Connections)
+                    {
+                        if (nextConnection.Color == defaultColor) continue;
+                        if (nextConnection.From == con) nextConnection.Color = connection.Color;
+                    }
+                }
+            }
+
             for (int i = tableView.TableItems.Count - 1; i >= 0; i--)
             {
                 if (i == tableView.TableItems.Count - 1) continue;
