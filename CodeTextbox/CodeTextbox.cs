@@ -355,14 +355,6 @@ namespace ajkControls
 
                     for (int i = 0x20; i < 128; i++)
                     {
-                        //if (i == 0x26)
-                        //{
-                        //    System.Windows.Forms.TextRenderer.DrawText(gc, "&&", Font, new Point(0, 0), Style.ColorPallet[color], BackColor, TextFormatFlags.NoPadding);
-                        //}
-                        //else
-                        //{
-                        //    System.Windows.Forms.TextRenderer.DrawText(gc, ((char)i).ToString(), Font, new Point(0, 0), Style.ColorPallet[color], BackColor, TextFormatFlags.NoPadding);
-                        //}
                         IntPtr hDC = g.GetHdc();
                         IntPtr hFont = this.Font.ToHfont();
                         IntPtr hOldFont = (IntPtr)SelectObject(hDC, hFont);
@@ -378,7 +370,6 @@ namespace ajkControls
                 }
 
             }
-//            System.Diagnostics.Debug.Print("regen buffer1 " + sw.ElapsedMilliseconds.ToString() + "ms");
             for (int mark = 0; mark < 8; mark++)
             {
                 if (markBitmap[mark] != null) markBitmap[mark].Dispose();
@@ -485,6 +476,7 @@ namespace ajkControls
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
             System.Diagnostics.Debug.Print("dbDrawBox_DoubleBufferedPaint "+visibleLines.ToString());
+
             if (reGenarateBuffer)
             {
                 createGraphicsBuffer();
@@ -663,7 +655,7 @@ namespace ajkControls
                 e.Graphics.DrawLine(new Pen(Color.FromArgb(100,Color.Black)), new Point(xOffset*charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
             }
             sw.Stop();
-//            System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
+                //            System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
         }
 
         public int GetActualLineNo(int drawLineNumber)
