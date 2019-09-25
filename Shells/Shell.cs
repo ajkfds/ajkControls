@@ -8,6 +8,16 @@ namespace ajkControls
 {
     public abstract class Shell : IDisposable
     {
+        public Shell()
+        {
+
+        }
+
+        public Shell(List<string> commands)
+        {
+
+        }
+
         public delegate void ReceivedHandler(string lineString);
         public virtual event ReceivedHandler LineReceived;
 

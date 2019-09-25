@@ -681,6 +681,7 @@ namespace ajkControls
         private int hitIndex(int x,int y)
         {
             //int line = y / charSizeY + vScrollBar.Value+1;
+            if (y < 0) return 0;
             int line = GetActualLineNo(y / charSizeY);
             if (line > document.Lines-1) line = document.Lines-1;
             if (line < 1) line = 1;

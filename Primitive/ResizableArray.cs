@@ -60,11 +60,14 @@ namespace ajkControls
         {
             get
             {
-                if(index > usedLength)
-                { // unused buffer access
-                    System.Diagnostics.Debugger.Break();
+                unsafe
+                {
+                    if (index > usedLength)
+                    { // unused buffer access
+                        System.Diagnostics.Debugger.Break();
+                    }
+                    return buffer[index];
                 }
-                return buffer[index];
             }
             set
             {
@@ -74,17 +77,23 @@ namespace ajkControls
 
         public T[] CreateArray()
         {
-            T[] array = new T[usedLength];
-            Array.Copy(buffer, 0 ,array, 0, usedLength);
-            return array;
+            unsafe
+            {
+                T[] array = new T[usedLength];
+                Array.Copy(buffer, 0, array, 0, usedLength);
+                return array;
+            }
         }
 
         public T[] CreateArray(int index,int length)
         {
-            if (index < 0) System.Diagnostics.Debugger.Break();
-            T[] array = new T[length];
-            Array.Copy(buffer, index, array, 0, length);
-            return array;
+            unsafe
+            {
+                if (index < 0) System.Diagnostics.Debugger.Break();
+                T[] array = new T[length];
+                Array.Copy(buffer, index, array, 0, length);
+                return array;
+            }
         }
 
 

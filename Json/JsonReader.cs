@@ -144,7 +144,7 @@ namespace ajkControls
                     bracketCount--;
                 }
                 nextToken = getToken();
-                if (bracketCount == 0) break;
+                if (bracketCount <= 0) break;
             }
             // nextToken = getToken();
             if (nextToken == ",") nextToken = getToken();

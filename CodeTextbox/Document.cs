@@ -572,14 +572,20 @@ namespace ajkControls
 
         public string CreateString()
         {
-            char[] array = chars.CreateArray();
-            return new string(array);
+            unsafe
+            {
+                char[] array = chars.CreateArray();
+                return new string(array);
+            }
         }
 
         public string CreateString(int index,int length)
         {
-            char[] array = chars.CreateArray(index, length);
-            return new string(array);
+            unsafe
+            {
+                char[] array = chars.CreateArray(index, length);
+                return new string(array);
+            }
         }
 
         public char[] CreateCharArray()
@@ -594,8 +600,11 @@ namespace ajkControls
 
         public char[] CreateLineArray(int line)
         {
-            char[] array = chars.CreateArray( GetLineStartIndex(line),GetLineLength(line) );
-            return array;
+            unsafe
+            {
+                char[] array = chars.CreateArray(GetLineStartIndex(line), GetLineLength(line));
+                return array;
+            }
         }
     }
 }
