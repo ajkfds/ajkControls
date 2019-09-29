@@ -224,5 +224,30 @@ namespace ajkControls
 
             size = new Size(xSize, ySize);
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i] is labelNewLine)
+                {
+                    sb.Append("\r\n");
+                }
+                else if (items[i] is labelText)
+                {
+                    labelText textItem = items[i] as labelText;
+                    sb.Append(textItem.Text);
+                }
+                else if (items[i] is labelIconImage)
+                {
+                }
+                else
+                {
+                    System.Diagnostics.Debugger.Break();
+                }
+            }
+            return sb.ToString();
+        }
     }
 }
