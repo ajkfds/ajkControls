@@ -717,6 +717,91 @@ namespace ajkControls
             return index;
         }
 
+        public int getX(int targetIndex)
+        {
+            int line = document.GetLineAt(targetIndex);
+            int index = document.GetLineStartIndex(line);
+            int nextLineIndex = index + document.GetLineLength(line);
+
+            int xPos = 0;
+            char ch = document.GetCharAt(index);
+            while (index < targetIndex)
+            {
+                if (ch == '\r' || ch == '\n') break;
+                if (ch == '\t')
+                {
+                    xPos = xPos + tabSize - (xPos % tabSize);
+                }
+                else
+                {
+                    xPos++;
+                }
+                index++;
+                ch = document.GetCharAt(index);
+            }
+
+            if (index > 0 && document.GetCharAt(index) == '\n' && document.GetCharAt(index - 1) == '\r')
+            {
+                index--;
+            }
+            if (index < 0) index = 0;
+
+            return index;
+        }
+
+        private int getXPos(int index,int line)
+        {
+            int i = document.GetLineStartIndex(line);
+            int xPos = 0;
+            char ch = document.GetCharAt(i);
+            while (i < index)
+            {
+                if (ch == '\r' || ch == '\n') break;
+                if (ch == '\t')
+                {
+                    xPos = xPos + tabSize - (xPos % tabSize);
+                }
+                else
+                {
+                    xPos++;
+                }
+                i++;
+                ch = document.GetCharAt(i);
+            }
+            return xPos;
+        }
+
+        private int getIndex(int xPos,int line)
+        {
+            int index = document.GetLineStartIndex(line);
+            int nextLineIndex = index + document.GetLineLength(line);
+
+            int x = 0;
+            char ch = document.GetCharAt(index);
+            while (index < nextLineIndex && x < xPos)
+            {
+                if (ch == '\r' || ch == '\n') break;
+                if (ch == '\t')
+                {
+                    x = x + tabSize - (x % tabSize);
+                }
+                else
+                {
+                    x++;
+                }
+                index++;
+                ch = document.GetCharAt(index);
+            }
+
+            if (index > 0 && document.GetCharAt(index) == '\n' && document.GetCharAt(index - 1) == '\r')
+            {
+                index--;
+            }
+            if (index < 0) index = 0;
+
+            return index;
+        }
+
         public void SetSelection(int index,int length)
         {
             document.CaretIndex = index+length;
@@ -947,186 +1032,16 @@ namespace ajkControls
                     }
                     break;
                 case Keys.Left:
-                    {
-                        if (document.CaretIndex < 1) break;
-                        bool onSelectionLast = false;
-                        if(document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-                        {
-                            onSelectionLast = true;
-                        }
-
-                        if (document.CaretIndex > 0 && document.GetCharAt(document.CaretIndex) == '\n' && document.GetCharAt(document.CaretIndex - 1) == '\r')
-                        {
-                            document.CaretIndex = document.CaretIndex - 2;
-                        }
-                        else
-                        {
-                            document.CaretIndex--;
-                        }
-                        caretChanged();
-                        if (e.Modifiers == Keys.Shift)
-                        {
-                            if (onSelectionLast)
-                            {
-                                document.SelectionLast = document.CaretIndex;
-                            }
-                            else
-                            {
-                                document.SelectionStart = document.CaretIndex;
-                            }
-                        }
-                        else
-                        {
-                            document.SelectionStart = document.CaretIndex;
-                            document.SelectionLast = document.CaretIndex;
-                        }
-                        selectionChanged();
-                        Invoke(new Action(dbDrawBox.Refresh));
-                        e.Handled = true;
-                    }
+                    keyLeft(sender, e);
                     break;
                 case Keys.Right:
-                    {
-                        if (document.CaretIndex >= document.Length) break;
-                        bool onSelectionStart = false;
-                        if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-                        {
-                            onSelectionStart = true;
-                        }
-                        if (document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex + 1) == '\n')
-                        {
-                            document.CaretIndex = document.CaretIndex + 2;
-                        }
-                        else
-                        {
-                            document.CaretIndex++;
-                        }
-                        caretChanged();
-                        if (e.Modifiers == Keys.Shift)
-                        {
-                            if (onSelectionStart)
-                            {
-                                document.SelectionStart = document.CaretIndex;
-                            }
-                            else
-                            {
-                                document.SelectionLast = document.CaretIndex;
-                            }
-                        }
-                        else
-                        {
-                            document.SelectionStart = document.CaretIndex;
-                            document.SelectionLast = document.CaretIndex;
-                            selectionChanged();
-                        }
-                        e.Handled = true;
-                    }
+                    keyRight(sender, e);
                     break;
                 case Keys.Up:
-                    {
-                        if (!multiLine) break;
-                        bool onSelectionLast = false;
-                        if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-                        {
-                            onSelectionLast = true;
-                        }
-                        int line = document.GetLineAt(document.CaretIndex);
-                        if (line == 1) break;
-                        int headindex = document.GetLineStartIndex(line);
-                        int xPosition = document.CaretIndex - headindex;
-                        line--;
-
-                        // skip invisible lines
-                        while (line > 1 && !document.IsVisibleLine(line))
-                        {
-                            line--;
-                        }
-                        if(!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
-
-                        headindex = document.GetLineStartIndex(line);
-                        int lineLength = document.GetLineLength(line);
-                        if (lineLength < xPosition)
-                        {
-                            document.CaretIndex = headindex + lineLength-1;
-                        }
-                        else
-                        {
-                            document.CaretIndex = headindex + xPosition;
-                        }
-                        caretChanged();
-                        if (e.Modifiers == Keys.Shift)
-                        {
-                            if(onSelectionLast)
-                            {
-                                document.SelectionLast = document.CaretIndex;
-                            }
-                            else
-                            {
-                                document.SelectionStart = document.CaretIndex;
-                            }
-                        }
-                        else
-                        {
-                            document.SelectionStart = document.CaretIndex;
-                            document.SelectionLast = document.CaretIndex;
-                        }
-                        scrollToCaret();
-                        selectionChanged();
-                        e.Handled = true;
-                    }
+                    keyUp(sender, e);
                     break;
                 case Keys.Down:
-                    {
-                        if (!multiLine) break;
-                        bool onSelectionStart = false;
-                        if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-                        {
-                            onSelectionStart = true;
-                        }
-                        int line = document.GetLineAt(document.CaretIndex);
-                        if (line == document.Lines-1) break;
-                        int headindex = document.GetLineStartIndex(line);
-                        int xPosition = document.CaretIndex - headindex;
-                        line++;
-
-                        // skip invisible lines
-                        while (line < document.Lines && !document.IsVisibleLine(line))
-                        {
-                            line++;
-                        }
-                        if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
-
-                        headindex = document.GetLineStartIndex(line);
-                        int lineLength = document.GetLineLength(line);
-                        if (lineLength < xPosition)
-                        {
-                            document.CaretIndex = headindex + lineLength-1;
-                        }
-                        else
-                        {
-                            document.CaretIndex = headindex + xPosition;
-                        }
-                        caretChanged();
-                        if (e.Modifiers == Keys.Shift)
-                        {
-                            if (onSelectionStart)
-                            {
-                                document.SelectionStart = document.CaretIndex;
-                            }
-                            else
-                            {
-                                document.SelectionLast = document.CaretIndex;
-                            }
-                        }
-                        else
-                        {
-                            document.SelectionStart = document.CaretIndex;
-                            document.SelectionLast = document.CaretIndex;
-                        }
-                        scrollToCaret();
-                        selectionChanged();
-                        e.Handled = true;
-                    }
+                    keyDown(sender, e);
                     break;
                 case Keys.Delete:
                     if(document.SelectionStart == document.SelectionLast)
@@ -1257,6 +1172,188 @@ namespace ajkControls
                 Invoke(new Action(dbDrawBox.Refresh));
                 skipKeyPress = true;
             }
+        }
+
+        private void keyLeft(object sender, KeyEventArgs e)
+        {
+            if (document.CaretIndex < 1) return;
+            bool onSelectionLast = false;
+            if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+            {
+                onSelectionLast = true;
+            }
+
+            if (document.CaretIndex > 0 && document.GetCharAt(document.CaretIndex) == '\n' && document.GetCharAt(document.CaretIndex - 1) == '\r')
+            {
+                document.CaretIndex = document.CaretIndex - 2;
+            }
+            else
+            {
+                document.CaretIndex--;
+            }
+            caretChanged();
+            if (e.Modifiers == Keys.Shift)
+            {
+                if (onSelectionLast)
+                {
+                    document.SelectionLast = document.CaretIndex;
+                }
+                else
+                {
+                    document.SelectionStart = document.CaretIndex;
+                }
+            }
+            else
+            {
+                document.SelectionStart = document.CaretIndex;
+                document.SelectionLast = document.CaretIndex;
+            }
+            selectionChanged();
+            Invoke(new Action(dbDrawBox.Refresh));
+            e.Handled = true;
+        }
+
+        private void keyRight(object sender, KeyEventArgs e)
+        {
+            if (document.CaretIndex >= document.Length) return;
+            bool onSelectionStart = false;
+            if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+            {
+                onSelectionStart = true;
+            }
+            if (document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex + 1) == '\n')
+            {
+                document.CaretIndex = document.CaretIndex + 2;
+            }
+            else
+            {
+                document.CaretIndex++;
+            }
+            caretChanged();
+            if (e.Modifiers == Keys.Shift)
+            {
+                if (onSelectionStart)
+                {
+                    document.SelectionStart = document.CaretIndex;
+                }
+                else
+                {
+                    document.SelectionLast = document.CaretIndex;
+                }
+            }
+            else
+            {
+                document.SelectionStart = document.CaretIndex;
+                document.SelectionLast = document.CaretIndex;
+                selectionChanged();
+            }
+            e.Handled = true;
+        }
+
+        private void keyUp(object sender, KeyEventArgs e)
+        {
+            if (!multiLine) return;
+            bool onSelectionLast = false;
+            if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+            {
+                onSelectionLast = true;
+            }
+            int line = document.GetLineAt(document.CaretIndex);
+            if (line == 1) return;
+            int headindex = document.GetLineStartIndex(line);
+            int xPosition = document.CaretIndex - headindex;
+            line--;
+
+            // skip invisible lines
+            while (line > 1 && !document.IsVisibleLine(line))
+            {
+                line--;
+            }
+            if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
+
+            headindex = document.GetLineStartIndex(line);
+            int lineLength = document.GetLineLength(line);
+            if (lineLength < xPosition)
+            {
+                document.CaretIndex = headindex + lineLength - 1;
+            }
+            else
+            {
+                document.CaretIndex = headindex + xPosition;
+            }
+            caretChanged();
+            if (e.Modifiers == Keys.Shift)
+            {
+                if (onSelectionLast)
+                {
+                    document.SelectionLast = document.CaretIndex;
+                }
+                else
+                {
+                    document.SelectionStart = document.CaretIndex;
+                }
+            }
+            else
+            {
+                document.SelectionStart = document.CaretIndex;
+                document.SelectionLast = document.CaretIndex;
+            }
+            scrollToCaret();
+            selectionChanged();
+            e.Handled = true;
+        }
+
+        private void keyDown(object sender, KeyEventArgs e)
+        {
+            if (!multiLine) return;
+            bool onSelectionStart = false;
+            if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
+            {
+                onSelectionStart = true;
+            }
+            int line = document.GetLineAt(document.CaretIndex);
+            if (line == document.Lines - 1) return;
+            int headindex = document.GetLineStartIndex(line);
+            int xPosition = document.CaretIndex - headindex;
+            line++;
+
+            // skip invisible lines
+            while (line < document.Lines && !document.IsVisibleLine(line))
+            {
+                line++;
+            }
+            if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
+
+            headindex = document.GetLineStartIndex(line);
+            int lineLength = document.GetLineLength(line);
+            if (lineLength < xPosition)
+            {
+                document.CaretIndex = headindex + lineLength - 1;
+            }
+            else
+            {
+                document.CaretIndex = headindex + xPosition;
+            }
+            caretChanged();
+            if (e.Modifiers == Keys.Shift)
+            {
+                if (onSelectionStart)
+                {
+                    document.SelectionStart = document.CaretIndex;
+                }
+                else
+                {
+                    document.SelectionLast = document.CaretIndex;
+                }
+            }
+            else
+            {
+                document.SelectionStart = document.CaretIndex;
+                document.SelectionLast = document.CaretIndex;
+            }
+            scrollToCaret();
+            selectionChanged();
+            e.Handled = true;
         }
 
         private void dbDrawBox_KeyUp(object sender, KeyEventArgs e)
