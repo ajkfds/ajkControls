@@ -978,6 +978,7 @@ namespace ajkControls
         }
 
         private bool skipKeyPress = false;
+        private int prevXPos = -1;
         private void dbDrawBox_KeyDown(object sender, KeyEventArgs e)
         {
             skipKeyPress = false;
@@ -992,6 +993,11 @@ namespace ajkControls
                 selectionChanged();
                 Invoke(new Action(dbDrawBox.Refresh));
                 return;
+            }
+
+            if(e.KeyCode != Keys.Up && e.KeyCode != Keys.Down)
+            {
+                prevXPos = -1;
             }
 
             switch (e.KeyCode)
@@ -1260,8 +1266,12 @@ namespace ajkControls
             }
             int line = document.GetLineAt(document.CaretIndex);
             if (line == 1) return;
+
+
             int headindex = document.GetLineStartIndex(line);
-            int xPosition = document.CaretIndex - headindex;
+            int xPosition = getXPos(document.CaretIndex, line);
+            if (prevXPos > xPosition) xPosition = prevXPos;
+
             line--;
 
             // skip invisible lines
@@ -1271,16 +1281,10 @@ namespace ajkControls
             }
             if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
 
+
             headindex = document.GetLineStartIndex(line);
-            int lineLength = document.GetLineLength(line);
-            if (lineLength < xPosition)
-            {
-                document.CaretIndex = headindex + lineLength - 1;
-            }
-            else
-            {
-                document.CaretIndex = headindex + xPosition;
-            }
+            document.CaretIndex = getIndex(xPosition, line);
+
             caretChanged();
             if (e.Modifiers == Keys.Shift)
             {
@@ -1314,7 +1318,9 @@ namespace ajkControls
             int line = document.GetLineAt(document.CaretIndex);
             if (line == document.Lines - 1) return;
             int headindex = document.GetLineStartIndex(line);
-            int xPosition = document.CaretIndex - headindex;
+            int xPosition = getXPos(document.CaretIndex, line);
+            if (prevXPos > xPosition) xPosition = prevXPos;
+
             line++;
 
             // skip invisible lines
@@ -1325,15 +1331,8 @@ namespace ajkControls
             if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
 
             headindex = document.GetLineStartIndex(line);
-            int lineLength = document.GetLineLength(line);
-            if (lineLength < xPosition)
-            {
-                document.CaretIndex = headindex + lineLength - 1;
-            }
-            else
-            {
-                document.CaretIndex = headindex + xPosition;
-            }
+            document.CaretIndex = getIndex(xPosition, line);
+
             caretChanged();
             if (e.Modifiers == Keys.Shift)
             {
