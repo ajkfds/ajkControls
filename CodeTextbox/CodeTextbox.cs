@@ -928,10 +928,18 @@ namespace ajkControls
                 if (state == uiState.selecting)
                 {
                     int index = hitIndex(e.X, e.Y);
-                    if(document.CaretIndex != index || document.SelectionLast != index)
+                    if (document.SelectionStart == document.CaretIndex)
                     {
+                        document.SelectionStart = index;
                         document.CaretIndex = index;
+                        state = uiState.idle;
+                        selectionChanged();
+                        Invoke(new Action(dbDrawBox.Refresh));
+                    }
+                    else if (document.SelectionLast == document.CaretIndex)
+                    {
                         document.SelectionLast = index;
+                        document.CaretIndex = index;
                         state = uiState.idle;
                         selectionChanged();
                         Invoke(new Action(dbDrawBox.Refresh));
@@ -940,6 +948,7 @@ namespace ajkControls
                     {
                         state = uiState.idle;
                     }
+
                 }
             }
         }
@@ -1478,7 +1487,7 @@ namespace ajkControls
             if (document.SelectionStart > document.Length) document.SelectionStart = document.Length;
             if (document.SelectionLast > document.Length) document.SelectionLast = document.Length;
 
-            if(document.SelectionStart == document.SelectionLast || document.SelectionStart+3 < document.SelectionLast)
+            if(document.SelectionStart == document.SelectionLast || document.SelectionStart+3 > document.SelectionLast)
             {
                 clearHiglight();
             }
@@ -1491,8 +1500,43 @@ namespace ajkControls
                 }
                 else
                 {
-                    int i = document.CreateString().IndexOf(target);
-                    appendHighLight(i, i+target.Length-1);
+                    clearHiglight();
+                    int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
+                    int drawLine = 0;
+                    int line = lineStart;
+                    while (line < document.Lines)
+                    {
+                        if (drawLine >= visibleLines + 2)
+                        {
+                            break;
+                        }
+                        if (!document.IsVisibleLine(line))
+                        {
+                            line++;
+                            while (line < document.Lines)
+                            {
+                                if (document.IsVisibleLine(line)) break;
+                                line++;
+                            }
+                            continue;
+                        }
+                        actualLineNumbers[drawLine] = line;
+
+                        // draw line number (right padding)
+                        if (multiLine)
+                        {
+                            string lineString = line.ToString();
+                        }
+
+                        int i = document.CreateLineString(line).IndexOf(target);
+                        if (i >= 0)
+                        {
+                            appendHighLight(document.GetLineStartIndex(line) + i, document.GetLineStartIndex(line) + i + target.Length - 1);
+                        }
+
+                        drawLine++;
+                        line++;
+                    }
                 }
             }
         }

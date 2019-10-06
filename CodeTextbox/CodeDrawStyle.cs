@@ -48,7 +48,7 @@ namespace ajkControls
                         System.Drawing.Color.Red, // 4
                         System.Drawing.Color.Red, // 5
                         System.Drawing.Color.Red, // 6
-                        System.Drawing.Color.Red  // 7
+                        System.Drawing.Color.FromArgb(50,100,10,100)  // 7
                     };
             }
         }
@@ -66,7 +66,7 @@ namespace ajkControls
                         CodeTextbox.MarkStyleEnum.underLine,
                         CodeTextbox.MarkStyleEnum.underLine,
                         CodeTextbox.MarkStyleEnum.underLine,
-                        CodeTextbox.MarkStyleEnum.underLine
+                        CodeTextbox.MarkStyleEnum.fill              // 7 for selection highlight
                     };
             }
         }
