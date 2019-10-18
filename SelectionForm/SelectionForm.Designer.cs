@@ -37,34 +37,36 @@
             // vScrollBar
             // 
             this.vScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.vScrollBar.Location = new System.Drawing.Point(257, 27);
+            this.vScrollBar.Location = new System.Drawing.Point(257, 22);
             this.vScrollBar.Name = "vScrollBar";
-            this.vScrollBar.Size = new System.Drawing.Size(26, 382);
+            this.vScrollBar.Size = new System.Drawing.Size(26, 387);
             this.vScrollBar.TabIndex = 1;
             // 
             // doubleBufferedDrawBox
             // 
             this.doubleBufferedDrawBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.doubleBufferedDrawBox.Location = new System.Drawing.Point(0, 27);
+            this.doubleBufferedDrawBox.Location = new System.Drawing.Point(0, 22);
             this.doubleBufferedDrawBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.doubleBufferedDrawBox.Name = "doubleBufferedDrawBox";
-            this.doubleBufferedDrawBox.Size = new System.Drawing.Size(257, 382);
+            this.doubleBufferedDrawBox.Size = new System.Drawing.Size(257, 387);
             this.doubleBufferedDrawBox.TabIndex = 2;
             this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.doubleBufferedDrawBox_DoubleBufferedPaint);
             // 
             // codeTextbox
             // 
-            this.codeTextbox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.codeTextbox.BackColor = System.Drawing.Color.Gainsboro;
             this.codeTextbox.Dock = System.Windows.Forms.DockStyle.Top;
             this.codeTextbox.Document = null;
             this.codeTextbox.Editable = true;
             this.codeTextbox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeTextbox.LineNumberFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(112)))), ((int)(((byte)(128)))), ((int)(((byte)(144)))));
             this.codeTextbox.Location = new System.Drawing.Point(0, 0);
             this.codeTextbox.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.codeTextbox.MultiLine = false;
             this.codeTextbox.Name = "codeTextbox";
             this.codeTextbox.ScrollBarVisible = false;
-            this.codeTextbox.Size = new System.Drawing.Size(283, 27);
+            this.codeTextbox.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(91)))), ((int)(((byte)(125)))), ((int)(((byte)(159)))));
+            this.codeTextbox.Size = new System.Drawing.Size(283, 22);
             this.codeTextbox.Style = codeDrawStyle1;
             this.codeTextbox.TabIndex = 0;
             this.codeTextbox.AfterKeyPressed += new System.Windows.Forms.KeyPressEventHandler(this.codeTextbox_AfterKeyPressed);

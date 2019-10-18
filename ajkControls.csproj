@@ -53,6 +53,15 @@
     <Compile Include="CodeTextbox\CodeTextbox.Designer.cs">
       <DependentUpon>CodeTextbox.cs</DependentUpon>
     </Compile>
+    <Compile Include="CodeTextbox\CodeTextbox.Draw.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CodeTextbox\CodeTextbox.Highlight.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CodeTextbox\CodeTextbox.Mouse.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="CodeTextbox\Document.cs" />
     <Compile Include="ColorLabel\ColorLabel.cs" />
     <Compile Include="ftp\FileTransfer.cs" />
@@ -167,6 +176,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeTextbox\CodeTextbox.Keys.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <None Include="Resources\dot.png" />
   </ItemGroup>
   <ItemGroup>

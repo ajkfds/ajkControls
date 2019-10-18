@@ -15,6 +15,9 @@ namespace ajkControls
             visibleLines = 1;
         }
 
+        public Action<int, int, byte, string> Replaced;
+
+
         ResizableArray<char> chars = new ResizableArray<char>(1024, 256);
         ResizableArray<byte> colors = new ResizableArray<byte>(1024, 256);
         ResizableArray<byte> marks = new ResizableArray<byte>(1024, 256);
@@ -418,6 +421,7 @@ namespace ajkControls
                 }
             }
             visibleLines = visibleLines + changedLine;
+            if (Replaced != null) Replaced(index, replaceLength, colorIndex,text);
         }
 
         private void updateIndex(ref int index,int modifyIndex,int modifyLength,int modifiedToLength)

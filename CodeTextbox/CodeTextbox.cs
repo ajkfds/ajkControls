@@ -81,6 +81,7 @@ namespace ajkControls
         public event KeyEventHandler AfterKeyDown;
         public event KeyPressEventHandler BeforeKeyPressed;
         public event KeyEventHandler BeforeKeyDown;
+        public event Action SelectionChanged;
 
         public void Cut()
         {
@@ -92,7 +93,7 @@ namespace ajkControls
                 Clipboard.SetText(clipText);
             }
             catch { }
-            document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
+            documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
             UpdateVScrollBarRange();
             caretChanged();
             selectionChanged();
@@ -120,7 +121,7 @@ namespace ajkControls
             if (document == null) return;
             if (!Clipboard.ContainsText()) return;
             string newText = Clipboard.GetText();
-            document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, newText);
+            documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, newText);
             document.CaretIndex = document.SelectionStart + newText.Length;
             document.SelectionStart = document.CaretIndex;
             document.SelectionLast = document.CaretIndex;
@@ -210,6 +211,7 @@ namespace ajkControls
             {
                 if (multiLine == value) return;
                 multiLine = value;
+                System.IntPtr handle = Handle; // avoid windowhandle not created error
                 Invoke(new Action(dbDrawBox.Refresh));
                 if (multiLine == false)
                 {
@@ -229,7 +231,13 @@ namespace ajkControls
             }
             set
             {
+                if (document == value) return;
+                if(document != null)
+                {
+                    document.Replaced = null;
+                }
                 document = value;
+                document.Replaced = hilightUpdateWhenDocReplaced;
                 UpdateVScrollBarRange();
                 if (Handle != null) Invoke(new Action(dbDrawBox.Refresh));
             }
@@ -271,161 +279,6 @@ namespace ajkControls
         }
 
 
-        int charSizeX = 0;
-        int charSizeY = 0;
-        int visibleLines = 10;
-        private void resizeCharSize()
-        {
-            System.Diagnostics.Debug.Print("risezicharsize");
-            Graphics g = dbDrawBox.CreateGraphics();
-            Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(g, "A", Font, new Size(100, 100), TextFormatFlags.NoPadding);
-            charSizeX = fontSize.Width;
-            charSizeY = fontSize.Height;
-            resizeDrawBuffer();
-            reGenarateBuffer = true;
-        }
-
-        private void resizeDrawBuffer()
-        {
-            visibleLines = (int)Math.Ceiling((double)(dbDrawBox.Height / charSizeY));
-            System.Diagnostics.Debug.Print("risezicharsize visibleLines " + visibleLines.ToString());
-            vScrollBar.LargeChange = visibleLines;
-            UpdateVScrollBarRange();
-        }
-
-
-        // character & mark graphics buffer
-        volatile bool reGenarateBuffer = true;
-        Bitmap[,] charBitmap = new Bitmap[16, 128];
-        Bitmap[] markBitmap = new Bitmap[8];
-
-        private void createGraphicsBuffer()
-        {
-            unsafe
-            {
-                System.Diagnostics.Debug.Print("regen buffer");
-                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                sw.Start();
-
-                Bitmap bmp = new Bitmap(charSizeX, charSizeY);
-                Color controlColor = Color.DarkGray;
-                Pen controlPen = new Pen(controlColor);
-
-                using (Graphics g = Graphics.FromImage(bmp))
-                {
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-                    for (int colorIndex = 0; colorIndex < 16; colorIndex++)
-                    {
-                        Color color = Style.ColorPallet[colorIndex];
-                        int colorNo = (color.B << 16) + (color.G << 8) + color.R;
-
-                        for (int i = 0; i < 0x20; i++)
-                        {
-                            g.Clear(BackColor);
-                            // control codes
-                            switch (i)
-                            {
-                                case '\r':
-                                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
-
-                                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
-                                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.4)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
-                                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.8)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
-                                    break;
-                                case '\n':
-                                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.8), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                                    break;
-                                default:
-                                    g.DrawRectangle(new Pen(Color.DarkGray), new Rectangle(1, 1 + 2, charSizeX - 2, charSizeY - 2 - 2));
-                                    break;
-                            }
-                            if (charBitmap[colorIndex, i] != null) charBitmap[colorIndex, i].Dispose();
-                            charBitmap[colorIndex, i] = (Bitmap)bmp.Clone();
-                        }
-                    }
-                    g.Clear(BackColor);
-
-                    //                System.Diagnostics.Debug.Print("regen buffer0 " + sw.ElapsedMilliseconds.ToString() + "ms");
-                    for (int colorIndex = 0; colorIndex < 16; colorIndex++)
-                    {
-                        Color color = Style.ColorPallet[colorIndex];
-                        int colorNo = (color.B << 16) + (color.G << 8) + color.R;
-
-                        for (int i = 0x20; i < 128; i++)
-                        {
-                            IntPtr hDC = g.GetHdc();
-                            IntPtr hFont = this.Font.ToHfont();
-                            IntPtr hOldFont = (IntPtr)SelectObject(hDC, hFont);
-
-                            SetTextColor(hDC, colorNo);
-                            TextOut(hDC, 0, 0, ((char)i).ToString(), 1);
-
-                            DeleteObject((IntPtr)SelectObject(hDC, hOldFont));
-                            g.ReleaseHdc(hDC);
-                            if (charBitmap[colorIndex, i] != null) charBitmap[colorIndex, i].Dispose();
-                            charBitmap[colorIndex, i] = (Bitmap)bmp.Clone();
-                        }
-                    }
-
-                }
-                for (int mark = 0; mark < 8; mark++)
-                {
-                    if (markBitmap[mark] != null) markBitmap[mark].Dispose();
-                    markBitmap[mark] = new Bitmap(charSizeX, charSizeY);
-                    using (Graphics gc = Graphics.FromImage(markBitmap[mark]))
-                    {
-                        gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        controlPen = new Pen(Style.MarkColor[mark]);
-                        switch (Style.MarkStyle[mark])
-                        {
-                            case MarkStyleEnum.underLine:
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    gc.DrawLine(controlPen,
-                                    new Point(0, (int)(charSizeY * 0.8) + i),
-                                    new Point((int)charSizeX, (int)(charSizeY * 0.8) + i)
-                                    );
-                                }
-                                break;
-                            case MarkStyleEnum.wave:
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 0), (int)(charSizeY * 0.85) + i),
-                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i)
-                                        );
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i),
-                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i)
-                                        );
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i),
-                                        new Point((int)(charSizeX * 0.25 * 4), (int)(charSizeY * 0.85) + i)
-                                        );
-                                }
-                                break;
-                            case MarkStyleEnum.fill:
-                                gc.FillRectangle(new SolidBrush(Style.MarkColor[mark]), 0, 0, charSizeX, charSizeY);
-                                break;
-                        }
-                    }
-
-                }
-                System.Diagnostics.Debug.Print("regen buffer " + sw.ElapsedMilliseconds.ToString() + "ms");
-            }
-        }
-
-
-        public enum MarkStyleEnum
-        {
-            underLine,
-            wave,
-            fill
-        }
 
 
         // draw image
@@ -480,194 +333,6 @@ namespace ajkControls
         private int caretY = 0;
         private int[] actualLineNumbers = new int[] { };
 
-        private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
-        {
-            unsafe
-            {
-
-            System.Diagnostics.Debug.Print("dbDrawBox_DoubleBufferedPaint "+visibleLines.ToString());
-
-            if (reGenarateBuffer)
-            {
-                createGraphicsBuffer();
-                reGenarateBuffer = false;
-            }
-            if(actualLineNumbers.Length != visibleLines+2)
-            {
-                actualLineNumbers = new int[visibleLines+2];
-            }
-
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-
-            e.Graphics.Clear(BackColor);
-            if (document == null) return;
-
-            int x = 0;
-            int lineX = 0;
-            int y = 0;
-            lock (document)
-            {
-                if (multiLine)
-                {
-                    int lines = document.Lines;
-                    if (lines < 1000) lines = 1000;
-                    xOffset = lines.ToString().Length + 2;
-                }
-                else
-                {
-                    xOffset = 0;
-                }
-
-                int lineStart = document.GetActialLineNo(vScrollBar.Value+1);
-                System.Diagnostics.Debug.Print("ls" + lineStart.ToString());
-                int drawLine = 0;
-                int line = lineStart;
-                if (!multiLine) drawLine = document.Lines;
-                while(line < document.Lines)
-                {
-                    if (drawLine >= visibleLines + 2)
-                    {
-                        break;
-                    }
-                    if (!document.IsVisibleLine(line))
-                    {
-                        e.Graphics.DrawLine(new Pen(Color.FromArgb(50, Color.Black)), new Point(xOffset * charSizeX, y - 1), new Point(dbDrawBox.Width, y -1));
-                        line++;
-                        while (line < document.Lines)
-                        {
-                            if (document.IsVisibleLine(line)) break;
-                            line++;
-                        }
-                        continue;
-                    }
-                    actualLineNumbers[drawLine] = line;
-
-                    // draw line number (right padding)
-                    x = (xOffset-3) * charSizeX;
-                    if (multiLine)
-                    {
-                        if (document.IsBlockHeadLine(line))
-                        {
-                            if (document.IsCollapsed(line))
-                            {
-                                e.Graphics.DrawImage(plusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), new Point(x, y));
-                            }
-                            else
-                            {
-                                e.Graphics.DrawImage(minusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), new Point(x, y));
-                            }
-                        }
-                        x = x - charSizeX;
-
-                        string lineString = line.ToString();
-                        for (int i = 0; i < lineString.Length; i++)
-                        {
-                            e.Graphics.DrawImage(charBitmap[0, lineString[lineString.Length - i - 1]], new Point(x, y));
-                            x = x - charSizeX;
-                        }
-                    }
-
-                    // draw charactors
-                    x = xOffset*charSizeX;
-                    lineX = 0;
-                    int start = document.GetLineStartIndex(line);
-                    int end = start+document.GetLineLength(line);
-                    {
-                        for (int i = start; i <= end; i++)
-                        {
-                            if (i == document.Length) continue;
-                            char ch = document.GetCharAt(i);
-                            byte color = document.GetColorAt(i);
-                            int xIncrement = 1;
-                            if (ch == '$')
-                            {
-                                string s = "";
-                            }
-                            if (ch == '\t')
-                            {
-                                xIncrement = tabSize - (lineX % tabSize);
-                                e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x + 2, y + charSizeY - 2), new Point(x - 2 + xIncrement * charSizeX, y + charSizeY - 2));
-                                e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x - 2 + xIncrement * charSizeX, y + charSizeY - 2), new Point(x - 2 + xIncrement * charSizeX, y + charSizeY - 8));
-                            }
-                            else if (ch == '\n')
-                            {
-                                if (i == 0 || document.GetCharAt(i - 1) != '\r')
-                                {
-                                    e.Graphics.DrawImage(charBitmap[color, ch], new Point(x, y));
-                                }
-                            }
-                            else if (ch < 128)
-                            {
-                                e.Graphics.DrawImage(charBitmap[color, ch], new Point(x, y));
-                            }
-                            else
-                            {
-                                System.Windows.Forms.TextRenderer.DrawText(e.Graphics, ch.ToString(), Font, new Point(x, y), Color.Gray);
-                            }
-
-                            // caret
-                            if (i == document.CaretIndex & Editable)
-                            {
-                                e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                                e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
-                                caretX = x;
-                                caretY = y;
-                            }
-
-                            // mark
-                            if (document.GetMarkAt(i) != 0)
-                            {
-                                for (int mark = 0; mark < 8; mark++)
-                                {
-                                    if ((document.GetMarkAt(i) & (1 << mark)) != 0)
-                                    {
-                                        e.Graphics.DrawImage(markBitmap[mark], new Point(x, y));
-                                    }
-                                }
-                            }
-
-                            // selection
-                            if (i >= document.SelectionStart && i < document.SelectionLast)
-                            {
-                                if(ch == '\t')
-                                {
-                                    xIncrement = tabSize - (lineX % tabSize);
-                                    e.Graphics.FillRectangle(selectionBrush, new Rectangle(x, y, xIncrement * charSizeX, charSizeY));
-                                }
-                                else
-                                {
-                                    e.Graphics.FillRectangle(selectionBrush, new Rectangle(x, y, charSizeX, charSizeY));
-                                }
-                            }
-
-                            lineX = lineX + xIncrement;
-                            x = x + charSizeX * xIncrement;
-                        }
-                    }
-                    y = y + charSizeY;
-                    drawLine++;
-                    line++;
-                }
-                if (document.Length == document.CaretIndex & Editable)
-                {
-                    y = y - charSizeY;
-                    e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                    e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
-                    caretX = x;
-                    caretY = y;
-                }
-            }
-            e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset-1)+charSizeX/2, dbDrawBox.Height));
-
-            if (Editable)
-            {
-                e.Graphics.DrawLine(new Pen(Color.FromArgb(100,Color.Black)), new Point(xOffset*charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
-            }
-            sw.Stop();
-                //            System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
-            }
-        }
 
         public int GetActualLineNo(int drawLineNumber)
         {
@@ -689,129 +354,6 @@ namespace ajkControls
             return new Point(caretX, caretY + charSizeY);
         }
 
-        private int hitIndex(int x,int y)
-        {
-            //int line = y / charSizeY + vScrollBar.Value+1;
-            if (y < 0) return 0;
-            int line = GetActualLineNo(y / charSizeY);
-            if (line > document.Lines-1) line = document.Lines-1;
-            if (line < 1) line = 1;
-            int hitX = x / charSizeX - xOffset;
-
-            int index = document.GetLineStartIndex(line);
-            int nextLineIndex = index + document.GetLineLength(line);
-
-            int xPos = 0;
-            char ch = document.GetCharAt(index);
-            while (index < nextLineIndex)
-            {
-                if (ch == '\r' || ch == '\n') break;
-                if(ch == '\t')
-                {
-                    xPos = xPos + tabSize - (xPos % tabSize);
-                }
-                else
-                {
-                    xPos++;
-                }
-                if (xPos > hitX) break;
-                index++;
-                ch = document.GetCharAt(index);
-            }
-
-            if(index > 0 && document.GetCharAt(index) == '\n' && document.GetCharAt(index-1) == '\r')
-            {
-                index--;
-            }
-            if (index < 0) index = 0;
-            
-            return index;
-        }
-
-        public int getX(int targetIndex)
-        {
-            int line = document.GetLineAt(targetIndex);
-            int index = document.GetLineStartIndex(line);
-            int nextLineIndex = index + document.GetLineLength(line);
-
-            int xPos = 0;
-            char ch = document.GetCharAt(index);
-            while (index < targetIndex)
-            {
-                if (ch == '\r' || ch == '\n') break;
-                if (ch == '\t')
-                {
-                    xPos = xPos + tabSize - (xPos % tabSize);
-                }
-                else
-                {
-                    xPos++;
-                }
-                index++;
-                ch = document.GetCharAt(index);
-            }
-
-            if (index > 0 && document.GetCharAt(index) == '\n' && document.GetCharAt(index - 1) == '\r')
-            {
-                index--;
-            }
-            if (index < 0) index = 0;
-
-            return index;
-        }
-
-        private int getXPos(int index,int line)
-        {
-            int i = document.GetLineStartIndex(line);
-            int xPos = 0;
-            char ch = document.GetCharAt(i);
-            while (i < index)
-            {
-                if (ch == '\r' || ch == '\n') break;
-                if (ch == '\t')
-                {
-                    xPos = xPos + tabSize - (xPos % tabSize);
-                }
-                else
-                {
-                    xPos++;
-                }
-                i++;
-                ch = document.GetCharAt(i);
-            }
-            return xPos;
-        }
-
-        private int getIndex(int xPos,int line)
-        {
-            int index = document.GetLineStartIndex(line);
-            int nextLineIndex = index + document.GetLineLength(line);
-
-            int x = 0;
-            char ch = document.GetCharAt(index);
-            while (index < nextLineIndex && x < xPos)
-            {
-                if (ch == '\r' || ch == '\n') break;
-                if (ch == '\t')
-                {
-                    x = x + tabSize - (x % tabSize);
-                }
-                else
-                {
-                    x++;
-                }
-                index++;
-                ch = document.GetCharAt(index);
-            }
-
-            if (index > 0 && document.GetCharAt(index) == '\n' && document.GetCharAt(index - 1) == '\r')
-            {
-                index--;
-            }
-            if (index < 0) index = 0;
-
-            return index;
-        }
 
         public void SetSelection(int index,int length)
         {
@@ -953,42 +495,6 @@ namespace ajkControls
             }
         }
 
-        private void dbDrawBox_MouseLeave(object sender, EventArgs e)
-        {
-            if (document == null || !Editable) return;
-
-            if (state == uiState.selecting)
-            {
-                document.CaretIndex = document.SelectionStart;
-                document.SelectionLast = document.SelectionStart;
-                state = uiState.idle;
-                selectionChanged();
-                Invoke(new Action(dbDrawBox.Refresh));
-            }
-            this.OnMouseLeave(e);
-        }
-
-        private void dbDrawBox_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            if (document == null || !Editable) return;
-
-            if (state == uiState.selecting)
-            {
-                if(document.CaretIndex != document.SelectionStart || document.SelectionLast != document.SelectionStart)
-                {
-                    document.CaretIndex = document.SelectionStart;
-                    document.SelectionLast = document.SelectionStart;
-                    state = uiState.idle;
-                    selectionChanged();
-                    Invoke(new Action(dbDrawBox.Refresh));
-                }
-                else
-                {
-                    state = uiState.idle;
-                }
-            }
-            this.OnMouseDoubleClick(e);
-        }
 
         public void ScrollToCaret()
         {
@@ -997,443 +503,11 @@ namespace ajkControls
             Invoke(new Action(dbDrawBox.Refresh));
         }
 
-        private bool skipKeyPress = false;
-        private int prevXPos = -1;
-        private void dbDrawBox_KeyDown(object sender, KeyEventArgs e)
+        public void documentReplace(int index, int replaceLength, byte colorIndex, string text)
         {
-            skipKeyPress = false;
-            if (document == null || !Editable) return;
-
-            int lineBeforeEdit = document.GetLineAt(document.CaretIndex);
-            if (BeforeKeyDown != null) BeforeKeyDown(this, e);
-            if (e.Handled)
-            {
-                skipKeyPress = true;
-                scrollToCaret();
-                selectionChanged();
-                Invoke(new Action(dbDrawBox.Refresh));
-                return;
-            }
-
-            if(e.KeyCode != Keys.Up && e.KeyCode != Keys.Down)
-            {
-                prevXPos = -1;
-            }
-
-            switch (e.KeyCode)
-            {
-                case Keys.C:
-                    if (e.Modifiers == Keys.Control)
-                    {
-                        Copy();
-                        scrollToCaret();
-                        selectionChanged();
-                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
-                        e.Handled = true;
-                    }
-                    break;
-                case Keys.X:
-                    if (e.Modifiers == Keys.Control)
-                    {
-                        Cut();
-                        scrollToCaret();
-                        selectionChanged();
-                        e.Handled = true;
-                    }
-                    break;
-                case Keys.V:
-                    if (e.Modifiers == Keys.Control)
-                    {
-                        Paste();
-                        scrollToCaret();
-                        selectionChanged();
-                        e.Handled = true;
-                    }
-                    break;
-                case Keys.Z:
-                    if(e.Modifiers == Keys.Control)
-                    {
-                        Undo();
-                        e.Handled = true;
-                    }
-                    break;
-                case Keys.Left:
-                    keyLeft(sender, e);
-                    break;
-                case Keys.Right:
-                    keyRight(sender, e);
-                    break;
-                case Keys.Up:
-                    keyUp(sender, e);
-                    break;
-                case Keys.Down:
-                    keyDown(sender, e);
-                    break;
-                case Keys.Delete:
-                    if(document.SelectionStart == document.SelectionLast)
-                    {
-                        if (document.CaretIndex == document.Length) break;
-                        if(document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex+1) == '\n')
-                        {
-                            document.Replace(document.CaretIndex, 2, 0, "");
-                        }else
-                        {
-                            document.Replace(document.CaretIndex, 1, 0, "");
-                        }
-                    }
-                    else
-                    {
-                        document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
-                    }
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    selectionChanged();
-                    e.Handled = true;
-                    break;
-                case Keys.Back:
-                    if (document.SelectionStart == document.SelectionLast)
-                    {
-                        if (document.CaretIndex == 0) break;
-                        if (document.CaretIndex > 1 && document.GetCharAt(document.CaretIndex-2) == '\r' && document.GetCharAt(document.CaretIndex-1) == '\n')
-                        {
-                            document.Replace(document.CaretIndex-2, 2, 0, "");
-                        }
-                        else
-                        {
-                            document.Replace(document.CaretIndex - 1, 1, 0, "");
-                        }
-                    }
-                    else
-                    {
-                        document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
-                    }
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    selectionChanged();
-                    e.Handled = true;
-                    break;
-                case Keys.Enter:
-                    if (!multiLine) break;
-                    if (e.Modifiers == Keys.Shift)
-                    {
-                        if (document.SelectionStart == document.SelectionLast)
-                        {
-                            document.Replace(document.CaretIndex, 0, 0, "\n");
-                        }
-                        else
-                        {
-                            document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "\n");
-                        }
-                        if (document.CaretIndex >= document.SelectionStart) document.SelectionStart = document.SelectionStart + 1;
-                        if (document.CaretIndex >= document.SelectionLast) document.SelectionStart = document.SelectionLast + 1;
-                        document.CaretIndex = document.CaretIndex + 1;
-                    }
-                    else
-                    {
-                        if (document.SelectionStart == document.SelectionLast)
-                        {
-                            document.Replace(document.CaretIndex, 0, 0, "\r\n");
-                        }
-                        else
-                        {
-                            document.Replace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "\r\n");
-                        }
-                        if (document.CaretIndex >= document.SelectionStart) document.SelectionStart = document.SelectionStart + 2;
-                        if (document.CaretIndex >= document.SelectionLast) document.SelectionStart = document.SelectionLast + 2;
-                        document.CaretIndex = document.CaretIndex + 2;
-                    }
-                    document.SelectionLast = document.SelectionStart;
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    scrollToCaret();
-                    selectionChanged();
-                    e.Handled = true;
-                    break;
-                case Keys.Tab:
-                    // multiple lines indent
-                    if (document.SelectionStart == document.SelectionLast) break;
-                    int lineStart = document.GetLineAt(document.SelectionStart);
-                    int lineLast = document.GetLineAt(document.SelectionLast);
-                    if (lineStart == lineLast) break;
-                    if (e.Modifiers == Keys.Shift)
-                    {
-                        for (int i = lineStart; i < lineLast; i++)
-                        {
-                            if(document.GetCharAt(document.GetLineStartIndex(i)) == '\t' || document.GetCharAt(document.GetLineStartIndex(i)) == ' ')
-                            {
-                                document.Replace(document.GetLineStartIndex(i), 1, 0, "");
-                            }
-                        }
-                        document.SelectionStart = document.GetLineStartIndex(lineStart);
-                        document.SelectionLast = document.GetLineStartIndex(lineLast);
-                    }
-                    else
-                    {
-                        for(int i = lineStart; i < lineLast; i++)
-                        {
-                            document.Replace(document.GetLineStartIndex(i), 0, 0, "\t");
-                        }
-                        document.SelectionStart = document.GetLineStartIndex(lineStart);
-                        document.SelectionLast = document.GetLineStartIndex(lineLast);
-                    }
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    scrollToCaret();
-                    selectionChanged();
-                    e.Handled = true;
-                    break;
-                default:
-                    break;
-            }
-
-            if (AfterKeyDown != null) AfterKeyDown(this, e);
-            int lineAfterEdit = document.GetLineAt(document.CaretIndex);
-            if(lineBeforeEdit != lineAfterEdit)
-            {
-                if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
-            }
-
-            if (e.Handled)
-            {
-                Invoke(new Action(dbDrawBox.Refresh));
-                skipKeyPress = true;
-            }
+            document.Replace(index, replaceLength, colorIndex, text);
         }
 
-        private void keyLeft(object sender, KeyEventArgs e)
-        {
-            if (document.CaretIndex < 1) return;
-            bool onSelectionLast = false;
-            if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-            {
-                onSelectionLast = true;
-            }
-
-            if (document.CaretIndex > 0 && document.GetCharAt(document.CaretIndex) == '\n' && document.GetCharAt(document.CaretIndex - 1) == '\r')
-            {
-                document.CaretIndex = document.CaretIndex - 2;
-            }
-            else
-            {
-                document.CaretIndex--;
-            }
-            caretChanged();
-            if (e.Modifiers == Keys.Shift)
-            {
-                if (onSelectionLast)
-                {
-                    document.SelectionLast = document.CaretIndex;
-                }
-                else
-                {
-                    document.SelectionStart = document.CaretIndex;
-                }
-            }
-            else
-            {
-                document.SelectionStart = document.CaretIndex;
-                document.SelectionLast = document.CaretIndex;
-            }
-            selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
-            e.Handled = true;
-        }
-
-        private void keyRight(object sender, KeyEventArgs e)
-        {
-            if (document.CaretIndex >= document.Length) return;
-            bool onSelectionStart = false;
-            if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-            {
-                onSelectionStart = true;
-            }
-            if (document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex + 1) == '\n')
-            {
-                document.CaretIndex = document.CaretIndex + 2;
-            }
-            else
-            {
-                document.CaretIndex++;
-            }
-            caretChanged();
-            if (e.Modifiers == Keys.Shift)
-            {
-                if (onSelectionStart)
-                {
-                    document.SelectionStart = document.CaretIndex;
-                }
-                else
-                {
-                    document.SelectionLast = document.CaretIndex;
-                }
-            }
-            else
-            {
-                document.SelectionStart = document.CaretIndex;
-                document.SelectionLast = document.CaretIndex;
-                selectionChanged();
-            }
-            e.Handled = true;
-        }
-
-        private void keyUp(object sender, KeyEventArgs e)
-        {
-            if (!multiLine) return;
-            bool onSelectionLast = false;
-            if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-            {
-                onSelectionLast = true;
-            }
-            int line = document.GetLineAt(document.CaretIndex);
-            if (line == 1) return;
-
-
-            int headindex = document.GetLineStartIndex(line);
-            int xPosition = getXPos(document.CaretIndex, line);
-            if (prevXPos > xPosition) xPosition = prevXPos;
-
-            line--;
-
-            // skip invisible lines
-            while (line > 1 && !document.IsVisibleLine(line))
-            {
-                line--;
-            }
-            if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
-
-
-            headindex = document.GetLineStartIndex(line);
-            document.CaretIndex = getIndex(xPosition, line);
-
-            caretChanged();
-            if (e.Modifiers == Keys.Shift)
-            {
-                if (onSelectionLast)
-                {
-                    document.SelectionLast = document.CaretIndex;
-                }
-                else
-                {
-                    document.SelectionStart = document.CaretIndex;
-                }
-            }
-            else
-            {
-                document.SelectionStart = document.CaretIndex;
-                document.SelectionLast = document.CaretIndex;
-            }
-            scrollToCaret();
-            selectionChanged();
-            e.Handled = true;
-        }
-
-        private void keyDown(object sender, KeyEventArgs e)
-        {
-            if (!multiLine) return;
-            bool onSelectionStart = false;
-            if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
-            {
-                onSelectionStart = true;
-            }
-            int line = document.GetLineAt(document.CaretIndex);
-            if (line == document.Lines - 1) return;
-            int headindex = document.GetLineStartIndex(line);
-            int xPosition = getXPos(document.CaretIndex, line);
-            if (prevXPos > xPosition) xPosition = prevXPos;
-
-            line++;
-
-            // skip invisible lines
-            while (line < document.Lines && !document.IsVisibleLine(line))
-            {
-                line++;
-            }
-            if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
-
-            headindex = document.GetLineStartIndex(line);
-            document.CaretIndex = getIndex(xPosition, line);
-
-            caretChanged();
-            if (e.Modifiers == Keys.Shift)
-            {
-                if (onSelectionStart)
-                {
-                    document.SelectionStart = document.CaretIndex;
-                }
-                else
-                {
-                    document.SelectionLast = document.CaretIndex;
-                }
-            }
-            else
-            {
-                document.SelectionStart = document.CaretIndex;
-                document.SelectionLast = document.CaretIndex;
-            }
-            scrollToCaret();
-            selectionChanged();
-            e.Handled = true;
-        }
-
-        private void dbDrawBox_KeyUp(object sender, KeyEventArgs e)
-        {
-
-        }
-
-        private void dbDrawBox_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (document == null || !Editable) return;
-            if (skipKeyPress)
-            {
-                skipKeyPress = false;
-                e.Handled = true;
-                return;
-            }
-            if (BeforeKeyPressed != null) BeforeKeyPressed(this, e);
-            if (e.Handled)
-            {
-                Invoke(new Action(dbDrawBox.Refresh));
-                return;
-            }
-
-            char inChar = e.KeyChar;
-            int prevIndex = document.CaretIndex;
-            if(document.GetLineStartIndex(document.GetLineAt(prevIndex)) != prevIndex && prevIndex != 0)
-            {
-                prevIndex--;
-            }
-
-            if((inChar < 127 && inChar >= 0x20) || inChar == '\t' || inChar > 0xff)
-            {
-                if(document.SelectionStart == document.SelectionLast)
-                {
-                    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                    sw.Start();
-                    if(inChar == '\t' || inChar == ' ')
-                    {   // use default color for tab and space
-                        document.Replace(document.CaretIndex, 0, 0, inChar.ToString());
-                    }
-                    else
-                    {
-                        document.Replace(document.CaretIndex, 0, document.GetColorAt(prevIndex), inChar.ToString());
-                    }
-                    document.CaretIndex++;
-                    sw.Stop();
-                    UpdateVScrollBarRange();
-//                    System.Diagnostics.Debug.Print("edit : " + sw.Elapsed.TotalMilliseconds.ToString()+"ms");
-                }
-                else
-                {
-                    document.Replace(document.SelectionStart, document.SelectionLast-document.SelectionStart, document.GetColorAt(prevIndex), inChar.ToString());
-                    document.CaretIndex = document.SelectionStart + 1;
-                    document.SelectionStart = document.CaretIndex;
-                    document.SelectionLast = document.CaretIndex;
-                    UpdateVScrollBarRange();
-                }
-            }
-            if (AfterKeyPressed != null) AfterKeyPressed(this, e);
-            Invoke(new Action(dbDrawBox.Refresh));
-        }
 
 
         private void caretChanged()
@@ -1448,31 +522,6 @@ namespace ajkControls
             }
         }
 
-        private List<int> highlightStarts = new List<int>();
-        private List<int> highlightLasts = new List<int>();
-
-        private void clearHiglight()
-        {
-            if (highlightStarts.Count == 0) return;
-            for (int i = 0;i < highlightStarts.Count; i++){
-                for(int index = highlightStarts[i];index<= highlightLasts[i];index++)
-                {
-                    document.RemoveMarkAt(index,7);
-                }
-            }
-            highlightStarts.Clear();
-            highlightLasts.Clear();
-        }
-
-        private void appendHighLight(int highlightStart,int highlightLast)
-        {
-            for (int index = highlightStart; index <= highlightLast; index++)
-            {
-                document.SetMarkAt(index, 7);
-            }
-            highlightStarts.Add(highlightStart);
-            highlightLasts.Add(highlightLast);
-        }
 
         private void selectionChanged()
         {
@@ -1487,57 +536,35 @@ namespace ajkControls
             if (document.SelectionStart > document.Length) document.SelectionStart = document.Length;
             if (document.SelectionLast > document.Length) document.SelectionLast = document.Length;
 
-            if(document.SelectionStart == document.SelectionLast || document.SelectionStart+3 > document.SelectionLast)
+            if (SelectionChanged != null) SelectionChanged();
+        }
+
+        public void DoAtVisibleLines(Action<int> action)
+        {
+            int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
+            int drawLine = 0;
+            int line = lineStart;
+            while (line < document.Lines)
             {
-                clearHiglight();
-            }
-            else
-            {
-                string target = document.CreateString(document.SelectionStart, document.SelectionLast - document.SelectionStart);
-                if(target.Contains('\n'))
+                if (drawLine >= visibleLines + 2)
                 {
-                    clearHiglight();
+                    break;
                 }
-                else
+                if (!document.IsVisibleLine(line))
                 {
-                    clearHiglight();
-                    int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
-                    int drawLine = 0;
-                    int line = lineStart;
+                    line++;
                     while (line < document.Lines)
                     {
-                        if (drawLine >= visibleLines + 2)
-                        {
-                            break;
-                        }
-                        if (!document.IsVisibleLine(line))
-                        {
-                            line++;
-                            while (line < document.Lines)
-                            {
-                                if (document.IsVisibleLine(line)) break;
-                                line++;
-                            }
-                            continue;
-                        }
-                        actualLineNumbers[drawLine] = line;
-
-                        // draw line number (right padding)
-                        if (multiLine)
-                        {
-                            string lineString = line.ToString();
-                        }
-
-                        int i = document.CreateLineString(line).IndexOf(target);
-                        if (i >= 0)
-                        {
-                            appendHighLight(document.GetLineStartIndex(line) + i, document.GetLineStartIndex(line) + i + target.Length - 1);
-                        }
-
-                        drawLine++;
+                        if (document.IsVisibleLine(line)) break;
                         line++;
                     }
+                    continue;
                 }
+
+                action(line);
+
+                drawLine++;
+                line++;
             }
         }
 
