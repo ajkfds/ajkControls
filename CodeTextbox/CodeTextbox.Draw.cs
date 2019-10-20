@@ -21,7 +21,7 @@ namespace ajkControls
         int visibleLines = 10;
         private void resizeCharSize()
         {
-            System.Diagnostics.Debug.Print("risezicharsize");
+//            System.Diagnostics.Debug.Print("risezicharsize");
             Graphics g = dbDrawBox.CreateGraphics();
             Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(g, "A", Font, new Size(100, 100), TextFormatFlags.NoPadding);
             charSizeX = fontSize.Width;
@@ -33,7 +33,7 @@ namespace ajkControls
         private void resizeDrawBuffer()
         {
             visibleLines = (int)Math.Ceiling((double)(dbDrawBox.Height / charSizeY));
-            System.Diagnostics.Debug.Print("risezicharsize visibleLines " + visibleLines.ToString());
+//            System.Diagnostics.Debug.Print("risezicharsize visibleLines " + visibleLines.ToString());
             vScrollBar.LargeChange = visibleLines;
             UpdateVScrollBarRange();
         }
@@ -48,9 +48,9 @@ namespace ajkControls
         {
             unsafe
             {
-                System.Diagnostics.Debug.Print("regen buffer");
-                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                sw.Start();
+//                System.Diagnostics.Debug.Print("regen buffer");
+//                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+//                sw.Start();
 
                 Bitmap bmp = new Bitmap(charSizeX, charSizeY);
                 Color controlColor = Color.DarkGray;
@@ -160,7 +160,7 @@ namespace ajkControls
                     }
 
                 }
-                System.Diagnostics.Debug.Print("regen buffer " + sw.ElapsedMilliseconds.ToString() + "ms");
+//                System.Diagnostics.Debug.Print("regen buffer " + sw.ElapsedMilliseconds.ToString() + "ms");
             }
         }
 
@@ -177,7 +177,7 @@ namespace ajkControls
             unsafe
             {
 
-                System.Diagnostics.Debug.Print("dbDrawBox_DoubleBufferedPaint " + visibleLines.ToString());
+//                System.Diagnostics.Debug.Print("dbDrawBox_DoubleBufferedPaint " + visibleLines.ToString());
 
                 if (reGenarateBuffer)
                 {
@@ -212,7 +212,7 @@ namespace ajkControls
                     }
 
                     int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
-                    System.Diagnostics.Debug.Print("ls" + lineStart.ToString());
+//                    System.Diagnostics.Debug.Print("ls" + lineStart.ToString());
                     int drawLine = 0;
                     int line = lineStart;
                     if (!multiLine) drawLine = document.Lines;

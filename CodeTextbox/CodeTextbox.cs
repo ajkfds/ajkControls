@@ -268,13 +268,13 @@ namespace ajkControls
 
         private void CodeTextbox_Resize(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.Print("codeTextbox_resize");
+//            System.Diagnostics.Debug.Print("codeTextbox_resize");
             resizeDrawBuffer();
         }
 
         private void dbDrawBox_Resize(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.Print("dbDrawdbox_resize");
+ //           System.Diagnostics.Debug.Print("dbDrawdbox_resize");
             //            resizeCharSize();
         }
 
@@ -362,7 +362,7 @@ namespace ajkControls
             document.SelectionLast = index+length;
             selectionChanged();
             Invoke(new Action(dbDrawBox.Refresh));
-            System.Diagnostics.Debug.Print("setSelection:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
+//            System.Diagnostics.Debug.Print("setSelection:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
         }
 
 
