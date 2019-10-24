@@ -312,7 +312,7 @@ namespace ajkControls
         public void Replace(int index, int replaceLength, byte colorIndex, string text)
         {
             histories.Add(new History(index, text.Length, CreateString(index, replaceLength)));
-           EditID++;
+            EditID++;
             if (histories.Count > HistoryMaxLimit)
             {
                 histories.RemoveAt(0);
