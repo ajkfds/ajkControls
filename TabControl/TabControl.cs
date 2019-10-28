@@ -36,6 +36,9 @@ namespace ajkControls
         public static IconImage closeButtonIcon = new IconImage(Properties.Resources.whiteClose);
 
 
+        private Color formBackgroundColor = SystemColors.Control;
+        public Color FromBackgroundColor { get { return formBackgroundColor;  } set { formBackgroundColor = value; } }
+
         private Color backgoundColor = Color.LightGray;
         public Color BackgroundColor { get { return backgoundColor; } set { backgoundColor = value; } }
 
@@ -72,7 +75,7 @@ namespace ajkControls
         {
             base.OnPaint(e);
 
-            e.Graphics.FillRectangle(SystemBrushes.Control, this.ClientRectangle);
+            e.Graphics.FillRectangle(new SolidBrush(FromBackgroundColor), this.ClientRectangle);
 
             if (this.TabPages.Count == 0)
                 return;
