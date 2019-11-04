@@ -216,7 +216,7 @@ namespace ajkControls
                     int drawLine = 0;
                     int line = lineStart;
                     if (!multiLine) drawLine = document.Lines;
-                    while (line < document.Lines)
+                    while (line <= document.Lines)
                     {
                         if (drawLine >= visibleLines + 2)
                         {
@@ -354,6 +354,7 @@ namespace ajkControls
                         caretY = y;
                     }
                 }
+
                 e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height));
 
                 if (Editable)

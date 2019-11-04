@@ -11,7 +11,7 @@ namespace ajkControls
         public Document()
         {
             newLineIndex.Replace(0, 0, new int[] { 0 });
-            lineVisible.Replace(0, 0, new bool[] { true });
+            lineVisible.Replace(0, 0, new bool[] { true,true });
             visibleLines = 1;
         }
 
