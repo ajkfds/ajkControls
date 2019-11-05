@@ -15,6 +15,17 @@ namespace ajkControls
             visibleLines = 1;
         }
 
+        public Document(string text)
+        {
+            newLineIndex.Replace(0, 0, new int[] { 0 });
+            lineVisible.Replace(0, 0, new bool[] { true, true });
+            visibleLines = 1;
+
+            Replace(0, 0, 0, text);
+            ClearHistory();
+            EditID = 0;
+        }
+
         public Action<int, int, byte, string> Replaced;
 
 
