@@ -47,33 +47,33 @@ namespace ajkControls
             this.hScrollBar.Height = Global.ScrollBarWidth;
         }
 
-        [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
-        extern static int TextOut(IntPtr hdc, int x, int y, string text, int length);
+        //[DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+        //extern static int TextOut(IntPtr hdc, int x, int y, string text, int length);
 
-        [DllImport("gdi32.dll")]
-        private static extern int SelectObject(IntPtr hdc, IntPtr hgdiObj);
+        //[DllImport("gdi32.dll")]
+        //private static extern int SelectObject(IntPtr hdc, IntPtr hgdiObj);
 
-        [DllImport("gdi32.dll")]
-        private static extern bool DeleteObject(IntPtr hObject);
+        //[DllImport("gdi32.dll")]
+        //private static extern bool DeleteObject(IntPtr hObject);
 
-        [DllImport("gdi32.dll")]
-        private static extern int SetTextColor(IntPtr hdc, int color);
+        //[DllImport("gdi32.dll")]
+        //private static extern int SetTextColor(IntPtr hdc, int color);
 
-        [DllImport("user32.dll", EntryPoint = "GetDC")]
-        static extern IntPtr GetDC(IntPtr hWnd);
+        //[DllImport("user32.dll", EntryPoint = "GetDC")]
+        //static extern IntPtr GetDC(IntPtr hWnd);
 
-        [DllImport("gdi32.dll")]
-        static extern bool FillRgn(IntPtr hdc, IntPtr hrgn, IntPtr hbr);
+        //[DllImport("gdi32.dll")]
+        //static extern bool FillRgn(IntPtr hdc, IntPtr hrgn, IntPtr hbr);
 
-        [DllImport("gdi32.dll")]
-        static extern IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect,
-            int nBottomRect);
+        //[DllImport("gdi32.dll")]
+        //static extern IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect,
+        //    int nBottomRect);
 
-        [DllImport("gdi32.dll")]
-        static extern IntPtr CreateSolidBrush(uint crColor);
+        //[DllImport("gdi32.dll")]
+        //static extern IntPtr CreateSolidBrush(uint crColor);
 
-        [DllImport("gdi32.dll")]
-        static extern uint SetBkColor(IntPtr hdc, int crColor);
+        //[DllImport("gdi32.dll")]
+        //static extern uint SetBkColor(IntPtr hdc, int crColor);
 
 
         public event EventHandler CarletLineChanged;

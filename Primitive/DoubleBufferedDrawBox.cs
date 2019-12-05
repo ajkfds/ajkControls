@@ -15,6 +15,7 @@ namespace ajkControls
         public DoubleBufferedDrawBox()
         {
             InitializeComponent();
+            this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);

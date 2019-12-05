@@ -9,11 +9,9 @@ namespace ajkControls
 {
     public class CodeDrawStyle
     {
-        public virtual Color[] ColorPallet
+        public CodeDrawStyle()
         {
-            get
-            {
-                return new System.Drawing.Color[16]
+            colors = new System.Drawing.Color[16]
                     {
                         System.Drawing.Color.Black, // 0
                         System.Drawing.Color.LightGray, // 1
@@ -32,8 +30,33 @@ namespace ajkControls
                         System.Drawing.Color.Black, // 14
                         System.Drawing.Color.Black  // 15
                     };
+            intColors = new int[colors.Length];
+            for (int i = 0;i < colors.Length; i++)
+            {
+                intColors[i] =  (colors[i].B << 16) + (colors[i].G << 8) + colors[i].R;
             }
         }
+
+        protected System.Drawing.Color[] colors;
+
+        public virtual Color[] ColorPallet
+        {
+            get
+            {
+                return colors;
+            }
+        }
+
+        protected int[] intColors;
+
+        public int[] IntColorPallet
+        {
+            get
+            {
+                return intColors;
+            }
+        }
+
 
         public virtual Color[] MarkColor
         {
