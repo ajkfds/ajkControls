@@ -24,6 +24,22 @@ namespace ajkControls
             Replace(0, 0, 0, text);
             ClearHistory();
             EditID = 0;
+            Clean();
+        }
+
+        public void Clean()
+        {
+            CleanEditID = EditID;
+        }
+
+        public bool IsDirty
+        {
+            get
+            {
+                System.Diagnostics.Debug.Print("C: "+CleanEditID.ToString()+" E:"+ EditID.ToString());
+                if (CleanEditID == EditID) return false;
+                return true;
+            }
         }
 
         public Action<int, int, byte, string> Replaced;
@@ -38,6 +54,8 @@ namespace ajkControls
         List<int> collapsedLines = new List<int>();
 
         public int EditID { get; private set; } = 0;
+
+        public int CleanEditID { get; private set; } = 0;
 
         List<History> histories = new List<History>();
         public int HistoryMaxLimit = 100;
