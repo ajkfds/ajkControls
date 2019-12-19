@@ -36,7 +36,6 @@ namespace ajkControls
         {
             get
             {
-                System.Diagnostics.Debug.Print("C: "+CleanEditID.ToString()+" E:"+ EditID.ToString());
                 if (CleanEditID == EditID) return false;
                 return true;
             }
