@@ -159,7 +159,7 @@ namespace ajkControls.TableView
 
             reCalcParameters();
 
-            int y = 0;
+            int y = lineHeight;
             int lineCount = 0;
 
             List<Rectangle> rectangles = new List<Rectangle>();
@@ -180,7 +180,7 @@ namespace ajkControls.TableView
                 if (lineCount > lines) break;
             }
 
-            y = 0;
+            y = lineHeight;
             lineCount = 0;
             for (int index = startLine; index < TableItems.Count; index++)
             {
@@ -210,6 +210,8 @@ namespace ajkControls.TableView
         public TableItem HitTest(int x,int y)
         {
             int line = (y - HeaderHeight) / (lineHeight+2) + startLine;
+            if (line < 1) return null;
+            line--;
             if (TableItems.Count <= line) return null;
             return TableItems[line];
         }
