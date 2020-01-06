@@ -355,7 +355,7 @@ namespace ajkControls
                 onSelectionStart = true;
             }
             int line = document.GetLineAt(document.CaretIndex);
-            if (line == document.Lines - 1) return;
+            if (line == document.Lines) return;
             int headindex = document.GetLineStartIndex(line);
             int xPosition = getXPos(document.CaretIndex, line);
             if (prevXPos > xPosition) xPosition = prevXPos;

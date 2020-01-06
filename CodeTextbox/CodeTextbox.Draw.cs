@@ -41,7 +41,6 @@ namespace ajkControls
 
         // character & mark graphics buffer
         volatile bool reGenarateBuffer = true;
-//        Bitmap[,] charBitmap = new Bitmap[16, 128];
         Bitmap[] markBitmap = new Bitmap[8];
 
         private void createGraphicsBuffer()
@@ -56,67 +55,6 @@ namespace ajkControls
                 Color controlColor = Color.DarkGray;
                 Pen controlPen = new Pen(controlColor);
 
-                //using (Graphics g = Graphics.FromImage(bmp))
-                //{
-                //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                //    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-                //    for (int colorIndex = 0; colorIndex < 16; colorIndex++)
-                //    {
-                //        Color color = Style.ColorPallet[colorIndex];
-                //        int colorNo = (color.B << 16) + (color.G << 8) + color.R;
-
-                //        for (int i = 0; i < 0x20; i++)
-                //        {
-                //            g.Clear(BackColor);
-                //            // control codes
-                //            switch (i)
-                //            {
-                //                case '\r':
-                //                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
-
-                //                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.9), (int)(charSizeY * 0.6)));
-                //                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.4)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
-                //                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.8)), new Point((int)(charSizeX * 0.2), (int)(charSizeY * 0.6)));
-                //                    break;
-                //                case '\n':
-                //                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.2)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                //                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.4), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                //                    g.DrawLine(controlPen, new Point((int)(charSizeX * 0.8), (int)(charSizeY * 0.6)), new Point((int)(charSizeX * 0.6), (int)(charSizeY * 0.8)));
-                //                    break;
-                //                default:
-                //                    g.DrawRectangle(new Pen(Color.DarkGray), new Rectangle(1, 1 + 2, charSizeX - 2, charSizeY - 2 - 2));
-                //                    break;
-                //            }
-                //            if (charBitmap[colorIndex, i] != null) charBitmap[colorIndex, i].Dispose();
-                //            charBitmap[colorIndex, i] = (Bitmap)bmp.Clone();
-                //        }
-                //    }
-                //    g.Clear(BackColor);
-
-                    //                System.Diagnostics.Debug.Print("regen buffer0 " + sw.ElapsedMilliseconds.ToString() + "ms");
-                //    for (int colorIndex = 0; colorIndex < 16; colorIndex++)
-                //    {
-                //        Color color = Style.ColorPallet[colorIndex];
-                //        int colorNo = (color.B << 16) + (color.G << 8) + color.R;
-
-                //        for (int i = 0x20; i < 128; i++)
-                //        {
-                //            IntPtr hDC = g.GetHdc();
-                //            IntPtr hFont = this.Font.ToHfont();
-                //            IntPtr hOldFont = (IntPtr)SelectObject(hDC, hFont);
-
-                //            SetTextColor(hDC, colorNo);
-                //            TextOut(hDC, 0, 0, ((char)i).ToString(), 1);
-
-                //            DeleteObject((IntPtr)SelectObject(hDC, hOldFont));
-                //            g.ReleaseHdc(hDC);
-                //            if (charBitmap[colorIndex, i] != null) charBitmap[colorIndex, i].Dispose();
-                //            charBitmap[colorIndex, i] = (Bitmap)bmp.Clone();
-                //        }
-                //    }
-
-                //}
                 for (int mark = 0; mark < 8; mark++)
                 {
                     if (markBitmap[mark] != null) markBitmap[mark].Dispose();
@@ -161,7 +99,6 @@ namespace ajkControls
                     }
 
                 }
-//                System.Diagnostics.Debug.Print("regen buffer " + sw.ElapsedMilliseconds.ToString() + "ms");
             }
         }
 
@@ -218,11 +155,9 @@ namespace ajkControls
 
                     while (line <= document.Lines)
                     {
-                        if (drawLine >= visibleLines + 2)
-                        {
-                            break;
-                        }
-                        if (!document.IsVisibleLine(line))
+                        if (drawLine >= visibleLines + 2) break; // out of visible area
+
+                        if (!document.IsVisibleLine(line)) // skip invisible lines
                         {
                             e.Graphics.DrawLine(new Pen(Color.FromArgb(50, Color.Black)), new Point(xOffset * charSizeX, y - 1), new Point(dbDrawBox.Width, y - 1));
                             line++;
@@ -235,7 +170,7 @@ namespace ajkControls
                         }
                         actualLineNumbers[drawLine] = line;
 
-                        // draw line number (right padding)
+                        // draw line numbers (right padding)
                         x = (xOffset - 3) * charSizeX;
                         if (multiLine)
                         {
@@ -269,16 +204,7 @@ namespace ajkControls
                         drawLine++;
                         line++;
                     }
-                    if (document.Length == document.CaretIndex & Editable)
-                    {
-                        y = y - charSizeY;
-                        e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                        e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
-                        caretX = x;
-                        caretY = y;
-                    }
                 }
-  //              DeleteObject((IntPtr)SelectObject(hDC, hOldFont));
 
                 e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height));
 
@@ -307,7 +233,7 @@ namespace ajkControls
             int start = document.GetLineStartIndex(line);
             int end = start + document.GetLineLength(line);
             {
-                for (int i = start; i <= end; i++)
+                for (int i = start; i < end; i++)
                 {
                     if (i == document.Length) continue;
                     char ch = document.GetCharAt(i);
@@ -366,7 +292,7 @@ namespace ajkControls
                     {
                         sb.Append(ch);
                         i++;
-                        while (i <= end)
+                        while (i < end)
                         {
                             ch = document.GetCharAt(i);
                             byte nextColor = document.GetColorAt(i);
@@ -405,7 +331,7 @@ namespace ajkControls
             int start = document.GetLineStartIndex(line);
             int end = start + document.GetLineLength(line);
             {
-                for (int i = start; i <= end; i++)
+                for (int i = start; i < end; i++)
                 {
                     if (i == document.Length) continue;
                     char ch = document.GetCharAt(i);
@@ -469,6 +395,14 @@ namespace ajkControls
                     lineX = lineX + xIncrement;
                     x = x + charSizeX * xIncrement;
                 }
+            }
+            if ( line == document.Lines && document.Length == document.CaretIndex && Editable)
+            {
+//                y = y - charSizeY;
+                e.Graphics.DrawLine(new Pen(Color.Black), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
+                e.Graphics.DrawLine(new Pen(Color.Black), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                caretX = x;
+                caretY = y;
             }
         }
 
@@ -571,9 +505,9 @@ namespace ajkControls
             int nextLineIndex = index + document.GetLineLength(line);
 
             int x = 0;
-            char ch = document.GetCharAt(index);
             while (index < nextLineIndex && x < xPos)
             {
+                char ch = document.GetCharAt(index);
                 if (ch == '\r' || ch == '\n') break;
                 if (ch == '\t')
                 {
@@ -584,10 +518,10 @@ namespace ajkControls
                     x++;
                 }
                 index++;
-                ch = document.GetCharAt(index);
+//                ch = document.GetCharAt(index);
             }
 
-            if (index > 0 && document.GetCharAt(index) == '\n' && document.GetCharAt(index - 1) == '\r')
+            if (index > 0 && index < nextLineIndex && document.GetCharAt(index) == '\n' && document.GetCharAt(index - 1) == '\r')
             {
                 index--;
             }

@@ -22,7 +22,7 @@ namespace ajkControls
 
             if (e.Button == MouseButtons.Left)
             {
-                if (e.X < xOffset * charSizeX)
+                if (e.X < xOffset * charSizeX) // block folding control
                 {
                     int drawLine = e.Y / charSizeY;
                     int line = GetActualLineNo(drawLine);
@@ -40,14 +40,37 @@ namespace ajkControls
                 }
 
                 int index = hitIndex(e.X, e.Y);
+
+
                 if (document.CaretIndex != index || document.SelectionStart != index || document.SelectionLast != index)
                 {
-                    document.CaretIndex = index;
-                    document.SelectionStart = index;
-                    document.SelectionLast = index;
-                    state = uiState.selecting;
-                    selectionChanged();
-                    Invoke(new Action(dbDrawBox.Refresh));
+                    if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+                    {
+                        if (index < document.CaretIndex)
+                        {
+                            document.SelectionStart = index;
+//                            document.SelectionLast = document.Carlet;
+                            document.CaretIndex = index;
+                        }
+                        else
+                        {
+ //                           document.SelectionStart = document.CaretIndex;
+                            document.SelectionLast = index;
+                            document.CaretIndex = index;
+                        }
+                        state = uiState.selecting;
+                        selectionChanged();
+                        Invoke(new Action(dbDrawBox.Refresh));
+                    }
+                    else
+                    {
+                        document.CaretIndex = index;
+                        document.SelectionStart = index;
+                        document.SelectionLast = index;
+                        state = uiState.selecting;
+                        selectionChanged();
+                        Invoke(new Action(dbDrawBox.Refresh));
+                    }
                 }
                 else
                 {
@@ -119,7 +142,6 @@ namespace ajkControls
                     {
                         state = uiState.idle;
                     }
-
                 }
             }
         }

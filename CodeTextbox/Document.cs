@@ -10,14 +10,14 @@ namespace ajkControls
     {
         public Document()
         {
-            newLineIndex.Replace(0, 0, new int[] { 0 });
+            newLineIndex.Replace(0, 0, new int[] { 0,1 });
             lineVisible.Replace(0, 0, new bool[] { true,true });
             visibleLines = 1;
         }
 
         public Document(string text)
         {
-            newLineIndex.Replace(0, 0, new int[] { 0 });
+            newLineIndex.Replace(0, 0, new int[] { 0,1 });
             lineVisible.Replace(0, 0, new bool[] { true, true });
             visibleLines = 1;
 
@@ -181,7 +181,7 @@ namespace ajkControls
         public bool IsVisibleLine(int lineNo)
         {
             if (!blockCashActive) createBlockCash();
-            return lineVisible[lineNo];
+            return lineVisible[lineNo-1];
         }
         public bool IsBlockHeadLine(int lineNo)
         {
@@ -217,7 +217,6 @@ namespace ajkControls
             if (collapsedLines.Contains(lineNo)) return true;
             return false;
         }
-
 
         /////////////////////////////////////////
 
@@ -348,7 +347,6 @@ namespace ajkControls
             replace(index,replaceLength,colorIndex,text);
         }
 
-
         private void replace(int index,int replaceLength, byte colorIndex, string text)
         {
             // replace text
@@ -378,22 +376,22 @@ namespace ajkControls
             for(int i=0;i<array.Length;i++)
             {
                 if (array[i] != '\n') continue;
-                lines.Add(i + index);
+                lines.Add(i + index+1);
             }
 
-            int startLine = GetLineAt(index)-1;
-            int endLine = GetLineAt(index + replaceLength)-1;
-            int changedLine = lines.Count+startLine- endLine;
+            int startLine = GetLineAt(index);
+            int endLine = GetLineAt(index + replaceLength);
+            int changedLine = lines.Count + startLine - endLine;
 
             if(changedLine > 0)
             {
                 newLineIndex.Resize(newLineIndex.Length + changedLine);
                 lineVisible.Resize(lineVisible.Length + changedLine);
 
-                for (int i = newLineIndex.Length - 1; i >= startLine + lines.Count; i--)
+                for (int i = newLineIndex.Length; i >= startLine + lines.Count; i--)
                 {
-                    newLineIndex[i] = newLineIndex[i - changedLine] + text.Length - replaceLength;
-                    lineVisible[i] = lineVisible[i - changedLine];
+                    newLineIndex[i-1] = newLineIndex[i - changedLine] + text.Length - replaceLength;
+                    lineVisible[i-1] = lineVisible[i - changedLine];
                 }
                 for (int i = 0; i < lines.Count; i++)
                 {
@@ -483,26 +481,31 @@ namespace ajkControls
             }
             exception
 */
-            int lineAfter = 0;
-            int lineBefore = newLineIndex.Length-1;
+            int lineStart = 1;
+            int lineLast = newLineIndex.Length;
 
-            int l = lineBefore >> 1;
+            int l = (lineLast + lineStart) >> 1;
 
-            while (lineBefore-1 > lineAfter)
+            while (lineStart < lineLast-1 )
             {
-                if (newLineIndex[l] >= index)
+                if(index == newLineIndex[l - 1])
                 {
-                    lineBefore = l;
+                    return l;
                 }
-                else if (newLineIndex[l] < index)
+                else if (index < newLineIndex[l-1])
                 {
-                    lineAfter = l;
+                    lineLast = l;
                 }
-                l = (lineBefore + lineAfter) >> 1;
+                else if (newLineIndex[l-1] < index)
+                {
+                    lineStart = l;
+                }
+                l = (lineLast + lineStart) >> 1;
             }
-            if (newLineIndex[l] < index) l++;
+            l = lineStart;
+            if (newLineIndex[l-1] < index) l++;
 
-            return l+1;
+            return l;
          }
 
         public int GetVisibleLine(int line)
@@ -525,31 +528,19 @@ namespace ajkControls
             }
             else
             {
-                return newLineIndex[line - 2]+1;
+                return newLineIndex[line - 1];
             }
         }
 
         public int GetLineLength(int line)
         {
-//            System.Diagnostics.Debug.Assert(line < newLineIndex.Length + 1);
-            if (line == 1)
+            //if (line == 1)
+            //{
+            //    return newLineIndex[0];
+            //}
+            //else
             {
-                if(newLineIndex.Length == 0)
-                {
-                    return chars.Length;
-                }
-                else
-                {
-                    return newLineIndex[0];
-                }
-            }
-            else if (line == newLineIndex.Length)
-            {
-                return 0;
-            }
-            else
-            {
-                return newLineIndex[line-1] - newLineIndex[line - 2] - 1;
+                return newLineIndex[line] - newLineIndex[line - 1];
             }
         }
 
