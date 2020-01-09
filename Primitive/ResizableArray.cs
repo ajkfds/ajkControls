@@ -64,6 +64,7 @@ namespace ajkControls
                 {
                     if (index > usedLength)
                     { // unused buffer access
+                        
                         System.Diagnostics.Debugger.Break();
                     }
                     return buffer[index];

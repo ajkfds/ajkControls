@@ -360,10 +360,11 @@ namespace ajkControls
             int xPosition = getXPos(document.CaretIndex, line);
             if (prevXPos > xPosition) xPosition = prevXPos;
 
+            if (line == document.Lines - 1) return;
             line++;
 
             // skip invisible lines
-            while (line < document.Lines && !document.IsVisibleLine(line))
+            while (line < document.Lines-1 && !document.IsVisibleLine(line))
             {
                 line++;
             }

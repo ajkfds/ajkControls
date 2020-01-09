@@ -10,14 +10,14 @@ namespace ajkControls
     {
         public Document()
         {
-            newLineIndex.Replace(0, 0, new int[] { 0,1 });
+            newLineIndex.Replace(0, 0, new int[] { 0,0 });
             lineVisible.Replace(0, 0, new bool[] { true,true });
             visibleLines = 1;
         }
 
         public Document(string text)
         {
-            newLineIndex.Replace(0, 0, new int[] { 0,1 });
+            newLineIndex.Replace(0, 0, new int[] { 0,0 });
             lineVisible.Replace(0, 0, new bool[] { true, true });
             visibleLines = 1;
 
@@ -388,10 +388,10 @@ namespace ajkControls
                 newLineIndex.Resize(newLineIndex.Length + changedLine);
                 lineVisible.Resize(lineVisible.Length + changedLine);
 
-                for (int i = newLineIndex.Length; i >= startLine + lines.Count; i--)
+                for (int i = newLineIndex.Length-1; i > startLine + lines.Count-1; i--)
                 {
-                    newLineIndex[i-1] = newLineIndex[i - changedLine] + text.Length - replaceLength;
-                    lineVisible[i-1] = lineVisible[i - changedLine];
+                    newLineIndex[i] = newLineIndex[i - changedLine] + text.Length - replaceLength;
+                    lineVisible[i] = lineVisible[i - changedLine];
                 }
                 for (int i = 0; i < lines.Count; i++)
                 {
@@ -401,7 +401,7 @@ namespace ajkControls
             }
             else if (changedLine < 0)
             {
-                for( int i = startLine + lines.Count; i < newLineIndex.Length + changedLine;i++)
+                for (int i = startLine + lines.Count-1 +1; i < newLineIndex.Length + changedLine; i++)
                 {
                     newLineIndex[i] = newLineIndex[i - changedLine] + text.Length - replaceLength;
                     lineVisible[i] = lineVisible[i - changedLine];
@@ -417,10 +417,10 @@ namespace ajkControls
             }
             else
             {
-                for (int i = newLineIndex.Length + changedLine - 1; i >= startLine + lines.Count; i--)
+                for (int i = newLineIndex.Length - 1; i >= startLine + lines.Count; i--)
                 {
-                    newLineIndex[i] = newLineIndex[i - changedLine] + text.Length - replaceLength;
-                    lineVisible[i] = lineVisible[i - changedLine];
+                    newLineIndex[i] = newLineIndex[i] + text.Length - replaceLength;
+                    lineVisible[i] = lineVisible[i];
                 }
                 for (int i = 0; i < lines.Count; i++)
                 {
@@ -503,7 +503,7 @@ namespace ajkControls
                 l = (lineLast + lineStart) >> 1;
             }
             l = lineStart;
-            if (newLineIndex[l-1] < index) l++;
+            if (newLineIndex[l-1+1] < index) l++;
 
             return l;
          }
@@ -534,7 +534,7 @@ namespace ajkControls
 
         public int GetLineLength(int line)
         {
-            //if (line == 1)
+            //if ( newLineIndex.Length <= line)
             //{
             //    return newLineIndex[0];
             //}
@@ -547,7 +547,7 @@ namespace ajkControls
         public int Lines
         {
             get {
-                return newLineIndex.Length;
+                return newLineIndex.Length-1;
             }
         }
 

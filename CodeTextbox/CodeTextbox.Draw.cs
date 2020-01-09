@@ -110,6 +110,8 @@ namespace ajkControls
             fill
         }
 
+        SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
+
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
             unsafe
@@ -188,11 +190,7 @@ namespace ajkControls
                             x = x - charSizeX;
 
                             string lineString = line.ToString();
-                            for (int i = 0; i < lineString.Length; i++)
-                            {
-//                                e.Graphics.DrawImage(charBitmap[0, lineString[lineString.Length - i - 1]], new Point(x, y));
-                                x = x - charSizeX;
-                            }
+                            e.Graphics.DrawString(lineString, Font, lineNumberTextBrush, new Point(x-lineString.Length*charSizeX, y));
                         }
 
                         // draw charactors
@@ -433,6 +431,11 @@ namespace ajkControls
                 }
                 if (xPos > hitX) break;
                 index++;
+                if (index >= document.Length)
+                {
+                    index--;
+                    break;
+                }
                 ch = document.GetCharAt(index);
             }
 
