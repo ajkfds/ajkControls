@@ -472,7 +472,8 @@ namespace ajkControls
 
             if (line < vScrollBar.Value)
             {
-                vScrollBar.Value = line;
+                if (line < 5) vScrollBar.Value = 1;
+                else vScrollBar.Value = line-4;
             }
             else if (line >= visibleLines + vScrollBar.Value)
             {
