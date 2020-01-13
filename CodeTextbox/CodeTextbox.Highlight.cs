@@ -125,7 +125,7 @@ namespace ajkControls
             {
                 for (int index = highlightStarts[i]; index <= highlighLasts[i]; index++)
                 {
-                    document.RemoveMarkAt(index, 7);
+                    if(index < document.Length) document.RemoveMarkAt(index, 7);
                 }
             }
             highlightStarts.Clear();
