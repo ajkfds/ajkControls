@@ -277,6 +277,8 @@ namespace ajkControls
             IntPtr hOldFont = (IntPtr)WinApi.SelectObject(hDC, hFont);
 
             int lineColor = (Color.LightGray.B << 16) + (Color.LightGray.G << 8) + Color.LightGray.R;
+            int blockLineColor = (Color.Gray.B << 16) + (Color.Gray.G << 8) + Color.Gray.R;
+
             IntPtr pen = WinApi.CreatePen(0, 1, lineColor);
             IntPtr oldPen = (IntPtr)WinApi.SelectObject(hDC, pen);
             int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
@@ -292,7 +294,11 @@ namespace ajkControls
 
                 if (!document.IsVisibleLine(line)) // skip invisible lines
                 {
-                    e.Graphics.DrawLine(new Pen(Color.FromArgb(50, Color.Black)), new Point(xOffset * charSizeX, y - 1), new Point(dbDrawBox.Width, y - 1));
+                    //e.Graphics.DrawLine(new Pen(Color.FromArgb(50, Color.Black)), new Point(xOffset * charSizeX, y - 1), new Point(dbDrawBox.Width, y - 1));
+                    WinApi.MoveToEx(hDC, (int)(xOffset * charSizeX), (int)(y-1), IntPtr.Zero);
+                    WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y-1));
+                    WinApi.SetPixel(hDC, (int)(dbDrawBox.Width), (int)(y-1), blockLineColor);
+
                     line++;
                     while (line < document.Lines)
                     {
