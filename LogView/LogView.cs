@@ -34,19 +34,6 @@ namespace ajkControls
             }
         }
 
-        private void appendLog(string log,Color color)
-        {
-            logs.Add(log);
-            logColors.Add(color);
-            logHeights.Add(-1);
-            while (logs.Count > MaxLogs)
-            {
-                logs.RemoveAt(0);
-                logColors.RemoveAt(0);
-                logHeights.RemoveAt(0);
-            }
-        }
-
 
         private void dbDrawBox_Resize(object sender, EventArgs e)
         {
@@ -85,15 +72,38 @@ namespace ajkControls
                     return;
                 }
 
-                for(int i = 0; i < logStock.Count; i++)
+                if(logStock.Count > MaxLogs)
                 {
-                    appendLog(logStock[i], logColorStock[i]);
+                    logs.Clear();
+                    for (int i = logStock.Count-MaxLogs; i < logStock.Count; i++)
+                    {
+                        logs.Add(logStock[i]);
+                        logColors.Add(logColorStock[i]);
+                        logHeights.Add(-1);
+                    }
                 }
-
+                else
+                {
+                    for (int i = 0; i < logStock.Count; i++)
+                    {
+                        logs.Add(logStock[i]);
+                        logColors.Add(logColorStock[i]);
+                        logHeights.Add(-1);
+                        while (logs.Count > MaxLogs)
+                        {
+                            logs.RemoveAt(0);
+                            logColors.RemoveAt(0);
+                            logHeights.RemoveAt(0);
+                        }
+                    }
+                }
                 logStock.Clear();
                 logColorStock.Clear();
             }
             dbDrawBox.Invalidate();
+        }
+        private void appendLog(string log, Color color)
+        {
         }
 
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
