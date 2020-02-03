@@ -141,6 +141,20 @@ namespace ajkControls
         private int bottomMargin = 4;
         private int maxVisibleLines = 8;
 
+        public Color selectedColor = Color.FromArgb(0xd8, 0xe0, 0xe8);
+        public Color SelectedColor
+        {
+            get
+            {
+                return selectedColor;
+            }
+            set
+            {
+                selectedColor = value;
+                selectionBrush = new SolidBrush(selectedColor);
+            }
+        }
+
         private SolidBrush selectionBrush = new SolidBrush(Color.FromArgb(100, 0, 50, 100));
         private void doubleBufferedDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {

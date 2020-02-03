@@ -273,6 +273,9 @@ namespace ajkControls
         public static extern uint SetBkColor(IntPtr hdc, int crColor);
 
         [DllImport("gdi32.dll")]
+        public static extern uint SetBkMode(IntPtr hdc, int iBkMode); // 1 transparent,  2 opaque
+
+        [DllImport("gdi32.dll")]
         public unsafe static extern UInt32 MoveToEx(IntPtr hdc, Int32 x, Int32 y, IntPtr nul);
 
         [DllImport("gdi32.dll")]
