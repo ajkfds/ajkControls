@@ -125,7 +125,8 @@ namespace ajkControls
                     else
                     {
                         g.Clear(UnselectedBackgroundColor);
-                        textBrush = new SolidBrush(Color.Black);
+                        textBrush = new SolidBrush(this.SelectedForeColor);
+//                        textBrush = new SolidBrush(Color.Black);
                     }
 
                     using (StringFormat sf = new StringFormat())
