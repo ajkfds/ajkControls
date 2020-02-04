@@ -88,7 +88,8 @@ namespace ajkControls
                 page.Bounds.Y - 2,
                 page.Bounds.Width + 5,
                 page.Bounds.Height + 5);
-            TabRenderer.DrawTabPage(e.Graphics, pageRect);
+            //TabRenderer.DrawTabPage(e.Graphics, pageRect);
+            e.Graphics.FillRectangle(new SolidBrush(backgoundColor), pageRect);
 
             for (int i = 0; i < this.TabPages.Count; i++)
             {
