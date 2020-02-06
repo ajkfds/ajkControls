@@ -29,8 +29,8 @@ namespace ajkControls
             {
                 skipKeyPress = true;
 //                if (AfterKeyDown != null) AfterKeyDown(this, e);
-                scrollToCaret();
                 selectionChanged();
+                scrollToCaret();
                 Invoke(new Action(dbDrawBox.Refresh));
                 return;
             }
@@ -360,7 +360,7 @@ namespace ajkControls
             int xPosition = getXPos(document.CaretIndex, line);
             if (prevXPos > xPosition) xPosition = prevXPos;
 
-            if (line == document.Lines - 1) return;
+            if (line == document.Lines) return;
             line++;
 
             // skip invisible lines
@@ -390,8 +390,8 @@ namespace ajkControls
                 document.SelectionStart = document.CaretIndex;
                 document.SelectionLast = document.CaretIndex;
             }
-            scrollToCaret();
             selectionChanged();
+            scrollToCaret();
             e.Handled = true;
         }
 

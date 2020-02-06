@@ -60,13 +60,13 @@ namespace ajkControls
         {
             get
             {
+                if (index > usedLength)
+                { // unused buffer access
+
+                    System.Diagnostics.Debugger.Break();
+                }
                 unsafe
                 {
-                    if (index > usedLength)
-                    { // unused buffer access
-                        
-                        System.Diagnostics.Debugger.Break();
-                    }
                     return buffer[index];
                 }
             }

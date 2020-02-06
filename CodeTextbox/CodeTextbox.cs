@@ -239,6 +239,8 @@ namespace ajkControls
                 document = value;
                 document.Replaced = hilightUpdateWhenDocReplaced;
                 UpdateVScrollBarRange();
+                SelectionChanged();
+                ScrollToCaret();
                 if (Handle != null) Invoke(new Action(dbDrawBox.Refresh));
             }
         }

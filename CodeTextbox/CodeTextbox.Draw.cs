@@ -134,7 +134,7 @@ namespace ajkControls
                     {
                         int lines = document.Lines;
                         if (lines < 1000) lines = 1000;
-                        xOffset = lines.ToString().Length + 2;
+                        xOffset = lines.ToString().Length + 3;
                     }
                     else
                     {
