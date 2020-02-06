@@ -209,9 +209,11 @@ namespace ajkControls
 
                 e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height));
 
+
+                // underline @ varlet
                 if (Editable)
                 {
-                    e.Graphics.DrawLine(new Pen(Color.FromArgb(100, Color.Gray)), new Point(xOffset * charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
+                    e.Graphics.DrawLine(new Pen(Color.FromArgb(100, Color.LightGray)), new Point(xOffset * charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
                 }
                 sw.Stop();
                 System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
@@ -381,8 +383,8 @@ namespace ajkControls
                     // caret
                     if (i == document.CaretIndex & Editable)
                     {
-                        e.Graphics.DrawLine(new Pen(Color.Gray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                        e.Graphics.DrawLine(new Pen(Color.Gray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                        e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
+                        e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
                         caretX = x;
                         caretY = y;
                     }
@@ -421,10 +423,12 @@ namespace ajkControls
                     x = x + charSizeX * xIncrement;
                 }
             }
+
+            // carlet at EOF
             if ( line == document.Lines && document.Length == document.CaretIndex && Editable)
             {
-                e.Graphics.DrawLine(new Pen(Color.Gray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                e.Graphics.DrawLine(new Pen(Color.Gray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
+                e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
                 caretX = x;
                 caretY = y;
             }
