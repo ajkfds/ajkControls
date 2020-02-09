@@ -133,8 +133,8 @@ namespace ajkControls
                     if (multiLine)
                     {
                         int lines = document.Lines;
-                        if (lines < 1000) lines = 1000;
-                        xOffset = lines.ToString().Length + 3;
+                        if (lines < 999) lines = 999;
+                        xOffset = lines.ToString().Length + 4;
                     }
                     else
                     {
