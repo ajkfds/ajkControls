@@ -118,7 +118,7 @@ namespace ajkControls
                 }
                 else
                 {
-                    for (int k = blockStartLines[j] + 1; k < blockEndLines[j]; k++)
+                    for (int k = blockStartLines[j] ; k < blockEndLines[j]-1; k++)
                     {
                         if (lineVisible[k])
                         {
@@ -510,7 +510,7 @@ namespace ajkControls
 
         public int GetVisibleLine(int line)
         {
-            int visibleLine = 1;
+            int visibleLine = 0;
             for(int l = 0; l < line; l++)
             {
                 if (lineVisible[l]) visibleLine++;   
