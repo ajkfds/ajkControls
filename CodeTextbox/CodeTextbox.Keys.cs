@@ -310,7 +310,14 @@ namespace ajkControls
 
             int headindex = document.GetLineStartIndex(line);
             int xPosition = getXPos(document.CaretIndex, line);
-            if (prevXPos > xPosition) xPosition = prevXPos;
+            if (prevXPos > xPosition)
+            {
+                xPosition = prevXPos;
+            }
+            else
+            {
+                prevXPos = xPosition;
+            }
 
             line--;
 
@@ -325,6 +332,8 @@ namespace ajkControls
             headindex = document.GetLineStartIndex(line);
             document.CaretIndex = getIndex(xPosition, line);
 
+            if (prevXPos == -1) prevXPos = xPosition;
+ 
             caretChanged();
             if (e.Modifiers == Keys.Shift)
             {
@@ -355,10 +364,18 @@ namespace ajkControls
                 onSelectionStart = true;
             }
             int line = document.GetLineAt(document.CaretIndex);
-            if (line == document.Lines) return;
+            if (line == document.Lines) return; // last line
+
             int headindex = document.GetLineStartIndex(line);
             int xPosition = getXPos(document.CaretIndex, line);
-            if (prevXPos > xPosition) xPosition = prevXPos;
+            if (prevXPos > xPosition)
+            {
+                xPosition = prevXPos;
+            }
+            else
+            {
+                prevXPos = xPosition;
+            }
 
             if (line == document.Lines) return;
             line++;
@@ -370,7 +387,7 @@ namespace ajkControls
             }
             if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
 
-            headindex = document.GetLineStartIndex(line);
+//            headindex = document.GetLineStartIndex(line);
             document.CaretIndex = getIndex(xPosition, line);
 
             caretChanged();
@@ -393,6 +410,8 @@ namespace ajkControls
             selectionChanged();
             scrollToCaret();
             e.Handled = true;
+
+            System.Diagnostics.Debug.Print("prevXPos",prevXPos.ToString());
         }
 
         private void dbDrawBox_KeyUp(object sender, KeyEventArgs e)
