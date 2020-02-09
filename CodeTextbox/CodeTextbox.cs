@@ -239,8 +239,8 @@ namespace ajkControls
                 document = value;
                 document.Replaced = hilightUpdateWhenDocReplaced;
                 UpdateVScrollBarRange();
-                SelectionChanged();
-                ScrollToCaret();
+                caretChanged();
+                scrollToCaret();
                 if (Handle != null) Invoke(new Action(dbDrawBox.Refresh));
             }
         }
@@ -393,8 +393,8 @@ namespace ajkControls
 
         public void ScrollToCaret()
         {
-            scrollToCaret();
             selectionChanged();
+            scrollToCaret();
             Invoke(new Action(dbDrawBox.Refresh));
         }
 
@@ -472,9 +472,9 @@ namespace ajkControls
 
             int line = document.GetVisibleLine(document.GetLineAt(document.CaretIndex));
 
-            if (line < vScrollBar.Value)
+            if (line-1 < vScrollBar.Value)
             {
-                if (line < 5) vScrollBar.Value = 1;
+                if (line < 5) vScrollBar.Value = 0;
                 else vScrollBar.Value = line-4;
             }
             else if (line >= visibleLines + vScrollBar.Value)
