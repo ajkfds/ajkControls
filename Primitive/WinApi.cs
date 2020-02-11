@@ -248,7 +248,7 @@ namespace ajkControls
         public extern static int TextOut(IntPtr hdc, int x, int y, string text, int length);
 
         [DllImport("gdi32.dll")]
-        public static extern int SelectObject(IntPtr hdc, IntPtr hgdiObj);
+        public static extern IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
 
         [DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr hObject);
@@ -292,6 +292,7 @@ namespace ajkControls
 
         [DllImport("gdi32.dll")]
         public unsafe static extern IntPtr CreateSolidBrush(Int32 color);
+
         /*
         Bitmap bmp = new Bitmap("ball.bmp");
      
@@ -341,6 +342,10 @@ namespace ajkControls
         [DllImport("gdi32.dll")]
         public static extern uint SetPixel(IntPtr hdc, int X, int Y, uint crColor);
 
+        public static Int32 GetColor(System.Drawing.Color color)
+        {
+            return (color.B << 16) + (color.G << 8) + color.R;
+        }
 
 
     }

@@ -305,7 +305,7 @@ namespace ajkControls
             }
         }
 
-        public Color lineNumberFillColor = Color.FromArgb(50, Color.SlateGray);
+        public Color lineNumberFillColor = Color.FromArgb(Color.SlateGray.R / 2, Color.SlateGray.G / 2, Color.SlateGray.B / 2);
         public Color LineNumberFillColor
         {
             get

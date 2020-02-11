@@ -39,7 +39,9 @@ namespace ajkControls
 
         // character & mark graphics buffer
         volatile bool reGenarateBuffer = true;
-        Bitmap[] markBitmap = new Bitmap[8];
+        private Bitmap[] markBitmap = new Bitmap[8];
+        private Bitmap plusBitmap;
+        private Bitmap minusBitmap;
 
         private void createGraphicsBuffer()
         {
@@ -56,6 +58,7 @@ namespace ajkControls
                     using (Graphics gc = Graphics.FromImage(markBitmap[mark]))
                     {
                         gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        gc.Clear(BackColor);
                         controlPen = new Pen(Style.MarkColor[mark]);
                         switch (Style.MarkStyle[mark])
                         {
@@ -93,6 +96,20 @@ namespace ajkControls
 
                 }
             }
+
+            {
+                plusBitmap = new Bitmap(charSizeY, charSizeY);
+                Graphics g = Graphics.FromImage(plusBitmap);
+                g.Clear(lineNumberFillColor);
+                g.DrawImage(plusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), 0, 0);
+            }
+            {
+                minusBitmap = new Bitmap(charSizeY, charSizeY);
+                Graphics g = Graphics.FromImage(minusBitmap);
+                g.Clear(lineNumberFillColor);
+                g.DrawImage(minusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), 0, 0);
+            }
+
         }
 
 
@@ -143,74 +160,22 @@ namespace ajkControls
 
                     int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
 
+                    // left banner
+                    e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height));
+
                     int drawLine = 0;
                     int line = lineStart;
                     if (!multiLine) drawLine = document.Lines;
 
-                    int x = 0;
-                    int y = 0;
                     drawChars(e);
-
 
                     drawLine = 0;
                     line = lineStart;
                     if (!multiLine) drawLine = document.Lines;
 
-                    x = 0;
-                    y = 0;
-                    while (line <= document.Lines)
-                    {
-                        if (drawLine >= visibleLines + 2) break; // out of visible area
-
-                        if (!document.IsVisibleLine(line)) // skip invisible lines
-                        {
-                            e.Graphics.DrawLine(new Pen(Color.FromArgb(50, Color.Black)), new Point(xOffset * charSizeX, y - 1), new Point(dbDrawBox.Width, y - 1));
-                            line++;
-                            while (line < document.Lines)
-                            {
-                                if (document.IsVisibleLine(line)) break;
-                                line++;
-                            }
-                            continue;
-                        }
-                        actualLineNumbers[drawLine] = line;
-
-                        // draw line numbers (right padding)
-                        x = (xOffset - 3) * charSizeX;
-                        if (multiLine)
-                        {
-                            if (document.IsBlockHeadLine(line))
-                            {
-                                if (document.IsCollapsed(line))
-                                {
-                                    e.Graphics.DrawImage(plusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), new Point(x, y));
-                                }
-                                else
-                                {
-                                    e.Graphics.DrawImage(minusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), new Point(x, y));
-                                }
-                            }
-                            x = x - charSizeX;
-
-                            string lineString = line.ToString();
-                            e.Graphics.DrawString(lineString, Font, lineNumberTextBrush, new Point(x - lineString.Length * charSizeX, y));
-                        }
-
-                        // draw charactors
-                        x = xOffset * charSizeX;
-                        drawMarkAndSelection(line, y, e);
-
-                        y = y + charSizeY;
-                        drawLine++;
-                        line++;
-                    }
-
                 }
 
-                e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height));
-
-
-                // underline @ varlet
+                // underline @ carlet
                 if (Editable)
                 {
                     e.Graphics.DrawLine(new Pen(Color.FromArgb(100, Color.LightGray)), new Point(xOffset * charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
@@ -228,9 +193,9 @@ namespace ajkControls
             IntPtr hOldFont = (IntPtr)WinApi.SelectObject(hDC, hFont);
             WinApi.SetBkMode(hDC, 1);
 
-            int lineColor = (Color.DarkGray.B << 16) + (Color.DarkGray.G << 8) + Color.DarkGray.R;
-            int blockLineColor = (Color.DarkGray.B << 16) + (Color.DarkGray.G << 8) + Color.DarkGray.R;
-
+            int lineColor = WinApi.GetColor(Color.DarkGray);
+            int blockLineColor = WinApi.GetColor(Color.DarkGray);
+            
             IntPtr pen = WinApi.CreatePen(0, 1, lineColor);
             IntPtr oldPen = (IntPtr)WinApi.SelectObject(hDC, pen);
             int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
@@ -242,13 +207,14 @@ namespace ajkControls
             int y = 0;
             while (line <= document.Lines)
             {
-                if (drawLine >= visibleLines + 2) break; // out of visible area
+                if (drawLine >= visibleLines + 2) break; // exit : out of visible area
 
                 if (!document.IsVisibleLine(line)) // skip invisible lines
                 {
-                    //e.Graphics.DrawLine(new Pen(Color.FromArgb(50, Color.Black)), new Point(xOffset * charSizeX, y - 1), new Point(dbDrawBox.Width, y - 1));
                     WinApi.MoveToEx(hDC, (int)(xOffset * charSizeX), (int)(y-1), IntPtr.Zero);
-                    WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y-1));
+                    WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y - 1));
+                    WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y));
+                    WinApi.LineTo(hDC, (int)(xOffset * charSizeX), (int)(y));
                     WinApi.SetPixel(hDC, (int)(dbDrawBox.Width), (int)(y-1), blockLineColor);
 
                     line++;
@@ -261,11 +227,127 @@ namespace ajkControls
                 }
                 actualLineNumbers[drawLine] = line;
 
-                // draw charactors
+                // draw line numbers (right padding)
+                x = (xOffset - 3) * charSizeX;
+                if (multiLine)
+                {
+                    if (document.IsBlockHeadLine(line))
+                    {
+                        if (document.IsCollapsed(line))
+                        {
+                            IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
+                            IntPtr hbmp = plusBitmap.GetHbitmap();
+                            IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
+                            WinApi.BitBlt(hDC,x, y, charSizeY, charSizeY, hsrc, 0, 0, WinApi.TernaryRasterOperations.SRCCOPY);
+                            WinApi.DeleteObject(porg);
+                            WinApi.DeleteObject(hbmp);
+                            WinApi.DeleteDC(hsrc);
+                        }
+                        else
+                        {
+                            IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
+                            IntPtr hbmp = minusBitmap.GetHbitmap();
+                            IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
+                            WinApi.BitBlt(hDC, x, y, charSizeY, charSizeY, hsrc, 0, 0, WinApi.TernaryRasterOperations.SRCCOPY);
+                            WinApi.DeleteObject(porg);
+                            WinApi.DeleteObject(hbmp);
+                            WinApi.DeleteDC(hsrc);
+                        }
+                    }
+                    x = x - charSizeX;
+
+                    string lineString = line.ToString();
+                    WinApi.SetTextColor(hDC, WinApi.GetColor(Color.Silver));
+                    WinApi.TextOut(hDC, x - lineString.Length * charSizeX, y , lineString, lineString.Length);
+                }
+
+
                 x = xOffset * charSizeX;
                 int lineX = 0;
                 int start = document.GetLineStartIndex(line);
                 int end = start + document.GetLineLength(line);
+                {
+                    for (int i = start; i < end; i++)
+                    {
+                        if (i == document.Length) continue;
+                        char ch = document.GetCharAt(i);
+                        byte color = document.GetColorAt(i);
+                        int xIncrement = 1;
+                        if (ch == '\t')
+                        {
+                            xIncrement = tabSize - (lineX % tabSize);
+                        }
+
+                        // caret
+                        if (i == document.CaretIndex & Editable)
+                        {
+                            IntPtr hrgn = WinApi.CreateRectRgn(x, y+2, x + 2, y + charSizeY - 2);
+                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(Color.LightGray));
+                            WinApi.FillRgn(hDC, hrgn, hbrush);
+                            WinApi.DeleteObject(hbrush);
+                            WinApi.DeleteObject(hrgn);
+                            caretX = x;
+                            caretY = y;
+                        }
+
+                        // mark
+                        if (document.GetMarkAt(i) != 0)
+                        {
+                            for (int mark = 0; mark < 7; mark++)
+                            {
+                                if ((document.GetMarkAt(i) & (1 << mark)) != 0)
+                                {
+                                    IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
+                                    IntPtr hbmp = markBitmap[mark].GetHbitmap();
+                                    IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
+                                    WinApi.BitBlt(hDC, x, y, charSizeY, charSizeY, hsrc, 0, 0, WinApi.TernaryRasterOperations.SRCCOPY);
+                                    WinApi.DeleteObject(porg);
+                                    WinApi.DeleteObject(hbmp);
+                                    WinApi.DeleteDC(hsrc);
+                                }
+                            }
+                            if ((document.GetMarkAt(i) & (1 << 7)) != 0)
+                            {
+                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y + charSizeY);
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(Style.MarkColor[7]));
+                                WinApi.FillRgn(hDC, hrgn, hbrush);
+                                WinApi.DeleteObject(hbrush);
+                                WinApi.DeleteObject(hrgn);
+                            }
+                        }
+
+                        // selection
+                        if (i >= document.SelectionStart && i < document.SelectionLast)
+                        {
+                            if (ch == '\t')
+                            {
+                                xIncrement = tabSize - (lineX % tabSize);
+                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionBrush.Color));
+                                WinApi.FillRgn(hDC, hrgn, hbrush);
+                                WinApi.DeleteObject(hbrush);
+                                WinApi.DeleteObject(hrgn);
+                            }
+                            else
+                            {
+                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y+charSizeY);
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionBrush.Color));
+                                WinApi.FillRgn(hDC, hrgn, hbrush);
+                                WinApi.DeleteObject(hbrush);
+                                WinApi.DeleteObject(hrgn);
+                            }
+                        }
+
+                        lineX = lineX + xIncrement;
+                        x = x + charSizeX * xIncrement;
+                    }
+                }
+
+                // draw charactors
+                x = xOffset * charSizeX;
+                lineX = 0;
+                start = document.GetLineStartIndex(line);
+                end = start + document.GetLineLength(line);
                 {
                     for (int i = start; i < end; i++)
                     {
@@ -319,7 +401,6 @@ namespace ajkControls
                                 WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.8), (int)(y + charSizeY * 0.6), IntPtr.Zero);
                                 WinApi.LineTo(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8));
                                 WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8), lineColor);
-
                             }
                         }
                         else
@@ -351,6 +432,21 @@ namespace ajkControls
                         x = x + charSizeX * xIncrement;
                     }
                 }
+
+                // carlet at EOF
+                if (line == document.Lines && document.Length == document.CaretIndex && Editable)
+                {
+                    // e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
+                    // e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
+                    IntPtr hrgn = WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
+                    IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(Color.LightGray));
+                    WinApi.FillRgn(hDC, hrgn, hbrush);
+                    WinApi.DeleteObject(hbrush);
+                    WinApi.DeleteObject(hrgn);
+                    caretX = x;
+                    caretY = y;
+                }
+
                 y = y + charSizeY;
                 drawLine++;
                 line++;
@@ -360,78 +456,6 @@ namespace ajkControls
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(hDC, hOldFont));
             e.Graphics.ReleaseHdc(hDC);
 
-        }
-        private void drawMarkAndSelection(int line, int y, PaintEventArgs e)
-        {
-            StringBuilder sb = new StringBuilder();
-            int x = xOffset * charSizeX;
-            int lineX = 0;
-            int start = document.GetLineStartIndex(line);
-            int end = start + document.GetLineLength(line);
-            {
-                for (int i = start; i < end; i++)
-                {
-                    if (i == document.Length) continue;
-                    char ch = document.GetCharAt(i);
-                    byte color = document.GetColorAt(i);
-                    int xIncrement = 1;
-                    if (ch == '\t')
-                    {
-                        xIncrement = tabSize - (lineX % tabSize);
-                    }
-
-                    // caret
-                    if (i == document.CaretIndex & Editable)
-                    {
-                        e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                        e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
-                        caretX = x;
-                        caretY = y;
-                    }
-
-                    // mark
-                    if (document.GetMarkAt(i) != 0)
-                    {
-                        for (int mark = 0; mark < 7; mark++)
-                        {
-                            if ((document.GetMarkAt(i) & (1 << mark)) != 0)
-                            {
-                                e.Graphics.DrawImage(markBitmap[mark], x, y);
-                            }
-                        }
-                        if ((document.GetMarkAt(i) & (1 << 7)) != 0)
-                        {
-                            e.Graphics.FillRectangle(new SolidBrush(Style.MarkColor[7]), x, y, charSizeX, charSizeY);
-                        }
-                    }
-
-                    // selection
-                    if (i >= document.SelectionStart && i < document.SelectionLast)
-                    {
-                        if (ch == '\t')
-                        {
-                            xIncrement = tabSize - (lineX % tabSize);
-                            e.Graphics.FillRectangle(selectionBrush, new Rectangle(x, y, xIncrement * charSizeX, charSizeY));
-                        }
-                        else
-                        {
-                            e.Graphics.FillRectangle(selectionBrush, new Rectangle(x, y, charSizeX, charSizeY));
-                        }
-                    }
-
-                    lineX = lineX + xIncrement;
-                    x = x + charSizeX * xIncrement;
-                }
-            }
-
-            // carlet at EOF
-            if ( line == document.Lines && document.Length == document.CaretIndex && Editable)
-            {
-                e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
-                caretX = x;
-                caretY = y;
-            }
         }
 
         private int hitIndex(int x, int y)
