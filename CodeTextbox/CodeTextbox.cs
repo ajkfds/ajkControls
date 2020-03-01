@@ -257,16 +257,6 @@ namespace ajkControls
         }
 
         //
-        public override Color BackColor {
-            get { return base.BackColor; }
-            set
-            {
-                if (base.BackColor == value) return; // avoid infinite loop on VS designer
-
-                base.BackColor = value;
-                reGenarateBuffer = true;
-            }
-        }
 
         private void CodeTextbox_Resize(object sender, EventArgs e)
         {
@@ -285,46 +275,35 @@ namespace ajkControls
 
         // draw image
         private int tabSize = 4;
-        public Color selectedColor = Color.FromArgb(60, Color.FromArgb(0x5b,0x7d,0x9f));
-        public Color SelectedColor {
-            get
-            {
-                return selectedColor;
-            }
-            set
-            {
-                selectedColor = value;
-            }
-        }
 
-        private SolidBrush selectionBrush
-        {
-            get
-            {
-                return new SolidBrush(selectedColor);
-            }
-        }
+        //private SolidBrush selectionBrush
+        //{
+        //    get
+        //    {
+        //        return new SolidBrush(selectionColor);
+        //    }
+        //}
 
-        public Color lineNumberFillColor = Color.FromArgb(Color.SlateGray.R / 2, Color.SlateGray.G / 2, Color.SlateGray.B / 2);
-        public Color LineNumberFillColor
-        {
-            get
-            {
-                return lineNumberFillColor;
-            }
-            set
-            {
-                lineNumberFillColor = value;
-            }
-        }
+        //public Color lineNumberFillColor = Color.FromArgb(Color.SlateGray.R / 2, Color.SlateGray.G / 2, Color.SlateGray.B / 2);
+        //public Color LineNumberFillColor
+        //{
+        //    get
+        //    {
+        //        return lineNumberFillColor;
+        //    }
+        //    set
+        //    {
+        //        lineNumberFillColor = value;
+        //    }
+        //}
 
-        private SolidBrush lineNumberBrush
-        {
-            get
-            {
-                return new SolidBrush(lineNumberFillColor);
-            }
-        }
+        //private SolidBrush lineNumberBrush
+        //{
+        //    get
+        //    {
+        //        return new SolidBrush(lineNumberFillColor);
+        //    }
+        //}
 
         private static IconImage plusIcon = new IconImage(Properties.Resources.plus);
         private static IconImage minusIcon = new IconImage(Properties.Resources.minus);

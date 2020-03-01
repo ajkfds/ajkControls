@@ -59,13 +59,11 @@
             this.codeTextbox.Document = null;
             this.codeTextbox.Editable = true;
             this.codeTextbox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeTextbox.LineNumberFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(112)))), ((int)(((byte)(128)))), ((int)(((byte)(144)))));
             this.codeTextbox.Location = new System.Drawing.Point(0, 0);
             this.codeTextbox.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.codeTextbox.MultiLine = false;
             this.codeTextbox.Name = "codeTextbox";
             this.codeTextbox.ScrollBarVisible = false;
-            this.codeTextbox.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(91)))), ((int)(((byte)(125)))), ((int)(((byte)(159)))));
             this.codeTextbox.Size = new System.Drawing.Size(283, 22);
             this.codeTextbox.Style = codeDrawStyle1;
             this.codeTextbox.TabIndex = 0;

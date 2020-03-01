@@ -180,6 +180,9 @@
     <Compile Include="CodeTextbox\CodeTextbox.Keys.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="CodeTextbox\CodeTextbox.Properties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <None Include="Resources\dot.png" />
   </ItemGroup>
   <ItemGroup>

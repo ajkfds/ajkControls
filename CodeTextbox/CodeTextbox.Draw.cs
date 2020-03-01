@@ -13,7 +13,6 @@ using System.Runtime.InteropServices;
 
 namespace ajkControls
 {
-
     public partial class CodeTextbox : UserControl
     {
         int charSizeX = 0;
@@ -100,13 +99,13 @@ namespace ajkControls
             {
                 plusBitmap = new Bitmap(charSizeY, charSizeY);
                 Graphics g = Graphics.FromImage(plusBitmap);
-                g.Clear(lineNumberFillColor);
+                g.Clear(leftColumnColor);
                 g.DrawImage(plusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), 0, 0);
             }
             {
                 minusBitmap = new Bitmap(charSizeY, charSizeY);
                 Graphics g = Graphics.FromImage(minusBitmap);
-                g.Clear(lineNumberFillColor);
+                g.Clear(leftColumnColor);
                 g.DrawImage(minusIcon.GetImage(charSizeY, IconImage.ColorStyle.Blue), 0, 0);
             }
 
@@ -160,8 +159,6 @@ namespace ajkControls
 
                     int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
 
-                    // left banner
-                    e.Graphics.FillRectangle(lineNumberBrush, new Rectangle(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height));
 
                     int drawLine = 0;
                     int line = lineStart;
@@ -185,13 +182,24 @@ namespace ajkControls
             }
         }
 
+
         private void drawChars(PaintEventArgs e)
         {
+
             StringBuilder sb = new StringBuilder();
             IntPtr hDC = e.Graphics.GetHdc();
             IntPtr hFont = this.Font.ToHfont();
             IntPtr hOldFont = (IntPtr)WinApi.SelectObject(hDC, hFont);
             WinApi.SetBkMode(hDC, 1);
+
+            {
+                // left column
+                IntPtr hrgn = WinApi.CreateRectRgn(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height);
+                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(leftColumnColor));
+                WinApi.FillRgn(hDC, hrgn, hbrush);
+                WinApi.DeleteObject(hbrush);
+                WinApi.DeleteObject(hrgn);
+            }
 
             int lineColor = WinApi.GetColor(Color.DarkGray);
             int blockLineColor = WinApi.GetColor(Color.DarkGray);
@@ -282,7 +290,7 @@ namespace ajkControls
                         if (i == document.CaretIndex & Editable)
                         {
                             IntPtr hrgn = WinApi.CreateRectRgn(x, y+2, x + 2, y + charSizeY - 2);
-                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(Color.LightGray));
+                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(carletColor));
                             WinApi.FillRgn(hDC, hrgn, hbrush);
                             WinApi.DeleteObject(hbrush);
                             WinApi.DeleteObject(hrgn);
@@ -323,7 +331,7 @@ namespace ajkControls
                             {
                                 xIncrement = tabSize - (lineX % tabSize);
                                 IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionBrush.Color));
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionColor));
                                 WinApi.FillRgn(hDC, hrgn, hbrush);
                                 WinApi.DeleteObject(hbrush);
                                 WinApi.DeleteObject(hrgn);
@@ -331,7 +339,7 @@ namespace ajkControls
                             else
                             {
                                 IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y+charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionBrush.Color));
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionColor));
                                 WinApi.FillRgn(hDC, hrgn, hbrush);
                                 WinApi.DeleteObject(hbrush);
                                 WinApi.DeleteObject(hrgn);
