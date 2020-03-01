@@ -14,6 +14,7 @@ namespace ajkControls
 
         }
 
+
         public void Dispose()
         {
             items.Clear();
@@ -42,7 +43,7 @@ namespace ajkControls
                 Color = color;
             }
             public string Text;
-            public Color Color;
+            public Color? Color = null;
 
             public Size GetSize(Graphics graphics, Font font)
             {
@@ -51,7 +52,7 @@ namespace ajkControls
             public void Draw(Graphics graphics,int x, int y, Font font, Color DefaultColor, Color bgColor)
             {
                 Color color = DefaultColor;
-                if (this.Color != null) color = this.Color;
+                if (this.Color != null) color = (Color)this.Color;
                 System.Windows.Forms.TextRenderer.DrawText(
                     graphics,
                     Text,
