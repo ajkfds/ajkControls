@@ -201,11 +201,11 @@ namespace ajkControls
                 WinApi.DeleteObject(hrgn);
             }
 
-            int lineColor = WinApi.GetColor(Color.DarkGray);
-            int blockLineColor = WinApi.GetColor(Color.DarkGray);
-            
-            IntPtr pen = WinApi.CreatePen(0, 1, lineColor);
-            IntPtr oldPen = (IntPtr)WinApi.SelectObject(hDC, pen);
+            IntPtr tabPen = WinApi.CreatePen(0, 1, WinApi.GetColor(tabColor));
+            IntPtr lfPen = WinApi.CreatePen(0, 1, WinApi.GetColor(lfColor));
+            IntPtr crPen = WinApi.CreatePen(0, 1, WinApi.GetColor(crColor));
+
+            IntPtr oldPen = (IntPtr)WinApi.SelectObject(hDC, tabPen);
             int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
             int drawLine = 0;
             int line = lineStart;
@@ -223,7 +223,7 @@ namespace ajkControls
                     WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y - 1));
                     WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y));
                     WinApi.LineTo(hDC, (int)(xOffset * charSizeX), (int)(y));
-                    WinApi.SetPixel(hDC, (int)(dbDrawBox.Width), (int)(y-1), blockLineColor);
+                    WinApi.SetPixel(hDC, (int)(dbDrawBox.Width), (int)(y-1), WinApi.GetColor(blockUnderlineColor));
 
                     line++;
                     while (line < document.Lines)
@@ -290,7 +290,7 @@ namespace ajkControls
                         if (i == document.CaretIndex & Editable)
                         {
                             IntPtr hrgn = WinApi.CreateRectRgn(x, y+2, x + 2, y + charSizeY - 2);
-                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(carletColor));
+                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(CarletColor));
                             WinApi.FillRgn(hDC, hrgn, hbrush);
                             WinApi.DeleteObject(hbrush);
                             WinApi.DeleteObject(hrgn);
@@ -331,7 +331,7 @@ namespace ajkControls
                             {
                                 xIncrement = tabSize - (lineX % tabSize);
                                 IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionColor));
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
                                 WinApi.FillRgn(hDC, hrgn, hbrush);
                                 WinApi.DeleteObject(hbrush);
                                 WinApi.DeleteObject(hrgn);
@@ -339,7 +339,7 @@ namespace ajkControls
                             else
                             {
                                 IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y+charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(selectionColor));
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
                                 WinApi.FillRgn(hDC, hrgn, hbrush);
                                 WinApi.DeleteObject(hbrush);
                                 WinApi.DeleteObject(hrgn);
@@ -366,49 +366,36 @@ namespace ajkControls
                         if (ch == '\t')
                         {
                             xIncrement = tabSize - (lineX % tabSize);
-
+                            WinApi.SelectObject(hDC, tabPen);
                             WinApi.MoveToEx(hDC, x + 2, y + charSizeY - 2, IntPtr.Zero);
                             WinApi.LineTo(hDC, x - 2 + xIncrement * charSizeX, y + charSizeY - 2);
-                            WinApi.SetPixel(hDC, x - 2 + xIncrement * charSizeX, y + charSizeY - 2, lineColor);
-
                             WinApi.MoveToEx(hDC, x - 2 + xIncrement * charSizeX, y + charSizeY - 2, IntPtr.Zero);
                             WinApi.LineTo(hDC, x - 2 + xIncrement * charSizeX, y + charSizeY - 8);
-                            WinApi.SetPixel(hDC, x - 2 + xIncrement * charSizeX, y + charSizeY - 8, lineColor);
 
                         }
                         else if (ch == '\r')
                         {
+                            WinApi.SelectObject(hDC, crPen);
                             WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.2), IntPtr.Zero);
                             WinApi.LineTo(hDC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.6));
-                            WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.6), lineColor);
-
                             WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6), IntPtr.Zero);
                             WinApi.LineTo(hDC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.6));
-                            WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.6), lineColor);
-
                             WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.4), (int)(y + charSizeY * 0.4), IntPtr.Zero);
                             WinApi.LineTo(hDC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6));
-                            WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6), lineColor);
-
                             WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.4), (int)(y + charSizeY * 0.8), IntPtr.Zero);
                             WinApi.LineTo(hDC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6));
-                            WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6), lineColor);
                         }
                         else if (ch == '\n')
                         {
                             if (i == 0 || document.GetCharAt(i - 1) != '\r')
                             {
+                                WinApi.SelectObject(hDC, lfPen);
                                 WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.2), IntPtr.Zero);
                                 WinApi.LineTo(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8));
-                                WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8), lineColor);
-
                                 WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.4), (int)(y + charSizeY * 0.6), IntPtr.Zero);
                                 WinApi.LineTo(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8));
-                                WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8), lineColor);
-
                                 WinApi.MoveToEx(hDC, (int)(x + charSizeX * 0.8), (int)(y + charSizeY * 0.6), IntPtr.Zero);
                                 WinApi.LineTo(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8));
-                                WinApi.SetPixel(hDC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8), lineColor);
                             }
                         }
                         else
@@ -427,7 +414,7 @@ namespace ajkControls
                                 i++;
                             }
 
-                            int colorNo = Style.IntColorPallet[color];
+                            int colorNo = WinApi.GetColor(Style.ColorPallet[color]);
 
                             WinApi.SetTextColor(hDC, colorNo);
                             WinApi.TextOut(hDC, x, y, sb.ToString(), sb.Length);
@@ -444,10 +431,8 @@ namespace ajkControls
                 // carlet at EOF
                 if (line == document.Lines && document.Length == document.CaretIndex && Editable)
                 {
-                    // e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x, y + 2), new Point(x, y + charSizeY - 2));
-                    // e.Graphics.DrawLine(new Pen(Color.LightGray), new Point(x + 1, y + 2), new Point(x + 1, y + charSizeY - 2));
                     IntPtr hrgn = WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
-                    IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(Color.LightGray));
+                    IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(CarletColor));
                     WinApi.FillRgn(hDC, hrgn, hbrush);
                     WinApi.DeleteObject(hbrush);
                     WinApi.DeleteObject(hrgn);
@@ -460,7 +445,9 @@ namespace ajkControls
                 line++;
             }
             WinApi.SelectObject(hDC, oldPen);
-            WinApi.DeleteObject(pen);
+            WinApi.DeleteObject(tabPen);
+            WinApi.DeleteObject(crPen);
+            WinApi.DeleteObject(lfPen);
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(hDC, hOldFont));
             e.Graphics.ReleaseHdc(hDC);
 

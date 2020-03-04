@@ -30,11 +30,6 @@ namespace ajkControls
                         System.Drawing.Color.Black, // 14
                         System.Drawing.Color.Black  // 15
                     };
-            intColors = new int[colors.Length];
-            for (int i = 0;i < colors.Length; i++)
-            {
-                intColors[i] =  (colors[i].B << 16) + (colors[i].G << 8) + colors[i].R;
-            }
         }
 
         protected System.Drawing.Color[] colors;
@@ -46,17 +41,6 @@ namespace ajkControls
                 return colors;
             }
         }
-
-        protected int[] intColors;
-
-        public int[] IntColorPallet
-        {
-            get
-            {
-                return intColors;
-            }
-        }
-
 
         public virtual Color[] MarkColor
         {

@@ -93,7 +93,18 @@ namespace ajkControls
             }
         }
 
-        //        public Color selectedColor = Color.FromArgb(60, Color.FromArgb(0x5b, 0x7d, 0x9f));
+        private Color blockUnderlineColor = Color.LightGray;
+        public Color BlockUnderlineColor
+        {
+            get
+            {
+                return blockUnderlineColor;
+            }
+            set
+            {
+                blockUnderlineColor = value;
+            }
+        }
 
         private Color selectionColor = Color.CadetBlue;
         public Color SelectionColor
