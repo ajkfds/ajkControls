@@ -68,6 +68,10 @@ namespace ajkControls
                                     new Point(0, (int)(charSizeY * 0.8) + i),
                                     new Point((int)charSizeX, (int)(charSizeY * 0.8) + i)
                                     );
+                                    gc.DrawLine(controlPen,
+                                    new Point(0, (int)(charSizeY * 0.8) + i-1),
+                                    new Point((int)charSizeX, (int)(charSizeY * 0.8) + i-1)
+                                    );
                                 }
                                 break;
                             case MarkStyleEnum.wave:
@@ -84,6 +88,19 @@ namespace ajkControls
                                     gc.DrawLine(controlPen,
                                         new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i),
                                         new Point((int)(charSizeX * 0.25 * 4), (int)(charSizeY * 0.85) + i)
+                                        );
+
+                                    gc.DrawLine(controlPen,
+                                        new Point((int)(charSizeX * 0.25 * 0), (int)(charSizeY * 0.85) + i -1 ),
+                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i -1 )
+                                        );
+                                    gc.DrawLine(controlPen,
+                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i -1 ),
+                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i -1 )
+                                        );
+                                    gc.DrawLine(controlPen,
+                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i -1 ),
+                                        new Point((int)(charSizeX * 0.25 * 4), (int)(charSizeY * 0.85) + i -1 )
                                         );
                                 }
                                 break;
@@ -286,17 +303,6 @@ namespace ajkControls
                             xIncrement = tabSize - (lineX % tabSize);
                         }
 
-                        // caret
-                        if (i == document.CaretIndex & Editable)
-                        {
-                            IntPtr hrgn = WinApi.CreateRectRgn(x, y+2, x + 2, y + charSizeY - 2);
-                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(CarletColor));
-                            WinApi.FillRgn(hDC, hrgn, hbrush);
-                            WinApi.DeleteObject(hbrush);
-                            WinApi.DeleteObject(hrgn);
-                            caretX = x;
-                            caretY = y;
-                        }
 
                         // mark
                         if (document.GetMarkAt(i) != 0)
@@ -344,6 +350,18 @@ namespace ajkControls
                                 WinApi.DeleteObject(hbrush);
                                 WinApi.DeleteObject(hrgn);
                             }
+                        }
+
+                        // caret
+                        if (i == document.CaretIndex & Editable)
+                        {
+                            IntPtr hrgn = WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
+                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(CarletColor));
+                            WinApi.FillRgn(hDC, hrgn, hbrush);
+                            WinApi.DeleteObject(hbrush);
+                            WinApi.DeleteObject(hrgn);
+                            caretX = x;
+                            caretY = y;
                         }
 
                         lineX = lineX + xIncrement;
