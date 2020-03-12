@@ -13,8 +13,6 @@ namespace ajkControls
         {
 
         }
-
-
         public void Dispose()
         {
             items.Clear();
@@ -226,7 +224,7 @@ namespace ajkControls
             size = new Size(xSize, ySize);
         }
 
-        public override string ToString()
+        public string CreateString()
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < items.Count; i++)
