@@ -233,6 +233,32 @@ namespace ajkControls
             public UInt32 dwTargetStrOffset;
         }
         #endregion
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct BLENDFUNCTION
+        {
+            byte BlendOp;
+            byte BlendFlags;
+            byte SourceConstantAlpha;
+            byte AlphaFormat;
+
+            public BLENDFUNCTION(byte op, byte flags, byte alpha, byte format)
+            {
+                BlendOp = op;
+                BlendFlags = flags;
+                SourceConstantAlpha = alpha;
+                AlphaFormat = format;
+            }
+        }
+
+        public const byte AC_SRC_OVER = 0x00;
+        public const byte AC_SRC_ALPHA = 0x01;
+
+        [DllImport("gdi32.dll", EntryPoint = "GdiAlphaBlend")]
+        public static extern bool AlphaBlend(IntPtr hdcDest, int nXOriginDest, int nYOriginDest,
+        int nWidthDest, int nHeightDest,
+        IntPtr hdcSrc, int nXOriginSrc, int nYOriginSrc, int nWidthSrc, int nHeightSrc, BLENDFUNCTION blendFunction);
+
         /*
         IntPtr hDC = e.Graphics.GetHdc();
         IntPtr hFont = this.Font.ToHfont();

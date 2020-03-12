@@ -64,6 +64,12 @@
     </Compile>
     <Compile Include="CodeTextbox\Document.cs" />
     <Compile Include="ColorLabel\ColorLabel.cs" />
+    <Compile Include="ColorLabel\ColorLabelList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ColorLabel\ColorLabelList.Designer.cs">
+      <DependentUpon>ColorLabelList.cs</DependentUpon>
+    </Compile>
     <Compile Include="ftp\FileTransfer.cs" />
     <Compile Include="ftp\FtpClient.cs" />
     <Compile Include="Git\BranchNode.cs" />
@@ -99,6 +105,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Scrollbar\ScrollBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Scrollbar\ScrollBar.Designer.cs">
+      <DependentUpon>ScrollBar.cs</DependentUpon>
     </Compile>
     <Compile Include="SelectionForm\SelectionForm.cs">
       <SubType>Form</SubType>
@@ -147,6 +159,9 @@
     <EmbeddedResource Include="CodeTextbox\CodeTextbox.resx">
       <DependentUpon>CodeTextbox.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ColorLabel\ColorLabelList.resx">
+      <DependentUpon>ColorLabelList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Git\GitPanel.resx">
       <DependentUpon>GitPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -156,6 +171,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Scrollbar\ScrollBar.resx">
+      <DependentUpon>ScrollBar.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SelectionForm\SelectionForm.resx">
       <DependentUpon>SelectionForm.cs</DependentUpon>

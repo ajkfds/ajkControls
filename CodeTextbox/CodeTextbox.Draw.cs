@@ -46,71 +46,21 @@ namespace ajkControls
         {
             unsafe
             {
-                Bitmap bmp = new Bitmap(charSizeX, charSizeY);
-                Color controlColor = Color.DarkGray;
-                Pen controlPen = new Pen(controlColor);
-
+                //                Bitmap bmp = new Bitmap(charSizeX, charSizeY);
                 for (int mark = 0; mark < 8; mark++)
                 {
                     if (markBitmap[mark] != null) markBitmap[mark].Dispose();
-                    markBitmap[mark] = new Bitmap(charSizeX, charSizeY);
+                    markBitmap[mark] = new Bitmap(charSizeX, charSizeY,System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     using (Graphics gc = Graphics.FromImage(markBitmap[mark]))
                     {
                         gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        gc.Clear(BackColor);
-                        controlPen = new Pen(Style.MarkColor[mark]);
-                        switch (Style.MarkStyle[mark])
-                        {
-                            case MarkStyleEnum.underLine:
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    gc.DrawLine(controlPen,
-                                    new Point(0, (int)(charSizeY * 0.8) + i),
-                                    new Point((int)charSizeX, (int)(charSizeY * 0.8) + i)
-                                    );
-                                    gc.DrawLine(controlPen,
-                                    new Point(0, (int)(charSizeY * 0.8) + i-1),
-                                    new Point((int)charSizeX, (int)(charSizeY * 0.8) + i-1)
-                                    );
-                                }
-                                break;
-                            case MarkStyleEnum.wave:
-                                for (int i = 0; i < 2; i++)
-                                {
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 0), (int)(charSizeY * 0.85) + i),
-                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i)
-                                        );
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i),
-                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i)
-                                        );
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i),
-                                        new Point((int)(charSizeX * 0.25 * 4), (int)(charSizeY * 0.85) + i)
-                                        );
-
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 0), (int)(charSizeY * 0.85) + i -1 ),
-                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i -1 )
-                                        );
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i -1 ),
-                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i -1 )
-                                        );
-                                    gc.DrawLine(controlPen,
-                                        new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i -1 ),
-                                        new Point((int)(charSizeX * 0.25 * 4), (int)(charSizeY * 0.85) + i -1 )
-                                        );
-                                }
-                                break;
-                            case MarkStyleEnum.fill:
-                                gc.FillRectangle(new SolidBrush(Style.MarkColor[mark]), 0, 0, charSizeX, charSizeY);
-                                break;
-                        }
+                        gc.Clear(Color.Transparent);
+//                        gc.Clear(BackColor);
+                        drawMark(gc, mark);
                     }
-
+                    markBitmap[mark].Save(@"mark" + mark.ToString() + ".bmp");
                 }
+
             }
 
             {
@@ -128,11 +78,101 @@ namespace ajkControls
 
         }
 
+        private void drawMark(Graphics gc, int mark)
+        {
+            Bitmap canvas = new Bitmap(charSizeX, charSizeY, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Graphics g = Graphics.FromImage(canvas);
+
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            g.Clear(Color.Black);
+            Pen pen = new Pen(Color.White, 2);
+
+            switch (Style.MarkStyle[mark])
+            {
+                case MarkStyleEnum.underLine:
+                    for (int i = 0; i < 2; i++)
+                    {
+                        g.DrawLine(pen,
+                            new Point(0, (int)(charSizeY * 0.8) + i),
+                            new Point((int)charSizeX, (int)(charSizeY * 0.8) + i)
+                        );
+                    }
+                    break;
+                case MarkStyleEnum.wave:
+                    //         0.25*-1 0.25*0  0.25*1 0.25*2 0.25*3 0.25*4 0.25*5   
+                    // 0.8                :       +                    :       +     
+                    // 0.85               :                            :            
+                    // 0.9        +       :                    +       :            
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        g.DrawLine(pen,
+                            new Point((int)(charSizeX * 0.25 * -1), (int)(charSizeY * 0.9) + i),
+                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i)
+                            );
+                        g.DrawLine(pen,
+                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i),
+                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i)
+                            );
+                        g.DrawLine(pen,
+                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i),
+                            new Point((int)(charSizeX * 0.25 * 5), (int)(charSizeY * 0.8) + i)
+                            );
+                    }
+                    break;
+                case MarkStyleEnum.wave_inv:
+                    //         0.25*-1 0.25*0  0.25*1 0.25*2 0.25*3 0.25*4 0.25*5   
+                    // 0.8                :       +                    :       +     
+                    // 0.85               :                            :            
+                    // 0.9        +       :                    +       :            
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        g.DrawLine(pen,
+                            new Point((int)(charSizeX * 0.25 * -1), (int)(charSizeY * 0.8) + i),
+                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.9) + i)
+                            );
+                        g.DrawLine(pen,
+                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.9) + i),
+                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.8) + i)
+                            );
+                        g.DrawLine(pen,
+                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.8) + i),
+                            new Point((int)(charSizeX * 0.25 * 5), (int)(charSizeY * 0.9) + i)
+                            );
+                    }
+                    break;
+                case MarkStyleEnum.fill:
+                    g.FillRectangle(new SolidBrush(Color.White), 0, 0, charSizeX, charSizeY);
+                    break;
+            }
+
+            System.Drawing.Imaging.ColorMatrix cm = new System.Drawing.Imaging.ColorMatrix();
+            cm.Matrix00 = 0;
+            cm.Matrix11 = 0;
+            cm.Matrix22 = 0;
+            cm.Matrix33 = 0;
+            cm.Matrix40 = (float)Style.MarkColor[mark].R / 255;
+            cm.Matrix41 = (float)Style.MarkColor[mark].G / 255;
+            cm.Matrix42 = (float)Style.MarkColor[mark].B / 255;
+            cm.Matrix03 = (float)Style.MarkColor[mark].A / 255;
+            cm.Matrix44 = 0;
+
+            System.Drawing.Imaging.ImageAttributes ia = new System.Drawing.Imaging.ImageAttributes();
+            ia.SetColorMatrix(cm);
+
+            gc.DrawImage(canvas, new Rectangle(0, 0, canvas.Width, canvas.Height),
+                0, 0, canvas.Width, canvas.Height, GraphicsUnit.Pixel, ia);
+
+            canvas.Dispose();
+            g.Dispose();
+        }
 
         public enum MarkStyleEnum
         {
             underLine,
             wave,
+            wave_inv,
             fill
         }
 
@@ -303,33 +343,6 @@ namespace ajkControls
                             xIncrement = tabSize - (lineX % tabSize);
                         }
 
-
-                        // mark
-                        if (document.GetMarkAt(i) != 0)
-                        {
-                            for (int mark = 0; mark < 7; mark++)
-                            {
-                                if ((document.GetMarkAt(i) & (1 << mark)) != 0)
-                                {
-                                    IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
-                                    IntPtr hbmp = markBitmap[mark].GetHbitmap();
-                                    IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
-                                    WinApi.BitBlt(hDC, x, y, charSizeY, charSizeY, hsrc, 0, 0, WinApi.TernaryRasterOperations.SRCCOPY);
-                                    WinApi.DeleteObject(porg);
-                                    WinApi.DeleteObject(hbmp);
-                                    WinApi.DeleteDC(hsrc);
-                                }
-                            }
-                            if ((document.GetMarkAt(i) & (1 << 7)) != 0)
-                            {
-                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y + charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(Style.MarkColor[7]));
-                                WinApi.FillRgn(hDC, hrgn, hbrush);
-                                WinApi.DeleteObject(hbrush);
-                                WinApi.DeleteObject(hrgn);
-                            }
-                        }
-
                         // selection
                         if (i >= document.SelectionStart && i < document.SelectionLast)
                         {
@@ -344,11 +357,41 @@ namespace ajkControls
                             }
                             else
                             {
-                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y+charSizeY);
+                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y + charSizeY);
                                 IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
                                 WinApi.FillRgn(hDC, hrgn, hbrush);
                                 WinApi.DeleteObject(hbrush);
                                 WinApi.DeleteObject(hrgn);
+                            }
+                        }
+
+
+                        // mark
+                        if (document.GetMarkAt(i) != 0)
+                        {
+                            for (int mark = 0; mark < 8; mark++)
+                            {
+                                //if ((document.GetMarkAt(i) & (1 << mark)) != 0) drawMarkGdi(hDC, x, y, mark);
+                                if ((document.GetMarkAt(i) & (1 << mark)) != 0)
+                                {
+                                    if( mark == 7)
+                                    {
+                                        string aa = "";
+                                    }
+                                    IntPtr pSource = WinApi.CreateCompatibleDC(hDC);
+                                    IntPtr hbmp = markBitmap[mark].GetHbitmap(Color.Black);
+                                    IntPtr pOrig = WinApi.SelectObject(pSource, hbmp);
+                                    WinApi.AlphaBlend(
+                                        hDC, x, y, markBitmap[mark].Width, markBitmap[mark].Height,
+                                        pSource, 0, 0, markBitmap[mark].Width, markBitmap[mark].Height,
+                                        new WinApi.BLENDFUNCTION(WinApi.AC_SRC_OVER, 0, 0xff, WinApi.AC_SRC_ALPHA)
+                                        );
+                                    IntPtr pNew = WinApi.SelectObject(pSource, pOrig);
+                                    WinApi.DeleteObject(pNew);
+                                    WinApi.DeleteObject(hbmp);
+                                    WinApi.DeleteDC(pSource);
+                                }
+
                             }
                         }
 
