@@ -55,10 +55,9 @@ namespace ajkControls
                     {
                         gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         gc.Clear(Color.Transparent);
-//                        gc.Clear(BackColor);
                         drawMark(gc, mark);
                     }
-                    markBitmap[mark].Save(@"mark" + mark.ToString() + ".bmp");
+//                    markBitmap[mark].Save(@"mark" + mark.ToString() + ".bmp");
                 }
 
             }
@@ -143,7 +142,7 @@ namespace ajkControls
                     }
                     break;
                 case MarkStyleEnum.fill:
-                    g.FillRectangle(new SolidBrush(Color.White), 0, 0, charSizeX, charSizeY);
+                    g.FillRectangle(new SolidBrush(Color.White), -charSizeX, 0, charSizeX*2, charSizeY);
                     break;
             }
 

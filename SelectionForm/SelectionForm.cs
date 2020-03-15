@@ -22,8 +22,43 @@ namespace ajkControls
             this.ShowInTaskbar = false;
         }
 
+        public CodeDrawStyle Style
+        {
+            set
+            {
+                codeTextbox.Style = value;
+            }
+            get
+            {
+                return codeTextbox.Style;
+            }
+        }
+
         public event EventHandler Selected;
 
+        public Color InputAreaBackcolor
+        {
+            get
+            {
+                return codeTextbox.BackColor;
+            }
+            set
+            {
+                codeTextbox.BackColor = value;
+            }
+        }
+
+        public Color InputAreaForecolor
+        {
+            get
+            {
+                return codeTextbox.ForeColor;
+            }
+            set
+            {
+                codeTextbox.ForeColor = value;
+            }
+        }
 
         public void SetSelectionItems(List<SelectionItem> items)
         {

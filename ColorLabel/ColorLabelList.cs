@@ -7,15 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace ajkControls
 {
-    public partial class ColorLabelList : UserControl
+    public partial class ColorLabelList : UserControl, IEnumerable<ColorLabel>
     {
         public ColorLabelList()
         {
             InitializeComponent();
-//            this.vScrollBar.Width = Global.ScrollBarWidth;
+            //            this.vScrollBar.Width = Global.ScrollBarWidth;
+        }
+
+        public IEnumerator<ColorLabel> GetEnumerator()
+        {
+            return labels.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<ColorLabel>)labels).GetEnumerator();
         }
 
         public override Color BackColor
@@ -39,6 +50,11 @@ namespace ajkControls
             labels.Clear();
             updateLabels();
             Invalidate();
+        }
+
+        public void Add(ColorLabel colorLabel)
+        {
+            labels.Add(colorLabel);
         }
 
         public void AppendColorLabel(ColorLabel colorLabel)
@@ -70,35 +86,81 @@ namespace ajkControls
         private int rightMargin = 4;
         private int itemGap = 2;
 
+        Dictionary<ColorLabel, int> labelDrawY = new Dictionary<ColorLabel, int>();
         private void doubleBufferedDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             int width = 0;
-            int height = 0;
-            List<int> y = new List<int>();
-            foreach (ColorLabel item in labels)
-            {
-                y.Add(height);
-                Size size = item.GetSize(e.Graphics, Font);
-                if (size.Width > width) width = size.Width;
-                height += size.Height;
-                height += itemGap;
-            }
-//            Width = width + leftMargin + rightMargin;
-//            Height = height + topMargin + bottomMargin;
+            int y = 0;
 
-            int i = 0;
-            foreach (ColorLabel item in labels)
+            labelDrawY.Clear();
+            for (int i = vScrollBar.Value; i < labels.Count; i++)
             {
-                item.Draw(e.Graphics, leftMargin, y[i] + topMargin, Font, ForeColor, doubleBufferedDrawBox.BackColor);
-                i++;
+                ColorLabel label = labels[i];
+                labelDrawY.Add(label, y);
+                Size size = label.GetSize(e.Graphics, Font);
+                if (size.Width > width) width = size.Width;
+                y += size.Height;
+                y += itemGap;
+                if (y > Height) break;
             }
+
+            foreach (var labelInfo in labelDrawY)
+            {
+                labelInfo.Key.Draw(e.Graphics, leftMargin, labelInfo.Value + topMargin, Font, ForeColor, doubleBufferedDrawBox.BackColor);
+            }
+
             e.Graphics.DrawRectangle(new Pen(Color.Gray), 0, 0, Width - 1, Height - 1);
         }
+
+        private void hitTest(int x, int y, out ColorLabel hitResult)
+        {
+            hitResult = null;
+            foreach (var labelInfo in labelDrawY)
+            {
+                if (y > labelInfo.Value)
+                {
+                    hitResult = labelInfo.Key;
+                }
+            }
+        }
+
+        public delegate void DColorLabelClicked(ColorLabel colorLabel);
+        public DColorLabelClicked ColorLabelClicked;
+
 
         private void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             scrollPosition = vScrollBar.Value;
+        }
+
+        private void doubleBufferedDrawBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            OnKeyDown(e);
+        }
+
+        private void doubleBufferedDrawBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            OnKeyPress(e);
+        }
+
+        private void doubleBufferedDrawBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            OnKeyUp(e);
+        }
+
+        private void doubleBufferedDrawBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            OnPreviewKeyDown(e);
+        }
+
+        private void doubleBufferedDrawBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (ColorLabelClicked == null) return;
+            ColorLabel hitLabel;
+            hitTest(e.X, e.Y, out hitLabel);
+            if (hitLabel == null) return;
+            ColorLabelClicked(hitLabel);
         }
     }
 }
