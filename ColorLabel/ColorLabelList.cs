@@ -126,7 +126,7 @@ namespace ajkControls
         }
 
         public delegate void DColorLabelClicked(ColorLabel colorLabel);
-        public DColorLabelClicked ColorLabelClicked;
+        public event DColorLabelClicked ColorLabelClicked;
 
 
         private void vScrollBar_Scroll(object sender, ScrollEventArgs e)

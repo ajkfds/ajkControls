@@ -119,6 +119,11 @@ namespace ajkControls
             }
         }
 
+        public void Clear()
+        {
+            items.Clear();
+        }
+
         public void AppendText(string text)
         {
             string linesStr = text.Replace("\r\n", "\n");
