@@ -629,5 +629,34 @@ namespace ajkControls
                 return array;
             }
         }
+
+        public virtual void GetWord(int index, out int headIndex, out int length)
+        {
+            headIndex = index;
+            length = 0;
+            char ch = GetCharAt(index);
+            if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t') return;
+
+            while (headIndex > 0)
+            {
+                ch = GetCharAt(headIndex);
+                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t')
+                {
+                    break;
+                }
+                headIndex--;
+            }
+            headIndex++;
+
+            while (headIndex + length < Length)
+            {
+                ch = GetCharAt(headIndex + length);
+                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t')
+                {
+                    break;
+                }
+                length++;
+            }
+        }
     }
 }

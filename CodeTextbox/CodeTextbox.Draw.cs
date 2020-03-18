@@ -103,18 +103,19 @@ namespace ajkControls
                     // 0.85               :                            :            
                     // 0.9        +       :                    +       :            
 
-                    for (int i = 0; i < 2; i++)
+                    //                    for (int i = 0; i < 2; i++)
                     {
+                        int i = 0;
                         g.DrawLine(pen,
-                            new Point((int)(charSizeX * 0.25 * -1), (int)(charSizeY * 0.9) + i),
+                            new Point((int)(charSizeX * 0.25 * -1), (int)(charSizeY * 0.95) + i),
                             new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i)
                             );
                         g.DrawLine(pen,
                             new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.8) + i),
-                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i)
+                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.95) + i)
                             );
                         g.DrawLine(pen,
-                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.9) + i),
+                            new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.95) + i),
                             new Point((int)(charSizeX * 0.25 * 5), (int)(charSizeY * 0.8) + i)
                             );
                     }
@@ -125,19 +126,20 @@ namespace ajkControls
                     // 0.85               :                            :            
                     // 0.9        +       :                    +       :            
 
-                    for (int i = 0; i < 2; i++)
+                    //                    for (int i = 0; i < 2; i++)
                     {
+                        int i = 0;
                         g.DrawLine(pen,
                             new Point((int)(charSizeX * 0.25 * -1), (int)(charSizeY * 0.8) + i),
-                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.9) + i)
+                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.95) + i)
                             );
                         g.DrawLine(pen,
-                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.9) + i),
+                            new Point((int)(charSizeX * 0.25 * 1), (int)(charSizeY * 0.95) + i),
                             new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.8) + i)
                             );
                         g.DrawLine(pen,
                             new Point((int)(charSizeX * 0.25 * 3), (int)(charSizeY * 0.8) + i),
-                            new Point((int)(charSizeX * 0.25 * 5), (int)(charSizeY * 0.9) + i)
+                            new Point((int)(charSizeX * 0.25 * 5), (int)(charSizeY * 0.95) + i)
                             );
                     }
                     break;

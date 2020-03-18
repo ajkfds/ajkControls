@@ -141,6 +141,13 @@ namespace ajkControls
             Invoke(new Action(dbDrawBox.Refresh));
         }
 
+        public void SelectAll()
+        {
+            document.SelectionStart = 0;
+            document.SelectionLast = document.Length-1;
+            selectionChanged();
+            Invoke(new Action(dbDrawBox.Refresh));
+        }
 
         private CodeDrawStyle style = new CodeDrawStyle();
         public CodeDrawStyle Style

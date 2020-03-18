@@ -77,6 +77,13 @@ namespace ajkControls
                         e.Handled = true;
                     }
                     break;
+                case Keys.A:
+                    if(e.Modifiers == Keys.Control)
+                    {
+                        SelectAll();
+                        e.Handled = true;
+                    }
+                    break;
                 case Keys.Left:
                     keyLeft(sender, e);
                     break;
@@ -237,8 +244,18 @@ namespace ajkControls
             {
                 document.CaretIndex--;
             }
+            if ((e.Modifiers & Keys.Control) == Keys.Control)
+            {
+                int headIndex, length;
+                document.GetWord(document.CaretIndex, out headIndex, out length);
+                if (headIndex < document.CaretIndex)
+                {
+                    document.CaretIndex = headIndex;
+                }
+            }
+
             caretChanged();
-            if (e.Modifiers == Keys.Shift)
+            if ((e.Modifiers & Keys.Shift) == Keys.Shift)
             {
                 if (onSelectionLast)
                 {
@@ -275,8 +292,18 @@ namespace ajkControls
             {
                 document.CaretIndex++;
             }
+            if ((e.Modifiers & Keys.Control) == Keys.Control)
+            {
+                int headIndex, length;
+                document.GetWord(document.CaretIndex, out headIndex, out length);
+                if (document.CaretIndex < headIndex + length)
+                {
+                    document.CaretIndex = headIndex + length;
+                }
+            }
+
             caretChanged();
-            if (e.Modifiers == Keys.Shift)
+            if ((e.Modifiers & Keys.Shift) == Keys.Shift)
             {
                 if (onSelectionStart)
                 {

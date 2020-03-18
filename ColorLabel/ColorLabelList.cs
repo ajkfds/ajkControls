@@ -57,6 +57,13 @@ namespace ajkControls
             labels.Add(colorLabel);
         }
 
+        public ColorLabel this [int index]
+        {
+            get
+            {
+                return labels[index];
+            }
+        }
         public void AppendColorLabel(ColorLabel colorLabel)
         {
             labels.Add(colorLabel);
