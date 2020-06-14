@@ -17,6 +17,10 @@ namespace ajkControls.Scrollbar
             InitializeComponent();
         }
 
+        public bool Horizontal
+        {
+            get; set;
+        }
 
         public override Color ForeColor
         {
