@@ -47,35 +47,6 @@ namespace ajkControls
             this.hScrollBar.Height = Global.ScrollBarWidth;
         }
 
-        //[DllImport("gdi32.dll", CharSet = CharSet.Auto)]
-        //extern static int TextOut(IntPtr hdc, int x, int y, string text, int length);
-
-        //[DllImport("gdi32.dll")]
-        //private static extern int SelectObject(IntPtr hdc, IntPtr hgdiObj);
-
-        //[DllImport("gdi32.dll")]
-        //private static extern bool DeleteObject(IntPtr hObject);
-
-        //[DllImport("gdi32.dll")]
-        //private static extern int SetTextColor(IntPtr hdc, int color);
-
-        //[DllImport("user32.dll", EntryPoint = "GetDC")]
-        //static extern IntPtr GetDC(IntPtr hWnd);
-
-        //[DllImport("gdi32.dll")]
-        //static extern bool FillRgn(IntPtr hdc, IntPtr hrgn, IntPtr hbr);
-
-        //[DllImport("gdi32.dll")]
-        //static extern IntPtr CreateRectRgn(int nLeftRect, int nTopRect, int nRightRect,
-        //    int nBottomRect);
-
-        //[DllImport("gdi32.dll")]
-        //static extern IntPtr CreateSolidBrush(uint crColor);
-
-        //[DllImport("gdi32.dll")]
-        //static extern uint SetBkColor(IntPtr hdc, int crColor);
-
-
         public event EventHandler CarletLineChanged;
         public event KeyPressEventHandler AfterKeyPressed;
         public event KeyEventHandler AfterKeyDown;
@@ -283,38 +254,8 @@ namespace ajkControls
         // draw image
         private int tabSize = 4;
 
-        //private SolidBrush selectionBrush
-        //{
-        //    get
-        //    {
-        //        return new SolidBrush(selectionColor);
-        //    }
-        //}
-
-        //public Color lineNumberFillColor = Color.FromArgb(Color.SlateGray.R / 2, Color.SlateGray.G / 2, Color.SlateGray.B / 2);
-        //public Color LineNumberFillColor
-        //{
-        //    get
-        //    {
-        //        return lineNumberFillColor;
-        //    }
-        //    set
-        //    {
-        //        lineNumberFillColor = value;
-        //    }
-        //}
-
-        //private SolidBrush lineNumberBrush
-        //{
-        //    get
-        //    {
-        //        return new SolidBrush(lineNumberFillColor);
-        //    }
-        //}
-
         private static IconImage plusIcon = new IconImage(Properties.Resources.plus);
         private static IconImage minusIcon = new IconImage(Properties.Resources.minus);
-//        private static IconImage dotIcon = new IconImage(Properties.Resources.dot);
 
         private int xOffset = 0;
         private int caretX = 0;
@@ -350,7 +291,6 @@ namespace ajkControls
             document.SelectionLast = index+length;
             selectionChanged();
             Invoke(new Action(dbDrawBox.Refresh));
-//            System.Diagnostics.Debug.Print("setSelection:" + document.SelectionStart.ToString() + "->" + document.SelectionLast.ToString());
         }
 
 
@@ -460,8 +400,8 @@ namespace ajkControls
 
             if (line-1 < vScrollBar.Value)
             {
-                if (line < 5) vScrollBar.Value = 0;
-                else vScrollBar.Value = line-4;
+                if (line < 1) vScrollBar.Value = 0;
+                else vScrollBar.Value = line-1;
             }
             else if (line >= visibleLines + vScrollBar.Value)
             {

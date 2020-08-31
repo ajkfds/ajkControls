@@ -28,7 +28,6 @@ namespace ajkControls
             if (e.Handled)
             {
                 skipKeyPress = true;
-//                if (AfterKeyDown != null) AfterKeyDown(this, e);
                 selectionChanged();
                 scrollToCaret();
                 Invoke(new Action(dbDrawBox.Refresh));
@@ -223,8 +222,15 @@ namespace ajkControls
 
             if (e.Handled)
             {
-                Invoke(new Action(dbDrawBox.Refresh));
                 skipKeyPress = true;
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(dbDrawBox.Refresh));
+                }
+                else
+                {
+                    dbDrawBox.Refresh();
+                }
             }
         }
         private void keyLeft(object sender, KeyEventArgs e)
@@ -272,7 +278,7 @@ namespace ajkControls
                 document.SelectionLast = document.CaretIndex;
             }
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+//            Invoke(new Action(dbDrawBox.Refresh));
             e.Handled = true;
         }
 
@@ -414,7 +420,6 @@ namespace ajkControls
             }
             if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
 
-//            headindex = document.GetLineStartIndex(line);
             document.CaretIndex = getIndex(xPosition, line);
 
             caretChanged();
@@ -438,7 +443,7 @@ namespace ajkControls
             scrollToCaret();
             e.Handled = true;
 
-            System.Diagnostics.Debug.Print("prevXPos",prevXPos.ToString());
+//            System.Diagnostics.Debug.Print("prevXPos",prevXPos.ToString());
         }
 
         private void dbDrawBox_KeyUp(object sender, KeyEventArgs e)
@@ -470,7 +475,7 @@ namespace ajkControls
             }
 
             if ((inChar < 127 && inChar >= 0x20) || inChar == '\t' || inChar > 0xff)
-            {
+            { // insert charactors
                 if (document.SelectionStart == document.SelectionLast)
                 {
                     System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -484,9 +489,9 @@ namespace ajkControls
                         documentReplace(document.CaretIndex, 0, document.GetColorAt(prevIndex), inChar.ToString());
                     }
                     document.CaretIndex++;
-                    sw.Stop();
                     UpdateVScrollBarRange();
-                    //                    System.Diagnostics.Debug.Print("edit : " + sw.Elapsed.TotalMilliseconds.ToString()+"ms");
+                    sw.Stop();
+                    System.Diagnostics.Debug.Print("edit : " + sw.Elapsed.TotalMilliseconds.ToString()+"ms");
                 }
                 else
                 {
@@ -498,7 +503,14 @@ namespace ajkControls
                 }
             }
             if (AfterKeyPressed != null) AfterKeyPressed(this, e);
-            Invoke(new Action(dbDrawBox.Refresh));
+            if (InvokeRequired)
+            {
+                Invoke(new Action(dbDrawBox.Refresh));
+            }
+            else
+            {
+                dbDrawBox.Refresh();
+            }
         }
 
     }

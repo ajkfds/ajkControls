@@ -178,9 +178,11 @@ namespace ajkControls
         }
 
         SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
+            
             unsafe
             {
                 StringBuilder sb = new StringBuilder();
@@ -195,8 +197,6 @@ namespace ajkControls
                     actualLineNumbers = new int[visibleLines + 2];
                 }
 
-                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                sw.Start();
 
                 e.Graphics.Clear(BackColor);
                 if (document == null) return;
@@ -217,7 +217,6 @@ namespace ajkControls
 
                     int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
 
-
                     int drawLine = 0;
                     int line = lineStart;
                     if (!multiLine) drawLine = document.Lines;
@@ -227,7 +226,6 @@ namespace ajkControls
                     drawLine = 0;
                     line = lineStart;
                     if (!multiLine) drawLine = document.Lines;
-
                 }
 
                 // underline @ carlet
@@ -235,16 +233,15 @@ namespace ajkControls
                 {
                     e.Graphics.DrawLine(new Pen(Color.FromArgb(100, Color.LightGray)), new Point(xOffset * charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
                 }
-                sw.Stop();
-                System.Diagnostics.Debug.Print("draw : "+sw.Elapsed.TotalMilliseconds.ToString()+ "ms");
             }
         }
 
 
         private void drawChars(PaintEventArgs e)
         {
+            sw.Reset();
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(256);
             IntPtr hDC = e.Graphics.GetHdc();
             IntPtr hFont = this.Font.ToHfont();
             IntPtr hOldFont = (IntPtr)WinApi.SelectObject(hDC, hFont);
@@ -300,7 +297,7 @@ namespace ajkControls
                     if (document.IsBlockHeadLine(line))
                     {
                         if (document.IsCollapsed(line))
-                        {
+                        {   // plus mark
                             IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
                             IntPtr hbmp = plusBitmap.GetHbitmap();
                             IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
@@ -310,7 +307,7 @@ namespace ajkControls
                             WinApi.DeleteDC(hsrc);
                         }
                         else
-                        {
+                        {   // minus mark
                             IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
                             IntPtr hbmp = minusBitmap.GetHbitmap();
                             IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
@@ -327,6 +324,7 @@ namespace ajkControls
                     WinApi.TextOut(hDC, x - lineString.Length * charSizeX, y , lineString, lineString.Length);
                 }
 
+                sw.Start();
 
                 x = xOffset * charSizeX;
                 int lineX = 0;
@@ -348,7 +346,7 @@ namespace ajkControls
                         if (i >= document.SelectionStart && i < document.SelectionLast)
                         {
                             if (ch == '\t')
-                            {
+                            {   // tab
                                 xIncrement = tabSize - (lineX % tabSize);
                                 IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
                                 IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
@@ -357,7 +355,7 @@ namespace ajkControls
                                 WinApi.DeleteObject(hrgn);
                             }
                             else
-                            {
+                            {   
                                 IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y + charSizeY);
                                 IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
                                 WinApi.FillRgn(hDC, hrgn, hbrush);
@@ -512,6 +510,9 @@ namespace ajkControls
             WinApi.DeleteObject(lfPen);
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(hDC, hOldFont));
             e.Graphics.ReleaseHdc(hDC);
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
 
         }
 
