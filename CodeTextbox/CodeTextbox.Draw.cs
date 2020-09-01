@@ -41,6 +41,7 @@ namespace ajkControls
         private Bitmap[] markBitmap = new Bitmap[8];
         private Bitmap plusBitmap;
         private Bitmap minusBitmap;
+        private Bitmap selectionBitmap;
 
         private void createGraphicsBuffer()
         {
@@ -60,6 +61,14 @@ namespace ajkControls
 //                    markBitmap[mark].Save(@"mark" + mark.ToString() + ".bmp");
                 }
 
+            }
+
+            {
+                selectionBitmap = new Bitmap(charSizeX, charSizeY, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                Graphics g = Graphics.FromImage(selectionBitmap);
+
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.Clear(System.Drawing.Color.FromArgb(100, SelectionColor.R, SelectionColor.G, SelectionColor.B));
             }
 
             {
@@ -326,91 +335,12 @@ namespace ajkControls
 
                 sw.Start();
 
-                x = xOffset * charSizeX;
-                int lineX = 0;
-                int start = document.GetLineStartIndex(line);
-                int end = start + document.GetLineLength(line);
-                {
-                    for (int i = start; i < end; i++)
-                    {
-                        if (i == document.Length) continue;
-                        char ch = document.GetCharAt(i);
-                        byte color = document.GetColorAt(i);
-                        int xIncrement = 1;
-                        if (ch == '\t')
-                        {
-                            xIncrement = tabSize - (lineX % tabSize);
-                        }
+                WinApi.SetBkMode(hDC, 0);
 
-                        // selection
-                        if (i >= document.SelectionStart && i < document.SelectionLast)
-                        {
-                            if (ch == '\t')
-                            {   // tab
-                                xIncrement = tabSize - (lineX % tabSize);
-                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
-                                WinApi.FillRgn(hDC, hrgn, hbrush);
-                                WinApi.DeleteObject(hbrush);
-                                WinApi.DeleteObject(hrgn);
-                            }
-                            else
-                            {   
-                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y + charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
-                                WinApi.FillRgn(hDC, hrgn, hbrush);
-                                WinApi.DeleteObject(hbrush);
-                                WinApi.DeleteObject(hrgn);
-                            }
-                        }
-
-
-                        // mark
-                        if (document.GetMarkAt(i) != 0)
-                        {
-                            for (int mark = 0; mark < 8; mark++)
-                            {
-                                //if ((document.GetMarkAt(i) & (1 << mark)) != 0) drawMarkGdi(hDC, x, y, mark);
-                                if ((document.GetMarkAt(i) & (1 << mark)) != 0)
-                                {
-                                    if( mark == 7)
-                                    {
-                                        string aa = "";
-                                    }
-                                    IntPtr pSource = WinApi.CreateCompatibleDC(hDC);
-                                    IntPtr hbmp = markBitmap[mark].GetHbitmap(Color.Black);
-                                    IntPtr pOrig = WinApi.SelectObject(pSource, hbmp);
-                                    WinApi.AlphaBlend(
-                                        hDC, x, y, markBitmap[mark].Width, markBitmap[mark].Height,
-                                        pSource, 0, 0, markBitmap[mark].Width, markBitmap[mark].Height,
-                                        new WinApi.BLENDFUNCTION(WinApi.AC_SRC_OVER, 0, 0xff, WinApi.AC_SRC_ALPHA)
-                                        );
-                                    IntPtr pNew = WinApi.SelectObject(pSource, pOrig);
-                                    WinApi.DeleteObject(pNew);
-                                    WinApi.DeleteObject(hbmp);
-                                    WinApi.DeleteDC(pSource);
-                                }
-
-                            }
-                        }
-
-                        // caret
-                        if (i == document.CaretIndex & Editable)
-                        {
-                            IntPtr hrgn = WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
-                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(CarletColor));
-                            WinApi.FillRgn(hDC, hrgn, hbrush);
-                            WinApi.DeleteObject(hbrush);
-                            WinApi.DeleteObject(hrgn);
-                            caretX = x;
-                            caretY = y;
-                        }
-
-                        lineX = lineX + xIncrement;
-                        x = x + charSizeX * xIncrement;
-                    }
-                }
-
+                int lineX;
+                int start;
+                int end;
+                
                 // draw charactors
                 x = xOffset * charSizeX;
                 lineX = 0;
@@ -487,6 +417,107 @@ namespace ajkControls
                         x = x + charSizeX * xIncrement;
                     }
                 }
+
+                WinApi.SetBkMode(hDC, 1);
+
+
+                x = xOffset * charSizeX;
+                lineX = 0;
+                start = document.GetLineStartIndex(line);
+                end = start + document.GetLineLength(line);
+                {
+                    for (int i = start; i < end; i++)
+                    {
+                        if (i == document.Length) continue;
+                        char ch = document.GetCharAt(i);
+                        byte color = document.GetColorAt(i);
+                        int xIncrement = 1;
+                        if (ch == '\t')
+                        {
+                            xIncrement = tabSize - (lineX % tabSize);
+                        }
+
+                        // selection
+                        if (i >= document.SelectionStart && i < document.SelectionLast)
+                        {
+                            if (ch == '\t')
+                            {   // tab
+                                xIncrement = tabSize - (lineX % tabSize);
+                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
+                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
+                                WinApi.FillRgn(hDC, hrgn, hbrush);
+                                WinApi.DeleteObject(hbrush);
+                                WinApi.DeleteObject(hrgn);
+                            }
+                            else
+                            {
+                                //IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y + charSizeY);
+                                //IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
+                                //WinApi.FillRgn(hDC, hrgn, hbrush);
+                                //WinApi.DeleteObject(hbrush);
+                                //WinApi.DeleteObject(hrgn);
+                                IntPtr pSource = WinApi.CreateCompatibleDC(hDC);
+                                IntPtr hbmp = selectionBitmap.GetHbitmap(Color.Black);
+                                IntPtr pOrig = WinApi.SelectObject(pSource, hbmp);
+                                WinApi.AlphaBlend(
+                                    hDC, x, y, selectionBitmap.Width, selectionBitmap.Height,
+                                    pSource, 0, 0, selectionBitmap.Width, selectionBitmap.Height,
+                                    new WinApi.BLENDFUNCTION(WinApi.AC_SRC_OVER, 0, 0xff, WinApi.AC_SRC_ALPHA)
+                                    );
+                                IntPtr pNew = WinApi.SelectObject(pSource, pOrig);
+                                WinApi.DeleteObject(pNew);
+                                WinApi.DeleteObject(hbmp);
+                                WinApi.DeleteDC(pSource);
+                            }
+                        }
+
+
+                        // mark
+                        if (document.GetMarkAt(i) != 0)
+                        {
+                            for (int mark = 0; mark < 8; mark++)
+                            {
+                                //if ((document.GetMarkAt(i) & (1 << mark)) != 0) drawMarkGdi(hDC, x, y, mark);
+                                if ((document.GetMarkAt(i) & (1 << mark)) != 0)
+                                {
+                                    if( mark == 7)
+                                    {
+                                        string aa = "";
+                                    }
+                                    IntPtr pSource = WinApi.CreateCompatibleDC(hDC);
+                                    IntPtr hbmp = markBitmap[mark].GetHbitmap(Color.Black);
+                                    IntPtr pOrig = WinApi.SelectObject(pSource, hbmp);
+                                    WinApi.AlphaBlend(
+                                        hDC, x, y, markBitmap[mark].Width, markBitmap[mark].Height,
+                                        pSource, 0, 0, markBitmap[mark].Width, markBitmap[mark].Height,
+                                        new WinApi.BLENDFUNCTION(WinApi.AC_SRC_OVER, 0, 0xff, WinApi.AC_SRC_ALPHA)
+                                        );
+                                    IntPtr pNew = WinApi.SelectObject(pSource, pOrig);
+                                    WinApi.DeleteObject(pNew);
+                                    WinApi.DeleteObject(hbmp);
+                                    WinApi.DeleteDC(pSource);
+                                }
+
+                            }
+                        }
+
+                        // caret
+                        if (i == document.CaretIndex & Editable)
+                        {
+                            IntPtr hrgn = WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
+                            IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(CarletColor));
+                            WinApi.FillRgn(hDC, hrgn, hbrush);
+                            WinApi.DeleteObject(hbrush);
+                            WinApi.DeleteObject(hrgn);
+                            caretX = x;
+                            caretY = y;
+                        }
+
+                        lineX = lineX + xIncrement;
+                        x = x + charSizeX * xIncrement;
+                    }
+                }
+
 
                 // carlet at EOF
                 if (line == document.Lines && document.Length == document.CaretIndex && Editable)
