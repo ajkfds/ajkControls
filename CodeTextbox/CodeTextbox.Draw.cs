@@ -68,7 +68,7 @@ namespace ajkControls
                 Graphics g = Graphics.FromImage(selectionBitmap);
 
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                g.Clear(System.Drawing.Color.FromArgb(100, SelectionColor.R, SelectionColor.G, SelectionColor.B));
+                g.Clear(System.Drawing.Color.FromArgb(150, SelectionColor.R, SelectionColor.G, SelectionColor.B));
             }
 
             {
@@ -187,7 +187,7 @@ namespace ajkControls
         }
 
         SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+//        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
@@ -248,7 +248,7 @@ namespace ajkControls
 
         private void drawChars(PaintEventArgs e)
         {
-            sw.Reset();
+//            sw.Reset();
 
             StringBuilder sb = new StringBuilder(256);
             IntPtr hDC = e.Graphics.GetHdc();
@@ -333,7 +333,7 @@ namespace ajkControls
                     WinApi.TextOut(hDC, x - lineString.Length * charSizeX, y , lineString, lineString.Length);
                 }
 
-                sw.Start();
+//                sw.Start();
 
                 WinApi.SetBkMode(hDC, 0);
 
@@ -443,11 +443,26 @@ namespace ajkControls
                             if (ch == '\t')
                             {   // tab
                                 xIncrement = tabSize - (lineX % tabSize);
-                                IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
-                                IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
-                                WinApi.FillRgn(hDC, hrgn, hbrush);
-                                WinApi.DeleteObject(hbrush);
-                                WinApi.DeleteObject(hrgn);
+                                IntPtr pSource = WinApi.CreateCompatibleDC(hDC);
+                                IntPtr hbmp = selectionBitmap.GetHbitmap(Color.Black);
+                                IntPtr pOrig = WinApi.SelectObject(pSource, hbmp);
+                                for (int j = 0; j < xIncrement; j++)
+                                {
+                                    WinApi.AlphaBlend(
+                                        hDC, x+j*charSizeX, y, selectionBitmap.Width, selectionBitmap.Height,
+                                        pSource, 0, 0, selectionBitmap.Width, selectionBitmap.Height,
+                                        new WinApi.BLENDFUNCTION(WinApi.AC_SRC_OVER, 0, 0xff, WinApi.AC_SRC_ALPHA)
+                                        );
+                                }
+                                IntPtr pNew = WinApi.SelectObject(pSource, pOrig);
+                                WinApi.DeleteObject(pNew);
+                                WinApi.DeleteObject(hbmp);
+                                WinApi.DeleteDC(pSource);
+                                //IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
+                                //IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
+                                //WinApi.FillRgn(hDC, hrgn, hbrush);
+                                //WinApi.DeleteObject(hbrush);
+                                //WinApi.DeleteObject(hrgn);
                             }
                             else
                             {
@@ -542,8 +557,8 @@ namespace ajkControls
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(hDC, hOldFont));
             e.Graphics.ReleaseHdc(hDC);
 
-            sw.Stop();
-            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
+//            sw.Stop();
+//            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
 
         }
 
