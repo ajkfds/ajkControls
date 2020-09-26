@@ -324,8 +324,8 @@ namespace ajkControls
             {
                 document.SelectionStart = document.CaretIndex;
                 document.SelectionLast = document.CaretIndex;
-                selectionChanged();
             }
+            selectionChanged();
             e.Handled = true;
         }
 
