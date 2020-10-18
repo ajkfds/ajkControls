@@ -10,21 +10,32 @@ namespace ajkControls
     {
         public Document()
         {
-            newLineIndex.Replace(0, 0, new int[] { 0,0 });
-            lineVisible.Replace(0, 0, new bool[] { true,true });
-            visibleLines = 1;
+            lock (this)
+            {
+                newLineIndex.Replace(0, 0, new int[] { 0, 0 });
+                lineVisible.Replace(0, 0, new bool[] { true, true });
+                visibleLines = 1;
+            }
         }
 
         public Document(string text)
         {
-            newLineIndex.Replace(0, 0, new int[] { 0,0 });
-            lineVisible.Replace(0, 0, new bool[] { true, true });
-            visibleLines = 1;
+            lock (this)
+            {
+                newLineIndex.Replace(0, 0, new int[] { 0, 0 });
+                lineVisible.Replace(0, 0, new bool[] { true, true });
+                visibleLines = 1;
 
-            Replace(0, 0, 0, text);
-            ClearHistory();
-            EditID = 0;
-            Clean();
+                Replace(0, 0, 0, text);
+                ClearHistory();
+                EditID = 0;
+                Clean();
+            }
+
+            if (chars.Length != colors.Length)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
         }
 
         public void Clean()
@@ -268,34 +279,149 @@ namespace ajkControls
             chars[index] = value;
         }
 
-        public void CopyColorsFrom(Document document)
+        //public void CopyColorsFrom(Document document)
+        //{
+        //    colors.CopyFrom(document.colors);
+        //}
+
+        //public void CopyMarksFrom(Document document)
+        //{
+        //    marks.CopyFrom(document.marks);
+        //}
+
+        //public void CopyLineIndexFrom(Document document)
+        //{
+        //    newLineIndex.CopyFrom(document.newLineIndex);
+        //}
+
+        //public void CopyColorMarksBlocksFrom(Document document)
+        //{
+        //    if (this == document)
+        //    {
+        //        System.Diagnostics.Debugger.Break();
+        //    }
+        //    lock (this)
+        //    {
+        //        lock (document)
+        //        {
+        //            colors.CopyFrom(document.colors);
+        //            marks.CopyFrom(document.marks);
+        //            newLineIndex.CopyFrom(document.newLineIndex);
+
+        //            blockCashActive = false;
+        //            blockStartIndexs = document.blockStartIndexs;
+        //            blockEndIndexs = document.blockEndIndexs;
+        //        }
+        //    }
+        //}
+
+        //public void CopyCharsLineIndexFrom(Document document)
+        //{
+        //    if(this == document)
+        //    {
+        //        System.Diagnostics.Debugger.Break();
+        //    }
+        //    lock (this)
+        //    {
+        //        lock (document)
+        //        {
+        //            chars.CopyFrom(document.chars);
+        //            colors.Resize(document.Length);
+        //            marks.Resize(document.Length);
+
+        //            blockCashActive = false;
+        //            blockStartIndexs = document.blockStartIndexs;
+        //            blockEndIndexs = document.blockEndIndexs;
+        //        }
+        //    }
+        //}
+        public void CopyColorMarkFrom(Document document)
         {
-            colors.CopyFrom(document.colors);
+            copyFrom(document, false, true, true);
+        }
+        public void CopyFrom(Document document)
+        {
+            copyFrom(document, true,true, true);
+        }
+        public void CopyTextOnlyFrom(Document document)
+        {
+            copyFrom(document, true, false, false);
         }
 
-        public void CopyMarksFrom(Document document)
+        private void copyFrom(Document document, bool copyText,bool copyMark,bool copyColor)
         {
-            marks.CopyFrom(document.marks);
+            if (this == document)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
+            lock (this)
+            {
+                lock (document)
+                {
+                    if (copyText)
+                    {
+                        chars.CopyFrom(document.chars);
+                        newLineIndex.CopyFrom(document.newLineIndex);
+                        marks.Resize(document.Length);
+                    }
+                    else
+                    {
+                        if (chars.Length != colors.Length || chars.Length != marks.Length)
+                        {
+                            System.Diagnostics.Debugger.Break();
+                        }
+                    }
+
+                    if (copyColor)
+                    {
+                        colors.CopyFrom(document.colors);
+                    }
+                    else
+                    {
+                        colors.Resize(document.Length);
+                    }
+
+                    if (copyMark)
+                    {
+                        if (copyMark) marks.CopyFrom(document.marks);
+                    }
+                    else
+                    {
+                        marks.Resize(document.Length);
+                    }
+
+                    blockCashActive = false;
+                    blockStartIndexs = document.blockStartIndexs;
+                    blockEndIndexs = document.blockEndIndexs;
+                }
+            }
         }
 
-        public void CopyLineIndexFrom(Document document)
-        {
-            newLineIndex.CopyFrom(document.newLineIndex);
-        }
+        //public void CopyCharsFrom(Document document)
+        //{
+        //    lock(this)
+        //    {
+        //        lock (document)
+        //        {
+        //            chars.CopyFrom(document.chars);
+        //            colors.Resize(document.Length);
+        //            marks.Resize(document.Length);
+        //        }
+        //    }
+        //}
 
-        public void CopyCharsFrom(Document document)
-        {
-            chars.CopyFrom(document.chars);
-            colors.Resize(document.Length);
-            marks.Resize(document.Length);
-        }
-
-        public void CopyBlocksFrom(Document document)
-        {
-            blockCashActive = false;
-            blockStartIndexs = document.blockStartIndexs;
-            blockEndIndexs = document.blockEndIndexs;
-        }
+        //public void CopyBlocksFrom(Document document)
+        //{
+        //    lock (this)
+        //    {
+        //        lock (document)
+        //        {
+        //            blockCashActive = false;
+        //            blockStartIndexs = document.blockStartIndexs;
+        //            blockEndIndexs = document.blockEndIndexs;
+        //        }
+        //    }
+        //}
 
         public byte GetMarkAt(int index)
         {
@@ -324,11 +450,14 @@ namespace ajkControls
 
         public void Undo()
         {
-            if (histories.Count == 0) return;
-            History history = histories.Last();
-            histories.RemoveAt(histories.Count - 1);
-            EditID--;
-            replace(history.Index,history.Length,0,history.ChangedFrom);
+            lock (this)
+            {
+                if (histories.Count == 0) return;
+                History history = histories.Last();
+                histories.RemoveAt(histories.Count - 1);
+                EditID--;
+                replace(history.Index, history.Length, 0, history.ChangedFrom);
+            }
         }
 
         public void ClearHistory()
@@ -338,13 +467,16 @@ namespace ajkControls
 
         public void Replace(int index, int replaceLength, byte colorIndex, string text)
         {
-            histories.Add(new History(index, text.Length, CreateString(index, replaceLength)));
-            EditID++;
-            if (histories.Count > HistoryMaxLimit)
+            lock (this)
             {
-                histories.RemoveAt(0);
+                histories.Add(new History(index, text.Length, CreateString(index, replaceLength)));
+                EditID++;
+                if (histories.Count > HistoryMaxLimit)
+                {
+                    histories.RemoveAt(0);
+                }
+                replace(index, replaceLength, colorIndex, text);
             }
-            replace(index,replaceLength,colorIndex,text);
         }
 
         private void replace(int index,int replaceLength, byte colorIndex, string text)
@@ -448,6 +580,11 @@ namespace ajkControls
             }
             visibleLines = visibleLines + changedLine;
             if (Replaced != null) Replaced(index, replaceLength, colorIndex,text);
+
+            if(chars.Length != colors.Length)
+            {
+                System.Diagnostics.Debugger.Break();
+            }
         }
 
         private void updateIndex(ref int index,int modifyIndex,int modifyLength,int modifiedToLength)
@@ -474,71 +611,69 @@ namespace ajkControls
 
         public int GetLineAt(int index)
         {
-/*          simple implementation
-            for (int line = 0; line < newLineIndex.Length; line++)
+            lock (this)
             {
-                if (newLineIndex[line] >= index) return line;
+                int lineStart = 1;
+                int lineLast = newLineIndex.Length;
+
+                int l = (lineLast + lineStart) >> 1;
+
+                while (lineStart < lineLast - 1)
+                {
+                    if (index == newLineIndex[l - 1])
+                    {
+                        return l;
+                    }
+                    else if (index < newLineIndex[l - 1])
+                    {
+                        lineLast = l;
+                    }
+                    else if (newLineIndex[l - 1] < index)
+                    {
+                        lineStart = l;
+                    }
+                    l = (lineLast + lineStart) >> 1;
+                }
+                l = lineStart;
+                if (newLineIndex[l - 1 + 1] < index) l++;
+
+                return l;
             }
-            exception
-*/
-            int lineStart = 1;
-            int lineLast = newLineIndex.Length;
-
-            int l = (lineLast + lineStart) >> 1;
-
-            while (lineStart < lineLast-1 )
-            {
-                if(index == newLineIndex[l - 1])
-                {
-                    return l;
-                }
-                else if (index < newLineIndex[l-1])
-                {
-                    lineLast = l;
-                }
-                else if (newLineIndex[l-1] < index)
-                {
-                    lineStart = l;
-                }
-                l = (lineLast + lineStart) >> 1;
-            }
-            l = lineStart;
-            if (newLineIndex[l-1+1] < index) l++;
-
-            return l;
-         }
+        }
 
         public int GetVisibleLine(int line)
         {
-            int visibleLine = 0;
-            for(int l = 0; l < line; l++)
+            lock (this)
             {
-                if (lineVisible[l]) visibleLine++;   
+                int visibleLine = 0;
+                for (int l = 0; l < line; l++)
+                {
+                    if (lineVisible[l]) visibleLine++;
+                }
+                return visibleLine;
             }
-            return visibleLine;
         }
 
 
         public int GetLineStartIndex(int line)
         {
-            System.Diagnostics.Debug.Assert(line <= newLineIndex.Length + 1);
-            if(line == 1)
+            lock (this)
             {
-                return 0;
-            }
-            else
-            {
-                return newLineIndex[line - 1];
+                System.Diagnostics.Debug.Assert(line <= newLineIndex.Length + 1);
+                if (line == 1)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return newLineIndex[line - 1];
+                }
             }
         }
 
         public int GetLineLength(int line)
         {
-            //if ( newLineIndex.Length <= line)
-            //{
-            //    return newLineIndex[0];
-            //}
-            //else
+            lock (this)
             {
                 return newLineIndex[line] - newLineIndex[line - 1];
             }
@@ -573,24 +708,27 @@ namespace ajkControls
 
         public int FindPreviousIndexOf(string targetString, int startIndex)
         {
-            if (targetString.Length == 0) return -1;
-            if (startIndex > Length - targetString.Length) startIndex = Length - targetString.Length;
-
-            for (int i = startIndex; i >=0; i--)
+            lock (this)
             {
-                if (targetString[0] != chars[i]) continue;
-                bool match = true;
-                for (int j = 1; j < targetString.Length; j++)
+                if (targetString.Length == 0) return -1;
+                if (startIndex > Length - targetString.Length) startIndex = Length - targetString.Length;
+
+                for (int i = startIndex; i >=0; i--)
                 {
-                    if (targetString[j] != chars[i + j])
+                    if (targetString[0] != chars[i]) continue;
+                    bool match = true;
+                    for (int j = 1; j < targetString.Length; j++)
                     {
-                        match = false;
-                        break;
+                        if (targetString[j] != chars[i + j])
+                        {
+                            match = false;
+                            break;
+                        }
                     }
+                    if (match) return i;
                 }
-                if (match) return i;
+                return -1;
             }
-            return -1;
         }
 
         public string CreateString()
@@ -632,30 +770,33 @@ namespace ajkControls
 
         public virtual void GetWord(int index, out int headIndex, out int length)
         {
-            headIndex = index;
-            length = 0;
-            char ch = GetCharAt(index);
-            if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t') return;
-
-            while (headIndex > 0)
+            lock (this)
             {
-                ch = GetCharAt(headIndex);
-                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t')
-                {
-                    break;
-                }
-                headIndex--;
-            }
-            headIndex++;
+                headIndex = index;
+                length = 0;
+                char ch = GetCharAt(index);
+                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t') return;
 
-            while (headIndex + length < Length)
-            {
-                ch = GetCharAt(headIndex + length);
-                if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t')
+                while (headIndex > 0)
                 {
-                    break;
+                    ch = GetCharAt(headIndex);
+                    if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t')
+                    {
+                        break;
+                    }
+                    headIndex--;
                 }
-                length++;
+                headIndex++;
+
+                while (headIndex + length < Length)
+                {
+                    ch = GetCharAt(headIndex + length);
+                    if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t')
+                    {
+                        break;
+                    }
+                    length++;
+                }
             }
         }
     }
