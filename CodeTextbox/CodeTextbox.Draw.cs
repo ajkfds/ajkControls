@@ -187,7 +187,7 @@ namespace ajkControls
         }
 
         SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
-//        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
         private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         {
@@ -248,7 +248,7 @@ namespace ajkControls
 
         private void drawChars(PaintEventArgs e)
         {
-//            sw.Reset();
+            sw.Reset();
 
             StringBuilder sb = new StringBuilder(256);
             IntPtr hDC = e.Graphics.GetHdc();
@@ -333,7 +333,7 @@ namespace ajkControls
                     WinApi.TextOut(hDC, x - lineString.Length * charSizeX, y , lineString, lineString.Length);
                 }
 
-//                sw.Start();
+                sw.Start();
 
                 WinApi.SetBkMode(hDC, 0);
 
@@ -458,19 +458,9 @@ namespace ajkControls
                                 WinApi.DeleteObject(pNew);
                                 WinApi.DeleteObject(hbmp);
                                 WinApi.DeleteDC(pSource);
-                                //IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + xIncrement * charSizeX, y + charSizeY);
-                                //IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
-                                //WinApi.FillRgn(hDC, hrgn, hbrush);
-                                //WinApi.DeleteObject(hbrush);
-                                //WinApi.DeleteObject(hrgn);
                             }
                             else
                             {
-                                //IntPtr hrgn = WinApi.CreateRectRgn(x, y, x + charSizeX, y + charSizeY);
-                                //IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(SelectionColor));
-                                //WinApi.FillRgn(hDC, hrgn, hbrush);
-                                //WinApi.DeleteObject(hbrush);
-                                //WinApi.DeleteObject(hrgn);
                                 IntPtr pSource = WinApi.CreateCompatibleDC(hDC);
                                 IntPtr hbmp = selectionBitmap.GetHbitmap(Color.Black);
                                 IntPtr pOrig = WinApi.SelectObject(pSource, hbmp);
@@ -557,8 +547,8 @@ namespace ajkControls
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(hDC, hOldFont));
             e.Graphics.ReleaseHdc(hDC);
 
-//            sw.Stop();
-//            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
+            sw.Stop();
+            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
 
         }
 
