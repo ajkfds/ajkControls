@@ -70,6 +70,7 @@
             this.panel.Controls.Add(this.fetchBtn);
             this.panel.Controls.Add(this.refreshBtn);
             this.panel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel.ForeColor = System.Drawing.Color.White;
             this.panel.Location = new System.Drawing.Point(0, 0);
             this.panel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.panel.Name = "panel";
@@ -95,11 +96,11 @@
             // 
             // tableView
             // 
-            this.tableView.BackColor = System.Drawing.Color.White;
+            this.tableView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.tableView.Columns = 5;
             this.tableView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableView.Font = new System.Drawing.Font("Meiryo UI", 8F);
-            this.tableView.ForeColor = System.Drawing.Color.Gray;
+            this.tableView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
             this.tableView.HeaderHeight = 0;
             this.tableView.Location = new System.Drawing.Point(184, 104);
             this.tableView.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
@@ -133,8 +134,9 @@
             // 
             // treeView
             // 
-            this.treeView.BackColor = System.Drawing.Color.White;
+            this.treeView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.treeView.HScrollBarVisible = true;
             this.treeView.Location = new System.Drawing.Point(0, 0);
             this.treeView.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -156,6 +158,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.Controls.Add(this.tableView);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.logView);
