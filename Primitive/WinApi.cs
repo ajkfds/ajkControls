@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.CodeDom;
 
 namespace ajkControls
 {
@@ -373,6 +374,13 @@ namespace ajkControls
             return (color.B << 16) + (color.G << 8) + color.R;
         }
 
+        // Process Control
+
+        [DllImport("kernel.dll", SetLastError = true)]
+        public static extern bool DebugActiveProcess(uint dwProcessId);
+
+        [DllImport("kernel.dll", SetLastError = true)]
+        public static extern bool DebugActiveProcessStop(uint dwProcessId);
 
     }
 }
