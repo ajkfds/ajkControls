@@ -215,7 +215,10 @@ namespace ajkControls
                     document.Replaced = null;
                 }
                 document = value;
-                document.Replaced = hilightUpdateWhenDocReplaced;
+                if(document != null)
+                {
+                    document.Replaced = hilightUpdateWhenDocReplaced;
+                }
                 UpdateVScrollBarRange();
                 caretChanged();
                 scrollToCaret();
