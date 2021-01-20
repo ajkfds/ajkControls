@@ -397,32 +397,6 @@ namespace ajkControls
             }
         }
 
-        //public void CopyCharsFrom(Document document)
-        //{
-        //    lock(this)
-        //    {
-        //        lock (document)
-        //        {
-        //            chars.CopyFrom(document.chars);
-        //            colors.Resize(document.Length);
-        //            marks.Resize(document.Length);
-        //        }
-        //    }
-        //}
-
-        //public void CopyBlocksFrom(Document document)
-        //{
-        //    lock (this)
-        //    {
-        //        lock (document)
-        //        {
-        //            blockCashActive = false;
-        //            blockStartIndexs = document.blockStartIndexs;
-        //            blockEndIndexs = document.blockEndIndexs;
-        //        }
-        //    }
-        //}
-
         public byte GetMarkAt(int index)
         {
             return marks[index];

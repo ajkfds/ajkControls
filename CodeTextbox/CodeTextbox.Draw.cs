@@ -248,7 +248,7 @@ namespace ajkControls
 
         private void drawChars(PaintEventArgs e)
         {
-            sw.Reset();
+//            sw.Reset();
 
             StringBuilder sb = new StringBuilder(256);
             IntPtr hDC = e.Graphics.GetHdc();
@@ -547,8 +547,8 @@ namespace ajkControls
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(hDC, hOldFont));
             e.Graphics.ReleaseHdc(hDC);
 
-            sw.Stop();
-            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
+//            sw.Stop();
+//            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
 
         }
 
