@@ -279,62 +279,6 @@ namespace ajkControls
             chars[index] = value;
         }
 
-        //public void CopyColorsFrom(Document document)
-        //{
-        //    colors.CopyFrom(document.colors);
-        //}
-
-        //public void CopyMarksFrom(Document document)
-        //{
-        //    marks.CopyFrom(document.marks);
-        //}
-
-        //public void CopyLineIndexFrom(Document document)
-        //{
-        //    newLineIndex.CopyFrom(document.newLineIndex);
-        //}
-
-        //public void CopyColorMarksBlocksFrom(Document document)
-        //{
-        //    if (this == document)
-        //    {
-        //        System.Diagnostics.Debugger.Break();
-        //    }
-        //    lock (this)
-        //    {
-        //        lock (document)
-        //        {
-        //            colors.CopyFrom(document.colors);
-        //            marks.CopyFrom(document.marks);
-        //            newLineIndex.CopyFrom(document.newLineIndex);
-
-        //            blockCashActive = false;
-        //            blockStartIndexs = document.blockStartIndexs;
-        //            blockEndIndexs = document.blockEndIndexs;
-        //        }
-        //    }
-        //}
-
-        //public void CopyCharsLineIndexFrom(Document document)
-        //{
-        //    if(this == document)
-        //    {
-        //        System.Diagnostics.Debugger.Break();
-        //    }
-        //    lock (this)
-        //    {
-        //        lock (document)
-        //        {
-        //            chars.CopyFrom(document.chars);
-        //            colors.Resize(document.Length);
-        //            marks.Resize(document.Length);
-
-        //            blockCashActive = false;
-        //            blockStartIndexs = document.blockStartIndexs;
-        //            blockEndIndexs = document.blockEndIndexs;
-        //        }
-        //    }
-        //}
         public void CopyColorMarkFrom(Document document)
         {
             copyFrom(document, false, true, true);
