@@ -9,6 +9,7 @@ namespace ajkControls
 {
     public static class Global
     {
+        public static PlatWin PlatWin = new PlatWin();
 
         private static float dpi = -1;
         public static float Dpi

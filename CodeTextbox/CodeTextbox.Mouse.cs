@@ -16,6 +16,36 @@ namespace ajkControls
 
     public partial class CodeTextbox : UserControl
     {
+        private void CodeTextbox_MouseDown(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void CodeTextbox_MouseEnter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CodeTextbox_MouseHover(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CodeTextbox_MouseLeave(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CodeTextbox_MouseMove(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void CodeTextbox_MouseUp(object sender, MouseEventArgs e)
+        {
+
+        }
+
         private void dbDrawBox_MouseDown(object sender, MouseEventArgs e)
         {
             if (document == null || !Editable) return;
@@ -35,7 +65,7 @@ namespace ajkControls
                         document.CollapseBlock(line);
                     }
                     UpdateVScrollBarRange();
-                    Invoke(new Action(dbDrawBox.Refresh));
+                    Invoke(new Action(Refresh));
                     return;
                 }
 
@@ -60,7 +90,7 @@ namespace ajkControls
                         }
                         state = uiState.selecting;
                         selectionChanged();
-                        Invoke(new Action(dbDrawBox.Refresh));
+                        Invoke(new Action(Refresh));
                     }
                     else
                     {
@@ -69,7 +99,7 @@ namespace ajkControls
                         document.SelectionLast = index;
                         state = uiState.selecting;
                         selectionChanged();
-                        Invoke(new Action(dbDrawBox.Refresh));
+                        Invoke(new Action(Refresh));
                     }
                 }
                 else
@@ -108,7 +138,7 @@ namespace ajkControls
                 document.CaretIndex = index;
                 selectionChanged();
 
-                Invoke(new Action(dbDrawBox.Refresh));
+                Invoke(new Action(Refresh));
             }
             this.OnMouseMove(e);
         }
@@ -128,7 +158,7 @@ namespace ajkControls
                         document.CaretIndex = index;
                         state = uiState.idle;
                         selectionChanged();
-                        Invoke(new Action(dbDrawBox.Refresh));
+                        Invoke(new Action(Refresh));
                     }
                     else if (document.SelectionLast == document.CaretIndex)
                     {
@@ -136,7 +166,7 @@ namespace ajkControls
                         document.CaretIndex = index;
                         state = uiState.idle;
                         selectionChanged();
-                        Invoke(new Action(dbDrawBox.Refresh));
+                        Invoke(new Action(Refresh));
                     }
                     else
                     {
@@ -155,7 +185,7 @@ namespace ajkControls
                 document.SelectionLast = document.SelectionStart;
                 state = uiState.idle;
                 selectionChanged();
-                Invoke(new Action(dbDrawBox.Refresh));
+                Invoke(new Action(Refresh));
             }
             this.OnMouseLeave(e);
         }
@@ -172,7 +202,7 @@ namespace ajkControls
                     document.SelectionLast = document.SelectionStart;
                     state = uiState.idle;
                     selectionChanged();
-                    Invoke(new Action(dbDrawBox.Refresh));
+                    Invoke(new Action(Refresh));
                 }
                 else
                 {

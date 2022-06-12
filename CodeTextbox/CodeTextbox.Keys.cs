@@ -18,7 +18,14 @@ namespace ajkControls
     {
         private bool skipKeyPress = false;
         private int prevXPos = -1;
-        private void dbDrawBox_KeyDown(object sender, KeyEventArgs e)
+
+
+        private void CodeTextbox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+
+        }
+
+        private void CodeTextbox_KeyDown(object sender, KeyEventArgs e)
         {
             skipKeyPress = false;
             if (document == null || !Editable) return;
@@ -30,7 +37,7 @@ namespace ajkControls
                 skipKeyPress = true;
                 selectionChanged();
                 scrollToCaret();
-                Invoke(new Action(dbDrawBox.Refresh));
+                Invoke(new Action(Refresh));
                 return;
             }
 
@@ -225,11 +232,11 @@ namespace ajkControls
                 skipKeyPress = true;
                 if (InvokeRequired)
                 {
-                    Invoke(new Action(dbDrawBox.Refresh));
+                    Invoke(new Action(Refresh));
                 }
                 else
                 {
-                    dbDrawBox.Refresh();
+                    Refresh();
                 }
             }
         }
@@ -446,12 +453,14 @@ namespace ajkControls
 //            System.Diagnostics.Debug.Print("prevXPos",prevXPos.ToString());
         }
 
-        private void dbDrawBox_KeyUp(object sender, KeyEventArgs e)
+
+
+        private void CodeTextbox_KeyUp(object sender, KeyEventArgs e)
         {
 
         }
 
-        private void dbDrawBox_KeyPress(object sender, KeyPressEventArgs e)
+        private void CodeTextbox_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (document == null || !Editable) return;
             if (skipKeyPress)
@@ -463,7 +472,7 @@ namespace ajkControls
             if (BeforeKeyPressed != null) BeforeKeyPressed(this, e);
             if (e.Handled)
             {
-                Invoke(new Action(dbDrawBox.Refresh));
+                Invoke(new Action(Refresh));
                 return;
             }
 
@@ -505,11 +514,11 @@ namespace ajkControls
             if (AfterKeyPressed != null) AfterKeyPressed(this, e);
             if (InvokeRequired)
             {
-                Invoke(new Action(dbDrawBox.Refresh));
+                Invoke(new Action(Refresh));
             }
             else
             {
-                dbDrawBox.Refresh();
+                Refresh();
             }
         }
 

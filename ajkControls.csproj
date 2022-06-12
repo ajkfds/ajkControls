@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ajkControls</RootNamespace>
     <AssemblyName>ajkControls</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -91,6 +91,7 @@
     <Compile Include="Primitive\DoubleBufferedDrawBox.Designer.cs">
       <DependentUpon>DoubleBufferedDrawBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="Primitive\GraWin.cs" />
     <Compile Include="Primitive\IconImage.cs" />
     <Compile Include="LogView\LogView.cs">
       <SubType>UserControl</SubType>
@@ -98,6 +99,8 @@
     <Compile Include="LogView\LogView.Designer.cs">
       <DependentUpon>LogView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Primitive\PlatWin.cs" />
+    <Compile Include="Primitive\Types.cs" />
     <Compile Include="Primitive\WinApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Primitive\ResizableArray.cs" />

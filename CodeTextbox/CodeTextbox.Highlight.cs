@@ -131,7 +131,7 @@ namespace ajkControls
             highlightStarts.Clear();
             highlighLasts.Clear();
 
-            dbDrawBox.Invalidate();
+            Invalidate();
         }
 
         public void AppendHighlight(int highlightStart, int highlightLast)
@@ -143,7 +143,7 @@ namespace ajkControls
             highlightStarts.Add(highlightStart);
             highlighLasts.Add(highlightLast);
 
-            dbDrawBox.Invalidate();
+            Invalidate();
         }
 
         public void ReDrawHighlight()
@@ -155,7 +155,7 @@ namespace ajkControls
                     document.SetMarkAt(index, 7);
                 }
             }
-            dbDrawBox.Invalidate();
+            Invalidate();
         }
 
     }

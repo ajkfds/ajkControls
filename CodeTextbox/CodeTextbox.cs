@@ -39,9 +39,9 @@ namespace ajkControls
         public CodeTextbox()
         {
             InitializeComponent();
-            dbDrawBox.SetImeEnable(true);
+//            dbDrawBox.SetImeEnable(true);
             resizeCharSize();
-            this.dbDrawBox.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseWheel);
+//            this.dbDrawBox.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseWheel);
 
             this.vScrollBar.Width = Global.ScrollBarWidth;
             this.hScrollBar.Height = Global.ScrollBarWidth;
@@ -68,7 +68,7 @@ namespace ajkControls
             UpdateVScrollBarRange();
             caretChanged();
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
 
         public void Copy()
@@ -84,7 +84,7 @@ namespace ajkControls
             UpdateVScrollBarRange();
             caretChanged();
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
 
         public void Paste()
@@ -99,7 +99,7 @@ namespace ajkControls
             UpdateVScrollBarRange();
             caretChanged();
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
 
         public void Undo()
@@ -109,15 +109,15 @@ namespace ajkControls
             caretChanged();
             scrollToCaret();
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
 
         public void SelectAll()
         {
             document.SelectionStart = 0;
-            document.SelectionLast = document.Length-1;
+            document.SelectionLast = document.Length - 1;
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
 
         private CodeDrawStyle style = new CodeDrawStyle();
@@ -145,12 +145,12 @@ namespace ajkControls
                 if (size < 5) size = 5;
                 if (size > 20) size = 20;
                 this.Font = new Font(this.Font.FontFamily, size, this.Font.Style);
-                dbDrawBox.Refresh();
+                Refresh();
             }
             else
             { // 
                 int delta = (int)(Global.WheelSensitivity * e.Delta) * SystemInformation.MouseWheelScrollLines;
-                if(delta == 0)
+                if (delta == 0)
                 {
                     if (e.Delta > 0) delta = 1;
                     if (e.Delta < 0) delta = -1;
@@ -190,7 +190,7 @@ namespace ajkControls
                 if (multiLine == value) return;
                 multiLine = value;
                 System.IntPtr handle = Handle; // avoid windowhandle not created error
-                Invoke(new Action(dbDrawBox.Refresh));
+                Invoke(new Action(Refresh));
                 if (multiLine == false)
                 {
                     if (ScrollBarVisible) ScrollBarVisible = false;
@@ -210,19 +210,19 @@ namespace ajkControls
             set
             {
                 if (document == value) return;
-                if(document != null)
+                if (document != null)
                 {
                     document.Replaced = null;
                 }
                 document = value;
-                if(document != null)
+                if (document != null)
                 {
                     document.Replaced = hilightUpdateWhenDocReplaced;
                 }
                 UpdateVScrollBarRange();
                 caretChanged();
                 scrollToCaret();
-                if (Handle != null) Invoke(new Action(dbDrawBox.Refresh));
+                if (Handle != null) Invoke(new Action(Refresh));
             }
         }
 
@@ -241,13 +241,13 @@ namespace ajkControls
 
         private void CodeTextbox_Resize(object sender, EventArgs e)
         {
-//            System.Diagnostics.Debug.Print("codeTextbox_resize");
+            //            System.Diagnostics.Debug.Print("codeTextbox_resize");
             resizeDrawBuffer();
         }
 
         private void dbDrawBox_Resize(object sender, EventArgs e)
         {
- //           System.Diagnostics.Debug.Print("dbDrawdbox_resize");
+            //           System.Diagnostics.Debug.Print("dbDrawdbox_resize");
             //            resizeCharSize();
         }
 
@@ -268,10 +268,10 @@ namespace ajkControls
 
         public int GetActualLineNo(int drawLineNumber)
         {
-            if(actualLineNumbers.Length < drawLineNumber) return actualLineNumbers.Last();
+            if (actualLineNumbers.Length < drawLineNumber) return actualLineNumbers.Last();
             return actualLineNumbers[drawLineNumber];
         }
-        public int GetIndexAt(int x,int y)
+        public int GetIndexAt(int x, int y)
         {
             return hitIndex(x, y);
         }
@@ -287,13 +287,13 @@ namespace ajkControls
         }
 
 
-        public void SetSelection(int index,int length)
+        public void SetSelection(int index, int length)
         {
-            document.CaretIndex = index+length;
+            document.CaretIndex = index + length;
             document.SelectionStart = index;
-            document.SelectionLast = index+length;
+            document.SelectionLast = index + length;
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
 
 
@@ -311,7 +311,7 @@ namespace ajkControls
         {
             if (document == null) return;
             selectionChanged();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
         private void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
@@ -324,7 +324,7 @@ namespace ajkControls
         {
             selectionChanged();
             scrollToCaret();
-            Invoke(new Action(dbDrawBox.Refresh));
+            Invoke(new Action(Refresh));
         }
 
         public void documentReplace(int index, int replaceLength, byte colorIndex, string text)
@@ -340,7 +340,7 @@ namespace ajkControls
             if (document.CaretIndex == 0) return;
 
             // move caret on CRLF to CR
-            if(document.GetCharAt(document.CaretIndex) == '\n' && document.GetCharAt(document.CaretIndex-1) == '\r')
+            if (document.GetCharAt(document.CaretIndex) == '\n' && document.GetCharAt(document.CaretIndex - 1) == '\r')
             {
                 document.CaretIndex--;
             }
@@ -401,10 +401,10 @@ namespace ajkControls
 
             int line = document.GetVisibleLine(document.GetLineAt(document.CaretIndex));
 
-            if (line-1 < vScrollBar.Value)
+            if (line - 1 < vScrollBar.Value)
             {
                 if (line < 1) vScrollBar.Value = 0;
-                else vScrollBar.Value = line-1;
+                else vScrollBar.Value = line - 1;
             }
             else if (line >= visibleLines + vScrollBar.Value)
             {
@@ -412,7 +412,7 @@ namespace ajkControls
                 if (v < vScrollBar.Minimum)
                 {
                     vScrollBar.Value = vScrollBar.Minimum;
-                }else if (v > vScrollBar.Maximum)
+                } else if (v > vScrollBar.Maximum)
                 {
                     vScrollBar.Value = vScrollBar.Maximum;
                 }
@@ -420,7 +420,7 @@ namespace ajkControls
                 {
                     if (v + 1 < vScrollBar.Maximum)
                     {
-                        vScrollBar.Value = v+1; // to skip half visible line 
+                        vScrollBar.Value = v + 1; // to skip half visible line 
                     }
                     else
                     {
@@ -460,6 +460,85 @@ namespace ajkControls
         {
             if (document != null) vScrollBar.Maximum = document.VisibleLines;
         }
+
+        IntPtr _OriginalWndProcObj = IntPtr.Zero;
+        WinApi.WNDPROC _CustomWndProcObj = null;
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            //_HighlighterDelayTimer = new WinFormsTimer();
+            //_HighlighterDelayTimer.Tick += delegate {
+            //    _HighlighterDelayTimer.Enabled = false;
+            //    if (_Impl != null)
+            //        _Impl.ExecHighlighter();
+            //};
+
+            // rewrite window procedure at first
+            RewriteWndProc();
+
+            // set default value for each scroll bar
+            // (setting scroll bar range forces the window to have style of WS_VSCROLL/WS_HSCROLL)
+            //WinApi.SetScrollRange(Handle, false, 0, 1, 1);
+            //WinApi.SetScrollRange(Handle, true, 0, 1, 1);
+
+            //base.Cursor = Cursors.IBeam;
+            //this.Font = base.Font;
+            //this.BorderStyle = _BorderStyle;
+
+            //WinApi.CreateCaret(Handle, _CaretSize);
+            //WinApi.SetCaretPos(0, 0);
+
+            //// calculate scrollbar width
+            //using (ScrollBar sb = new VScrollBar())
+            //{
+            //    _ScrollBarWidth = sb.Width;
+            //}
+        }
+        void RewriteWndProc()
+        {
+            const int GWL_WNDPROC = -4;
+
+            _OriginalWndProcObj = WinApi.GetWindowLong(Handle, GWL_WNDPROC);
+            if (_CustomWndProcObj == null)
+            {
+                _CustomWndProcObj = new WinApi.WNDPROC(this.CustomWndProc);
+            }
+
+            WinApi.SetWindowLong(Handle, GWL_WNDPROC, _CustomWndProcObj);
+        }
+
+        //region Custom Window Procedure (handling v/h scroll and paint event etc.)
+        IntPtr CustomWndProc(IntPtr window, UInt32 message, IntPtr wParam, IntPtr lParam)
+        {
+            if (message == WinApi.WM_PAINT)
+            {
+                WinApi.PAINTSTRUCT ps;
+
+                // .NET's Paint event does not inform invalidated region when double buffering was disabled.
+                // In addition to this, Control.SetStyle is not supported in Compact Framework
+                // and thus enabling double buffering seems impossible.
+                // Therefore painting logic is called here.
+                unsafe
+                {
+                    WinApi.BeginPaint(window, &ps);
+
+                    Rectangle rect = new Rectangle(ps.paint.left, ps.paint.top, ps.paint.right - ps.paint.left, ps.paint.bottom - ps.paint.top);
+                    draw(rect);
+//                    _Impl.HandlePaint(rect);
+
+                    WinApi.EndPaint(window, &ps);
+                }
+
+                // return zero here to prevent executing original painting logic of Control class.
+                // (if the original logic runs,
+                // we will get invalid(?) update region from BeginPaint API in Windows XP or former.)
+                return IntPtr.Zero;
+            }
+            return WinApi.CallWindowProc(_OriginalWndProcObj, window, message, wParam, lParam);
+        }
+
 
     }
 }

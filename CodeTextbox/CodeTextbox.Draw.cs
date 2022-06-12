@@ -20,7 +20,7 @@ namespace ajkControls
         int visibleLines = 10;
         private void resizeCharSize()
         {
-            Graphics g = dbDrawBox.CreateGraphics();
+            Graphics g = this.CreateGraphics();
             Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(g, "A", Font, new Size(100, 100), TextFormatFlags.NoPadding);
             charSizeX = fontSize.Width;
             charSizeY = fontSize.Height;
@@ -30,7 +30,7 @@ namespace ajkControls
 
         private void resizeDrawBuffer()
         {
-            visibleLines = (int)Math.Ceiling((double)(dbDrawBox.Height / charSizeY));
+            visibleLines = (int)Math.Ceiling((double)(Height / charSizeY));
             vScrollBar.LargeChange = visibleLines;
             UpdateVScrollBarRange();
         }
@@ -189,9 +189,9 @@ namespace ajkControls
         SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
-        private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
+        //        private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
+        private void draw(Rectangle clipRect)
         {
-            
             unsafe
             {
                 StringBuilder sb = new StringBuilder();
@@ -206,10 +206,9 @@ namespace ajkControls
                     actualLineNumbers = new int[visibleLines + 2];
                 }
 
-
-                e.Graphics.Clear(BackColor);
+                Graphics g = this.CreateGraphics();
+                g.Clear(BackColor);
                 if (document == null) return;
-
 
                 lock (document)
                 {
@@ -230,7 +229,7 @@ namespace ajkControls
                     int line = lineStart;
                     if (!multiLine) drawLine = document.Lines;
 
-                    drawChars(e);
+                    drawChars(g);
 
                     drawLine = 0;
                     line = lineStart;
@@ -240,25 +239,25 @@ namespace ajkControls
                 // underline @ carlet
                 if (Editable)
                 {
-                    e.Graphics.DrawLine(new Pen(Color.FromArgb(100, Color.LightGray)), new Point(xOffset * charSizeX, caretY + charSizeY), new Point(dbDrawBox.Width, caretY + charSizeY));
+                   g.DrawLine(new Pen(Color.FromArgb(100, Color.LightGray)), new Point(xOffset * charSizeX, caretY + charSizeY), new Point(Width, caretY + charSizeY));
                 }
             }
         }
 
 
-        private void drawChars(PaintEventArgs e)
+        private void drawChars(Graphics g)
         {
-//            sw.Reset();
+            sw.Reset();
 
             StringBuilder sb = new StringBuilder(256);
-            IntPtr hDC = e.Graphics.GetHdc();
+            IntPtr hDC = g.GetHdc();
             IntPtr hFont = this.Font.ToHfont();
             IntPtr hOldFont = (IntPtr)WinApi.SelectObject(hDC, hFont);
             WinApi.SetBkMode(hDC, 1);
 
             {
                 // left column
-                IntPtr hrgn = WinApi.CreateRectRgn(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, dbDrawBox.Height);
+                IntPtr hrgn = WinApi.CreateRectRgn(0, 0, charSizeX * (xOffset - 1) + charSizeX / 2, Height);
                 IntPtr hbrush = WinApi.CreateSolidBrush(WinApi.GetColor(leftColumnColor));
                 WinApi.FillRgn(hDC, hrgn, hbrush);
                 WinApi.DeleteObject(hbrush);
@@ -284,10 +283,10 @@ namespace ajkControls
                 if (!document.IsVisibleLine(line)) // skip invisible lines
                 {
                     WinApi.MoveToEx(hDC, (int)(xOffset * charSizeX), (int)(y-1), IntPtr.Zero);
-                    WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y - 1));
-                    WinApi.LineTo(hDC, (int)(dbDrawBox.Width), (int)(y));
+                    WinApi.LineTo(hDC, (int)(Width), (int)(y - 1));
+                    WinApi.LineTo(hDC, (int)(Width), (int)(y));
                     WinApi.LineTo(hDC, (int)(xOffset * charSizeX), (int)(y));
-                    WinApi.SetPixel(hDC, (int)(dbDrawBox.Width), (int)(y-1), WinApi.GetColor(blockUnderlineColor));
+                    WinApi.SetPixel(hDC, (int)(Width), (int)(y-1), WinApi.GetColor(blockUnderlineColor));
 
                     line++;
                     while (line < document.Lines)
@@ -310,7 +309,7 @@ namespace ajkControls
                             IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
                             IntPtr hbmp = plusBitmap.GetHbitmap();
                             IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
-                            WinApi.BitBlt(hDC,x, y, charSizeY, charSizeY, hsrc, 0, 0, WinApi.TernaryRasterOperations.SRCCOPY);
+                            WinApi.BitBlt(hDC,x, y, charSizeY, charSizeY, hsrc, 0, 0, (uint)WinApi.TernaryRasterOperations.SRCCOPY);
                             WinApi.DeleteObject(porg);
                             WinApi.DeleteObject(hbmp);
                             WinApi.DeleteDC(hsrc);
@@ -320,7 +319,7 @@ namespace ajkControls
                             IntPtr hsrc = WinApi.CreateCompatibleDC(hDC);
                             IntPtr hbmp = minusBitmap.GetHbitmap();
                             IntPtr porg = WinApi.SelectObject(hsrc, hbmp);
-                            WinApi.BitBlt(hDC, x, y, charSizeY, charSizeY, hsrc, 0, 0, WinApi.TernaryRasterOperations.SRCCOPY);
+                            WinApi.BitBlt(hDC, x, y, charSizeY, charSizeY, hsrc, 0, 0, (uint)WinApi.TernaryRasterOperations.SRCCOPY);
                             WinApi.DeleteObject(porg);
                             WinApi.DeleteObject(hbmp);
                             WinApi.DeleteDC(hsrc);
@@ -545,10 +544,10 @@ namespace ajkControls
             WinApi.DeleteObject(crPen);
             WinApi.DeleteObject(lfPen);
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(hDC, hOldFont));
-            e.Graphics.ReleaseHdc(hDC);
+            g.ReleaseHdc(hDC);
 
-//            sw.Stop();
-//            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
+            sw.Stop();
+            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
 
         }
 
