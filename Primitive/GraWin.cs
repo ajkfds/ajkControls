@@ -370,7 +370,7 @@ namespace ajkControls
 			}
 		}
 
-		IntPtr DC
+		public IntPtr DC
 		{
 			get
 			{

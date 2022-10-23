@@ -62,6 +62,7 @@
     <Compile Include="CodeTextbox\CodeTextbox.Mouse.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="CodeTextbox\CodeTextboxGraphics.cs" />
     <Compile Include="CodeTextbox\Document.cs" />
     <Compile Include="ColorLabel\ColorLabel.cs" />
     <Compile Include="ColorLabel\ColorLabelList.cs">
@@ -84,6 +85,7 @@
     <Compile Include="Json\IJson.cs" />
     <Compile Include="Json\JsonReader.cs" />
     <Compile Include="Json\JsonWriter.cs" />
+    <Compile Include="Primitive\BufferedGraphics.cs" />
     <Compile Include="Primitive\ColoredString.cs" />
     <Compile Include="Primitive\DoubleBufferedDrawBox.cs">
       <SubType>UserControl</SubType>
@@ -202,6 +204,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="CodeTextbox\CodeTextbox.Properties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CodeTextbox\CodeTextbox.Invalidate.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <None Include="Resources\dot.png" />

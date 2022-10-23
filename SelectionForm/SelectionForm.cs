@@ -15,14 +15,14 @@ namespace ajkControls
         public SelectionForm()
         {
             InitializeComponent();
-            Document document = new Document();
+            CodeTextbox.Document document = new CodeTextbox.Document();
             codeTextbox.Document = document;
 
             this.Font = Global.UiDefaultFont;
             this.ShowInTaskbar = false;
         }
 
-        public CodeDrawStyle Style
+        public CodeTextbox.CodeDrawStyle Style
         {
             set
             {

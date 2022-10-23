@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 
-namespace ajkControls
+namespace ajkControls.CodeTextbox
 {
 
     public partial class CodeTextbox : UserControl
@@ -56,6 +56,7 @@ namespace ajkControls
                         selectionChanged();
                         if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
                         e.Handled = true;
+                        Invalidate();
                     }
                     break;
                 case Keys.X:
@@ -65,6 +66,7 @@ namespace ajkControls
                         scrollToCaret();
                         selectionChanged();
                         e.Handled = true;
+                        Invalidate();
                     }
                     break;
                 case Keys.V:
@@ -74,6 +76,7 @@ namespace ajkControls
                         scrollToCaret();
                         selectionChanged();
                         e.Handled = true;
+                        Invalidate();
                     }
                     break;
                 case Keys.Z:
@@ -81,6 +84,7 @@ namespace ajkControls
                     {
                         Undo();
                         e.Handled = true;
+                        Invalidate();
                     }
                     break;
                 case Keys.A:
@@ -88,41 +92,71 @@ namespace ajkControls
                     {
                         SelectAll();
                         e.Handled = true;
+                        Invalidate();
                     }
                     break;
                 case Keys.Left:
-                    keyLeft(sender, e);
+                    {
+                        int index = document.SelectionLast;
+                        keyLeft(sender, e);
+                        Invalidate(document.SelectionStart, index);
+                    }
                     break;
                 case Keys.Right:
-                    keyRight(sender, e);
+                    {
+                        int index = document.SelectionStart;
+                        keyRight(sender, e);
+                        Invalidate(index, document.SelectionLast);
+                    }
                     break;
                 case Keys.Up:
-                    keyUp(sender, e);
+                    {
+                        int index = document.SelectionLast;
+                        keyUp(sender, e);
+                        Invalidate(document.SelectionStart, index);
+                    }
                     break;
                 case Keys.Down:
-                    keyDown(sender, e);
+                    {
+                        int index = document.SelectionStart;
+                        keyDown(sender, e);
+                        Invalidate(index, document.SelectionLast);
+                    }
                     break;
                 case Keys.Delete:
-                    if (document.SelectionStart == document.SelectionLast)
                     {
-                        if (document.CaretIndex == document.Length) break;
-                        if (document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex + 1) == '\n')
+                        bool redrawToLast = false;
+                        if (document.SelectionStart == document.SelectionLast)
                         {
-                            documentReplace(document.CaretIndex, 2, 0, "");
+                            if (document.CaretIndex == document.Length) break;
+                            if (document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex + 1) == '\n')
+                            {
+                                documentReplace(document.CaretIndex, 2, 0, "");
+                            }
+                            else
+                            {
+                                documentReplace(document.CaretIndex, 1, 0, "");
+                            }
+                            redrawToLast = true;
                         }
                         else
                         {
-                            documentReplace(document.CaretIndex, 1, 0, "");
+                            if (document.GetLineAt(document.SelectionStart) != document.GetLineAt(document.SelectionLast)) redrawToLast = true;
+                            documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
+                        }
+                        UpdateVScrollBarRange();
+                        caretChanged();
+                        selectionChanged();
+                        e.Handled = true;
+                        if (redrawToLast)
+                        {
+                            Invalidate(document.SelectionStart, document.Length - 1);
+                        }
+                        else
+                        {
+                            Invalidate(document.SelectionStart, document.SelectionLast);
                         }
                     }
-                    else
-                    {
-                        documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
-                    }
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    selectionChanged();
-                    e.Handled = true;
                     break;
                 case Keys.Back:
                     if (document.SelectionStart == document.SelectionLast)
@@ -145,6 +179,7 @@ namespace ajkControls
                     caretChanged();
                     selectionChanged();
                     e.Handled = true;
+                    Invalidate();
                     break;
                 case Keys.Enter:
                     if (!multiLine) break;
@@ -182,6 +217,7 @@ namespace ajkControls
                     scrollToCaret();
                     selectionChanged();
                     e.Handled = true;
+                    Invalidate();
                     break;
                 case Keys.Tab:
                     // multiple lines indent
@@ -215,6 +251,7 @@ namespace ajkControls
                     scrollToCaret();
                     selectionChanged();
                     e.Handled = true;
+                    Invalidate();
                     break;
                 default:
                     break;
@@ -230,14 +267,15 @@ namespace ajkControls
             if (e.Handled)
             {
                 skipKeyPress = true;
-                if (InvokeRequired)
-                {
-                    Invoke(new Action(Refresh));
-                }
-                else
-                {
-                    Refresh();
-                }
+                //Invalidate();
+                //if (InvokeRequired)
+                //{
+                //    Invoke(new Action(Refresh));
+                //}
+                //else
+                //{
+                //    Refresh();
+                //}
             }
         }
         private void keyLeft(object sender, KeyEventArgs e)
@@ -472,7 +510,7 @@ namespace ajkControls
             if (BeforeKeyPressed != null) BeforeKeyPressed(this, e);
             if (e.Handled)
             {
-                Invoke(new Action(Refresh));
+                Invalidate();
                 return;
             }
 
@@ -482,6 +520,8 @@ namespace ajkControls
             {
                 prevIndex--;
             }
+
+            bool redrawToLast = false;
 
             if ((inChar < 127 && inChar >= 0x20) || inChar == '\t' || inChar > 0xff)
             { // insert charactors
@@ -504,6 +544,8 @@ namespace ajkControls
                 }
                 else
                 {
+                    redrawToLast = true;
+
                     documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, document.GetColorAt(prevIndex), inChar.ToString());
                     document.CaretIndex = document.SelectionStart + 1;
                     document.SelectionStart = document.CaretIndex;
@@ -512,14 +554,22 @@ namespace ajkControls
                 }
             }
             if (AfterKeyPressed != null) AfterKeyPressed(this, e);
-            if (InvokeRequired)
+            if (redrawToLast)
             {
-                Invoke(new Action(Refresh));
+                Invalidate(document.SelectionStart, document.Length - 1);
             }
             else
             {
-                Refresh();
+                Invalidate(document.SelectionStart, document.SelectionLast);
             }
+            //if (InvokeRequired)
+            //{
+            //    Invoke(new Action(Refresh));
+            //}
+            //else
+            //{
+            //    Refresh();
+            //}
         }
 
     }

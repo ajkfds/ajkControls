@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 
-namespace ajkControls
+namespace ajkControls.CodeTextbox
 {
 
     public partial class CodeTextbox : UserControl

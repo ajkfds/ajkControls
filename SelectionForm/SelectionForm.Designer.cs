@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            ajkControls.CodeDrawStyle codeDrawStyle1 = new ajkControls.CodeDrawStyle();
+            ajkControls.CodeTextbox.CodeDrawStyle codeDrawStyle1 = new ajkControls.CodeTextbox.CodeDrawStyle();
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
             this.doubleBufferedDrawBox = new ajkControls.DoubleBufferedDrawBox();
-            this.codeTextbox = new ajkControls.CodeTextbox();
+            this.codeTextbox = new ajkControls.CodeTextbox.CodeTextbox();
             this.SuspendLayout();
             // 
             // vScrollBar
@@ -91,7 +91,7 @@
 
         #endregion
 
-        private CodeTextbox codeTextbox;
+        private CodeTextbox.CodeTextbox codeTextbox;
         private System.Windows.Forms.VScrollBar vScrollBar;
         private DoubleBufferedDrawBox doubleBufferedDrawBox;
     }

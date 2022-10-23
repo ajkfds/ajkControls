@@ -1,4 +1,4 @@
-﻿namespace ajkControls
+﻿namespace ajkControls.CodeTextbox
 {
     partial class CodeTextbox
     {
@@ -69,6 +69,7 @@
             this.MouseHover += new System.EventHandler(this.CodeTextbox_MouseHover);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseUp);
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseDoubleClick);
             this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.CodeTextbox_PreviewKeyDown);
             this.Resize += new System.EventHandler(this.CodeTextbox_Resize);
             this.ResumeLayout(false);

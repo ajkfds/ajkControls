@@ -31,7 +31,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 
-namespace ajkControls
+namespace ajkControls.CodeTextbox
 {
 
     public partial class CodeTextbox : UserControl
@@ -41,7 +41,7 @@ namespace ajkControls
             InitializeComponent();
 //            dbDrawBox.SetImeEnable(true);
             resizeCharSize();
-//            this.dbDrawBox.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseWheel);
+            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseWheel);
 
             this.vScrollBar.Width = Global.ScrollBarWidth;
             this.hScrollBar.Height = Global.ScrollBarWidth;
@@ -53,6 +53,111 @@ namespace ajkControls
         public event KeyPressEventHandler BeforeKeyPressed;
         public event KeyEventHandler BeforeKeyDown;
         public event Action SelectionChanged;
+
+        #region Message Handler
+
+        IntPtr _OriginalWndProcObj = IntPtr.Zero;
+        WinApi.WNDPROC _CustomWndProcObj = null;
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            //_HighlighterDelayTimer = new WinFormsTimer();
+            //_HighlighterDelayTimer.Tick += delegate {
+            //    _HighlighterDelayTimer.Enabled = false;
+            //    if (_Impl != null)
+            //        _Impl.ExecHighlighter();
+            //};
+
+            // rewrite window procedure at first
+            RewriteWndProc();
+
+            // set default value for each scroll bar
+            // (setting scroll bar range forces the window to have style of WS_VSCROLL/WS_HSCROLL)
+            //WinApi.SetScrollRange(Handle, false, 0, 1, 1);
+            //WinApi.SetScrollRange(Handle, true, 0, 1, 1);
+
+            //base.Cursor = Cursors.IBeam;
+            //this.Font = base.Font;
+            //this.BorderStyle = _BorderStyle;
+
+            //WinApi.CreateCaret(Handle, _CaretSize);
+            //WinApi.SetCaretPos(0, 0);
+
+            //// calculate scrollbar width
+            //using (ScrollBar sb = new VScrollBar())
+            //{
+            //    _ScrollBarWidth = sb.Width;
+            //}
+        }
+        void RewriteWndProc()
+        {
+            const int GWL_WNDPROC = -4;
+
+            _OriginalWndProcObj = WinApi.GetWindowLong(Handle, GWL_WNDPROC);
+            if (_CustomWndProcObj == null)
+            {
+                _CustomWndProcObj = new WinApi.WNDPROC(this.CustomWndProc);
+            }
+
+            WinApi.SetWindowLong(Handle, GWL_WNDPROC, _CustomWndProcObj);
+        }
+
+        //region Custom Window Procedure (handling v/h scroll and paint event etc.)
+        IntPtr CustomWndProc(IntPtr window, UInt32 message, IntPtr wParam, IntPtr lParam)
+        {
+            if (message == WinApi.WM_PAINT)
+            {
+                WinApi.PAINTSTRUCT ps;
+
+                // .NET's Paint event does not inform invalidated region when double buffering was disabled.
+                // In addition to this, Control.SetStyle is not supported in Compact Framework
+                // and thus enabling double buffering seems impossible.
+                // Therefore painting logic is called here.
+                unsafe
+                {
+                    WinApi.BeginPaint(window, &ps);
+
+                    Rectangle rect = new Rectangle(ps.paint.left, ps.paint.top, ps.paint.right - ps.paint.left, ps.paint.bottom - ps.paint.top);
+                    draw(rect);
+
+                    WinApi.EndPaint(window, &ps);
+                }
+
+                // return zero here to prevent executing original painting logic of Control class.
+                // (if the original logic runs,
+                // we will get invalid(?) update region from BeginPaint API in Windows XP or former.)
+                return IntPtr.Zero;
+            }
+            return WinApi.CallWindowProc(_OriginalWndProcObj, window, message, wParam, lParam);
+        }
+
+        /// <summary>
+        /// Erases background.
+        /// Note that Azuki does nothing on an event of redrawing background
+        /// so just ignores WM_ERASEBKGND message.
+        /// </summary>
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            //DO_NOT//base.OnPaintBackground( e );
+        }
+
+        #endregion
+
+
+        protected override bool IsInputKey(Keys keyData)
+        {
+            return true;
+
+            if (keyData == Keys.Right || keyData == Keys.Left ||
+                keyData == Keys.Up || keyData == Keys.Down)
+            {
+                return true;
+            }
+
+            return base.IsInputKey(keyData);
+        }
 
         public void Cut()
         {
@@ -136,7 +241,7 @@ namespace ajkControls
         }
 
         private float size = 8;
-        private void dbDrawBox_MouseWheel(object sender, MouseEventArgs e)
+        private void CodeTextbox_MouseWheel(object sender, MouseEventArgs e)
         {
             if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
             { // zoom up/down
@@ -461,83 +566,6 @@ namespace ajkControls
             if (document != null) vScrollBar.Maximum = document.VisibleLines;
         }
 
-        IntPtr _OriginalWndProcObj = IntPtr.Zero;
-        WinApi.WNDPROC _CustomWndProcObj = null;
-
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-
-            //_HighlighterDelayTimer = new WinFormsTimer();
-            //_HighlighterDelayTimer.Tick += delegate {
-            //    _HighlighterDelayTimer.Enabled = false;
-            //    if (_Impl != null)
-            //        _Impl.ExecHighlighter();
-            //};
-
-            // rewrite window procedure at first
-            RewriteWndProc();
-
-            // set default value for each scroll bar
-            // (setting scroll bar range forces the window to have style of WS_VSCROLL/WS_HSCROLL)
-            //WinApi.SetScrollRange(Handle, false, 0, 1, 1);
-            //WinApi.SetScrollRange(Handle, true, 0, 1, 1);
-
-            //base.Cursor = Cursors.IBeam;
-            //this.Font = base.Font;
-            //this.BorderStyle = _BorderStyle;
-
-            //WinApi.CreateCaret(Handle, _CaretSize);
-            //WinApi.SetCaretPos(0, 0);
-
-            //// calculate scrollbar width
-            //using (ScrollBar sb = new VScrollBar())
-            //{
-            //    _ScrollBarWidth = sb.Width;
-            //}
-        }
-        void RewriteWndProc()
-        {
-            const int GWL_WNDPROC = -4;
-
-            _OriginalWndProcObj = WinApi.GetWindowLong(Handle, GWL_WNDPROC);
-            if (_CustomWndProcObj == null)
-            {
-                _CustomWndProcObj = new WinApi.WNDPROC(this.CustomWndProc);
-            }
-
-            WinApi.SetWindowLong(Handle, GWL_WNDPROC, _CustomWndProcObj);
-        }
-
-        //region Custom Window Procedure (handling v/h scroll and paint event etc.)
-        IntPtr CustomWndProc(IntPtr window, UInt32 message, IntPtr wParam, IntPtr lParam)
-        {
-            if (message == WinApi.WM_PAINT)
-            {
-                WinApi.PAINTSTRUCT ps;
-
-                // .NET's Paint event does not inform invalidated region when double buffering was disabled.
-                // In addition to this, Control.SetStyle is not supported in Compact Framework
-                // and thus enabling double buffering seems impossible.
-                // Therefore painting logic is called here.
-                unsafe
-                {
-                    WinApi.BeginPaint(window, &ps);
-
-                    Rectangle rect = new Rectangle(ps.paint.left, ps.paint.top, ps.paint.right - ps.paint.left, ps.paint.bottom - ps.paint.top);
-                    draw(rect);
-//                    _Impl.HandlePaint(rect);
-
-                    WinApi.EndPaint(window, &ps);
-                }
-
-                // return zero here to prevent executing original painting logic of Control class.
-                // (if the original logic runs,
-                // we will get invalid(?) update region from BeginPaint API in Windows XP or former.)
-                return IntPtr.Zero;
-            }
-            return WinApi.CallWindowProc(_OriginalWndProcObj, window, message, wParam, lParam);
-        }
 
 
     }

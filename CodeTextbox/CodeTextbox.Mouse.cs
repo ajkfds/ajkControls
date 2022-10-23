@@ -11,15 +11,11 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 
-namespace ajkControls
+namespace ajkControls.CodeTextbox
 {
 
     public partial class CodeTextbox : UserControl
     {
-        private void CodeTextbox_MouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
 
         private void CodeTextbox_MouseEnter(object sender, EventArgs e)
         {
@@ -31,22 +27,10 @@ namespace ajkControls
 
         }
 
-        private void CodeTextbox_MouseLeave(object sender, EventArgs e)
-        {
 
-        }
 
-        private void CodeTextbox_MouseMove(object sender, MouseEventArgs e)
-        {
 
-        }
-
-        private void CodeTextbox_MouseUp(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void dbDrawBox_MouseDown(object sender, MouseEventArgs e)
+        private void CodeTextbox_MouseDown(object sender, MouseEventArgs e)
         {
             if (document == null || !Editable) return;
 
@@ -109,7 +93,7 @@ namespace ajkControls
             }
         }
 
-        private void dbDrawBox_MouseMove(object sender, MouseEventArgs e)
+        private void CodeTextbox_MouseMove(object sender, MouseEventArgs e)
         {
             if (document == null || !Editable) return;
 
@@ -140,10 +124,10 @@ namespace ajkControls
 
                 Invoke(new Action(Refresh));
             }
-            this.OnMouseMove(e);
+//            this.OnMouseMove(e);
         }
 
-        private void dbDrawBox_MouseUp(object sender, MouseEventArgs e)
+        private void CodeTextbox_MouseUp(object sender, MouseEventArgs e)
         {
             if (document == null || !Editable) return;
 
@@ -175,7 +159,7 @@ namespace ajkControls
                 }
             }
         }
-        private void dbDrawBox_MouseLeave(object sender, EventArgs e)
+        private void CodeTextbox_MouseLeave(object sender, EventArgs e)
         {
             if (document == null || !Editable) return;
 
@@ -187,10 +171,10 @@ namespace ajkControls
                 selectionChanged();
                 Invoke(new Action(Refresh));
             }
-            this.OnMouseLeave(e);
+//            this.OnMouseLeave(e);
         }
 
-        private void dbDrawBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void CodeTextbox_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (document == null || !Editable) return;
 
@@ -209,7 +193,7 @@ namespace ajkControls
                     state = uiState.idle;
                 }
             }
-            this.OnMouseDoubleClick(e);
+//            this.OnMouseDoubleClick(e);
         }
     }
 }
