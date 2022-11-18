@@ -285,8 +285,14 @@ namespace ajkControls.CodeTextbox
 
             while (y < 0)
             {
-                y = y + charSizeY;
-                drawLine++;
+                if (!document.IsVisibleLine(line)) // skip invisible lines
+                {
+                }
+                else
+                {
+                    y = y + charSizeY;
+                    drawLine++;
+                }
                 line++;
             }
 

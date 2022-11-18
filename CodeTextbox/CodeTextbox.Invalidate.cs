@@ -28,17 +28,17 @@ namespace ajkControls.CodeTextbox
 			int beginDrawLine = 0;
 			int endDrawLine = actualLineNumbers.Length;
 
-			for(int i = 0; i < actualLineNumbers.Length; i++)
+            for (int i = 0; i < actualLineNumbers.Length; i++)
             {
-				if (actualLineNumbers[i] < beginLine) beginDrawLine = i;
-				if(endLine < actualLineNumbers[i])
+                if (actualLineNumbers[i] < beginLine) beginDrawLine = i;
+                if (endLine < actualLineNumbers[i])
                 {
-					endDrawLine = i;
-					break;
+                    endDrawLine = i;
+                    break;
                 }
             }
 
-			Invalidate(new Rectangle(0,beginDrawLine*charSizeY,Width,(endDrawLine-beginDrawLine)*charSizeY+100));
+            Invalidate(new Rectangle(0,beginDrawLine*charSizeY,Width,(endDrawLine-beginDrawLine)*charSizeY+100));
 		}
 
 	}

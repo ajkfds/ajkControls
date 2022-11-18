@@ -28,7 +28,7 @@ namespace ajkControls.CodeTextbox
 
                 Replace(0, 0, 0, text);
                 ClearHistory();
-                EditID = 0;
+                Version = 0;
                 Clean();
             }
 
@@ -40,14 +40,14 @@ namespace ajkControls.CodeTextbox
 
         public void Clean()
         {
-            CleanEditID = EditID;
+            CleanVersion = Version;
         }
 
         public bool IsDirty
         {
             get
             {
-                if (CleanEditID == EditID) return false;
+                if (CleanVersion == Version) return false;
                 return true;
             }
         }
@@ -63,9 +63,9 @@ namespace ajkControls.CodeTextbox
         private int visibleLines = 0;
         List<int> collapsedLines = new List<int>();
 
-        public int EditID { get; private set; } = 0;
+        public ulong Version { get; private set; } = 0;
 
-        public int CleanEditID { get; private set; } = 0;
+        public ulong CleanVersion { get; private set; } = 0;
 
         List<History> histories = new List<History>();
         public int HistoryMaxLimit = 100;
@@ -373,7 +373,7 @@ namespace ajkControls.CodeTextbox
                 if (histories.Count == 0) return;
                 History history = histories.Last();
                 histories.RemoveAt(histories.Count - 1);
-                EditID--;
+                Version--;
                 replace(history.Index, history.Length, 0, history.ChangedFrom);
             }
         }
@@ -388,7 +388,7 @@ namespace ajkControls.CodeTextbox
             lock (this)
             {
                 histories.Add(new History(index, text.Length, CreateString(index, replaceLength)));
-                EditID++;
+                Version++;
                 if (histories.Count > HistoryMaxLimit)
                 {
                     histories.RemoveAt(0);
