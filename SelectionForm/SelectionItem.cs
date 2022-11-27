@@ -26,7 +26,6 @@ namespace ajkControls
         private ajkControls.IconImage.ColorStyle iconColorStyle;
 
         private string text;
-        public string Text { get { return text; } }
 
         private Color Color;
 

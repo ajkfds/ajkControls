@@ -88,9 +88,9 @@ namespace ajkControls
         private int scrollPosition = 0;
 
         private int topMargin = 4;
-        private int bottomMargin = 4;
+//        private int bottomMargin = 4;
         private int leftMargin = 4;
-        private int rightMargin = 4;
+//        private int rightMargin = 4;
         private int itemGap = 2;
 
         Dictionary<ColorLabel, int> labelDrawY = new Dictionary<ColorLabel, int>();

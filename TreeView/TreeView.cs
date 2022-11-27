@@ -312,6 +312,7 @@ namespace ajkControls
                     {
                         selectedNode = orderedNode[orderedNode.IndexOf(selectedNode) - 1];
                         Refresh();
+                        SelectedNodeChanged(this, selectedNode);
                     }
                     break;
                 case Keys.Down:
@@ -319,6 +320,7 @@ namespace ajkControls
                     {
                         selectedNode = orderedNode[orderedNode.IndexOf(selectedNode) + 1];
                         Refresh();
+                        SelectedNodeChanged(this, selectedNode);
                     }
                     break;
             }

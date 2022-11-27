@@ -189,9 +189,6 @@ namespace ajkControls.CodeTextbox
         SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
-        CodeTextboxGraphics graphics;
-
-        //        private void dbDrawBox_DoubleBufferedPaint(PaintEventArgs e)
         private void draw(Rectangle clipRect)
         {
             unsafe
@@ -512,10 +509,6 @@ namespace ajkControls.CodeTextbox
                                 //if ((document.GetMarkAt(i) & (1 << mark)) != 0) drawMarkGdi(hDC, x, y, mark);
                                 if ((document.GetMarkAt(i) & (1 << mark)) != 0)
                                 {
-                                    if( mark == 7)
-                                    {
-                                        string aa = "";
-                                    }
                                     IntPtr pSource = WinApi.CreateCompatibleDC(graphics.DC);
                                     IntPtr hbmp = markBitmap[mark].GetHbitmap(Color.Black);
                                     IntPtr pOrig = WinApi.SelectObject(pSource, hbmp);

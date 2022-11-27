@@ -63,7 +63,7 @@ namespace ajkControls.CodeTextbox
         private int visibleLines = 0;
         List<int> collapsedLines = new List<int>();
 
-        public ulong Version { get; private set; } = 0;
+        public virtual ulong Version { get; set; } = 0;
 
         public ulong CleanVersion { get; private set; } = 0;
 
@@ -290,6 +290,7 @@ namespace ajkControls.CodeTextbox
         public void CopyTextOnlyFrom(Document document)
         {
             copyFrom(document, true, false, false);
+            Version = document.Version;
         }
 
         private void copyFrom(Document document, bool copyText,bool copyMark,bool copyColor)
