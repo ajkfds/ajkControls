@@ -102,6 +102,7 @@ namespace ajkControls
                 visibleItems.Clear();
                 foreach (SelectionItem item in items)
                 {
+                    if (item.Text == null) continue;
                     if (item.Text.ToLower().StartsWith(inputText.ToLower()))
                     {
                         visibleItems.Add(item);
@@ -206,20 +207,23 @@ namespace ajkControls
                 vScrollBar.Minimum = 0;
                 vScrollBar.Maximum = items.Count;
                 vScrollBar.LargeChange = visibleLines;
-                int selectedIndex = visibleItems.IndexOf(selectedItem);
-                if (selectedIndex < vScrollBar.Value)
+                if(selectedItem != null)
                 {
-                    vScrollBar.Value = selectedIndex;
-                }
-                else if (selectedIndex >= vScrollBar.Value + visibleLines)
-                {
-                    if ((selectedIndex - visibleLines + 1) < 0)
+                    int selectedIndex = visibleItems.IndexOf(selectedItem);
+                    if (selectedIndex < vScrollBar.Value)
                     {
-                        vScrollBar.Value = 0;
+                        vScrollBar.Value = selectedIndex;
                     }
-                    else
+                    else if (selectedIndex >= vScrollBar.Value + visibleLines)
                     {
-                        vScrollBar.Value = selectedIndex - visibleLines + 1;
+                        if ((selectedIndex - visibleLines + 1) < 0)
+                        {
+                            vScrollBar.Value = 0;
+                        }
+                        else
+                        {
+                            vScrollBar.Value = selectedIndex - visibleLines + 1;
+                        }
                     }
                 }
 
