@@ -11,12 +11,12 @@ namespace ajkControls
     {
         public SelectionItem(string text, Color color)
         {
-            this.text = text;
+            this.Text = text;
             this.Color = color;
         }
         public SelectionItem(string text, Color color, ajkControls.IconImage icon, ajkControls.IconImage.ColorStyle iconColorStyle)
         {
-            this.text = text;
+            this.Text = text;
             this.Color = color;
             this.icon = icon;
             this.iconColorStyle = iconColorStyle;
@@ -25,18 +25,16 @@ namespace ajkControls
         private ajkControls.IconImage icon = null;
         private ajkControls.IconImage.ColorStyle iconColorStyle;
 
-        private string text;
-
         private Color Color;
 
         public virtual void Draw(Graphics graphics, int x, int y, Font font, Color backgroundColor, out int height)
         {
-            Size tsize = System.Windows.Forms.TextRenderer.MeasureText(graphics, text, font);
+            Size tsize = System.Windows.Forms.TextRenderer.MeasureText(graphics, Text, font);
             if (icon != null) graphics.DrawImage(icon.GetImage(tsize.Height, iconColorStyle), new Point(x, y));
             Color bgColor = backgroundColor;
             System.Windows.Forms.TextRenderer.DrawText(
                 graphics,
-                text,
+                Text,
                 font,
                 new Point(x + tsize.Height + (tsize.Height >> 2), y),
                 Color,
