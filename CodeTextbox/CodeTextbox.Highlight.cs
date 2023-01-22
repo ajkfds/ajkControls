@@ -123,10 +123,11 @@ namespace ajkControls.CodeTextbox
             if (highlightStarts.Count == 0) return;
             for (int i = 0; i < highlightStarts.Count; i++)
             {
-                for (int index = highlightStarts[i]; index <= highlighLasts[i]; index++)
-                {
-                    if(index < document.Length) document.RemoveMarkAt(index, 7);
-                }
+                document.RemoveMarkAt(highlightStarts[i], highlighLasts[i] - highlightStarts[i] + 1, 7);
+                //for (int index = highlightStarts[i]; index <= highlighLasts[i]; index++)
+                //{
+                //    if(index < document.Length) document.RemoveMarkAt(index, 7);
+                //}
             }
             highlightStarts.Clear();
             highlighLasts.Clear();
@@ -136,10 +137,11 @@ namespace ajkControls.CodeTextbox
 
         public void AppendHighlight(int highlightStart, int highlightLast)
         {
-            for (int index = highlightStart; index <= highlightLast; index++)
-            {
-                document.SetMarkAt(index, 7);
-            }
+            document.SetMarkAt(highlightStart, highlightLast- highlightStart + 1, 7);
+            //for (int index = highlightStart; index <= highlightLast; index++)
+            //{
+            //    document.SetMarkAt(index, 7);
+            //}
             highlightStarts.Add(highlightStart);
             highlighLasts.Add(highlightLast);
 
@@ -150,10 +152,11 @@ namespace ajkControls.CodeTextbox
         {
             for (int j = 0; j < highlightStarts.Count; j++)
             {
-                for (int index = highlightStarts[j]; index <= highlighLasts[j]; index++)
-                {
-                    document.SetMarkAt(index, 7);
-                }
+                document.SetMarkAt(highlightStarts[j], highlighLasts[j] - highlightStarts[j] + 1, 7);
+                //for (int index = highlightStarts[j]; index <= highlighLasts[j]; index++)
+                //{
+                //    document.SetMarkAt(index, 7);
+                //}
             }
             Invalidate();
         }

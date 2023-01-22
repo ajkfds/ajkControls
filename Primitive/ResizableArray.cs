@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ajkControls
 {
-    public class ResizableArray<T>
+    public class ResizableArray<T> : IDisposable
     {
         public ResizableArray(int initialBufferSize,int minBufferExpandSize)
         {
@@ -22,6 +22,12 @@ namespace ajkControls
             {
                 tSize = System.Runtime.InteropServices.Marshal.SizeOf(buffer.GetType().GetElementType());
             }
+        }
+
+        public void Dispose()
+        {
+            buffer = null;
+            bufferSize = 0;
         }
 
         private int tSize;

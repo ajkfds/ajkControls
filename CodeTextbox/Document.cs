@@ -6,24 +6,51 @@ using System.Threading.Tasks;
 
 namespace ajkControls.CodeTextbox
 {
-    public class Document
-    {
-        public Document()
+    public class Document : IDisposable
+    {   
+        public Document() : this(false)
+        {
+        }
+
+        public Document(bool textOnly)
         {
             lock (this)
             {
-                newLineIndex.Replace(0, 0, new int[] { 0, 0 });
-                lineVisible.Replace(0, 0, new bool[] { true, true });
+                chars = new ResizableArray<char>(256, 256);
+
+                if (!textOnly)
+                {
+                    colors = new ResizableArray<byte>(256, 256);
+                    marks = new ResizableArray<byte>(256, 256);
+                    newLineIndex = new ResizableArray<int>(16, 16);
+                    lineVisible = new ResizableArray<bool>(16, 16);
+                    newLineIndex.Replace(0, 0, new int[] { 0, 0 });
+                    lineVisible.Replace(0, 0, new bool[] { true, true });
+                }
                 visibleLines = 1;
             }
         }
 
-        public Document(string text)
+
+        public Document(string text) : this(text, false)
+        {
+
+        }
+        public Document(string text, bool textOnly)
         {
             lock (this)
             {
-                newLineIndex.Replace(0, 0, new int[] { 0, 0 });
-                lineVisible.Replace(0, 0, new bool[] { true, true });
+                chars = new ResizableArray<char>(256, 256);
+
+                if (!textOnly)
+                {
+                    colors = new ResizableArray<byte>(256, 256);
+                    marks = new ResizableArray<byte>(256, 256);
+                    newLineIndex = new ResizableArray<int>(16, 16);
+                    lineVisible = new ResizableArray<bool>(16, 16);
+                    newLineIndex.Replace(0, 0, new int[] { 0, 0 });
+                    lineVisible.Replace(0, 0, new bool[] { true, true });
+                }
                 visibleLines = 1;
 
                 Replace(0, 0, 0, text);
@@ -35,6 +62,20 @@ namespace ajkControls.CodeTextbox
             if (chars.Length != colors.Length)
             {
                 System.Diagnostics.Debugger.Break();
+            }
+        }
+
+        private readonly bool textOnly = false;
+
+        public void Dispose()
+        {
+            chars.Dispose();
+            if (!textOnly)
+            {
+                colors.Dispose();
+                marks.Dispose();
+                newLineIndex.Dispose();
+                lineVisible.Dispose();
             }
         }
 
@@ -55,11 +96,11 @@ namespace ajkControls.CodeTextbox
         public Action<int, int, byte, string> Replaced;
 
 
-        ResizableArray<char> chars = new ResizableArray<char>(1024, 256);
-        ResizableArray<byte> colors = new ResizableArray<byte>(1024, 256);
-        ResizableArray<byte> marks = new ResizableArray<byte>(1024, 256);
-        ResizableArray<int> newLineIndex = new ResizableArray<int>(256, 256);
-        ResizableArray<bool> lineVisible = new ResizableArray<bool>(256, 256);
+        ResizableArray<char> chars;
+        ResizableArray<byte> colors;
+        ResizableArray<byte> marks;
+        ResizableArray<int> newLineIndex;
+        ResizableArray<bool> lineVisible;
         private int visibleLines = 0;
         List<int> collapsedLines = new List<int>();
 
@@ -103,6 +144,8 @@ namespace ajkControls.CodeTextbox
         List<int> blockEndLines = new List<int>();
         private void createBlockCash()
         {
+            if (textOnly) return;
+
             blockStartLines.Clear();
             blockEndLines.Clear();
             for(int i = 0; i < blockStartIndexs.Count; i++)
@@ -115,7 +158,9 @@ namespace ajkControls.CodeTextbox
 
         private void refreshVisibleLines()
         {
-            for(int i = 0; i < lineVisible.Length; i++)
+            if (textOnly) return;
+
+            for (int i = 0; i < lineVisible.Length; i++)
             {
                 lineVisible[i] = true;
             }
@@ -152,6 +197,8 @@ namespace ajkControls.CodeTextbox
 
         public int GetVisibleLineNo(int lineNo)
         {
+            if (textOnly) return 0;
+
             if (!blockCashActive) createBlockCash();
             if (collapsedLines.Count == 0) return lineNo;
             int vline = 0;
@@ -164,6 +211,8 @@ namespace ajkControls.CodeTextbox
 
         public int GetActialLineNo(int visibleLineNo)
         {
+            if (textOnly) return 0;
+
             if (!blockCashActive) createBlockCash();
             if (collapsedLines.Count == 0) return visibleLineNo;
             int lineNo = 0;
@@ -306,8 +355,11 @@ namespace ajkControls.CodeTextbox
                     if (copyText)
                     {
                         chars.CopyFrom(document.chars);
-                        newLineIndex.CopyFrom(document.newLineIndex);
-                        marks.Resize(document.Length);
+                        if (!textOnly)
+                        {
+                            newLineIndex.CopyFrom(document.newLineIndex);
+                            marks.Resize(document.Length);
+                        }
                     }
                     else
                     {
@@ -317,22 +369,26 @@ namespace ajkControls.CodeTextbox
                         }
                     }
 
-                    if (copyColor)
+                    if (!textOnly)
                     {
-                        colors.CopyFrom(document.colors);
-                    }
-                    else
-                    {
-                        colors.Resize(document.Length);
-                    }
+                        if (copyColor)
+                        {
+                            colors.CopyFrom(document.colors);
+                        }
+                        else
+                        {
+                            colors.Resize(document.Length);
+                        }
 
-                    if (copyMark)
-                    {
-                        if (copyMark) marks.CopyFrom(document.marks);
-                    }
-                    else
-                    {
-                        marks.Resize(document.Length);
+                        if (copyMark)
+                        {
+                            if (copyMark) marks.CopyFrom(document.marks);
+                        }
+                        else
+                        {
+                            marks.Resize(document.Length);
+                        }
+
                     }
 
                     blockCashActive = false;
@@ -352,9 +408,25 @@ namespace ajkControls.CodeTextbox
             marks[index] |= (byte)(1<<value);
         }
 
+        public void SetMarkAt(int index, int length, byte value)
+        {
+            for (int i = index; i < index + length; i++)
+            {
+                SetMarkAt(i, value);
+            }
+        }
+
+
         public void RemoveMarkAt(int index, byte value)
         {
             marks[index] &= (byte)((1 << value)^0xff);
+        }
+        public void RemoveMarkAt(int index, int length, byte value)
+        {
+            for (int i = index; i < index + length; i++)
+            {
+                RemoveMarkAt(i, value);
+            }
         }
 
         public byte GetColorAt(int index)
