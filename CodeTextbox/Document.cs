@@ -66,9 +66,10 @@ namespace ajkControls.CodeTextbox
         }
 
         private readonly bool textOnly = false;
-
-        public void Dispose()
+        private bool disposed = false;
+        public virtual void Dispose()
         {
+            disposed = true;
             chars.Dispose();
             if (!textOnly)
             {
@@ -77,6 +78,14 @@ namespace ajkControls.CodeTextbox
                 newLineIndex.Dispose();
                 lineVisible.Dispose();
             }
+        }
+
+        public bool IsDisposed
+        {
+            get
+            {
+                return disposed;
+            }    
         }
 
         public void Clean()

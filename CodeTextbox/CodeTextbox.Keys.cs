@@ -570,6 +570,8 @@ namespace ajkControls.CodeTextbox
             //{
             //    Refresh();
             //}
+
+            Update(); // redraw invalidate area
         }
 
     }

@@ -305,11 +305,14 @@ namespace ajkControls.CodeTextbox
             }
         }
 
-        private Document document;
-        public Document Document
+
+
+        protected Document document;
+        public virtual Document Document
         {
             get
             {
+                if (document == null || document.IsDisposed) return null;
                 return document;
             }
             set
@@ -324,6 +327,7 @@ namespace ajkControls.CodeTextbox
                 {
                     document.Replaced = hilightUpdateWhenDocReplaced;
                 }
+                actualLineNumbers = new int[] { };
                 UpdateVScrollBarRange();
                 caretChanged();
                 scrollToCaret();
