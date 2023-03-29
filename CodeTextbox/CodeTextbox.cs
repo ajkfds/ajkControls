@@ -320,6 +320,7 @@ namespace ajkControls.CodeTextbox
                 if (document == value) return;
                 if (document != null)
                 {
+                    ClearHighlight();
                     document.Replaced = null;
                 }
                 document = value;

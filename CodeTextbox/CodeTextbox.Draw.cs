@@ -282,6 +282,7 @@ namespace ajkControls.CodeTextbox
 
             while (y < 0)
             {
+                if (document.Lines >= line) break;
                 if (!document.IsVisibleLine(line)) // skip invisible lines
                 {
                 }
