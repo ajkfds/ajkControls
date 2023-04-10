@@ -414,6 +414,7 @@ namespace ajkControls.CodeTextbox
 
         public void SetMarkAt(int index, byte value)
         {
+            if (index >= Length) return;
             marks[index] |= (byte)(1<<value);
         }
 
