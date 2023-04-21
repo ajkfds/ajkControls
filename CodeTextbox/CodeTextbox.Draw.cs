@@ -505,7 +505,7 @@ namespace ajkControls.CodeTextbox
                         // mark
                         if (document.GetMarkAt(i) != 0)
                         {
-                            for (int mark = 0; mark < 8; mark++)
+                            for (int mark = 7; mark >= 0 ; mark--)
                             {
                                 //if ((document.GetMarkAt(i) & (1 << mark)) != 0) drawMarkGdi(hDC, x, y, mark);
                                 if ((document.GetMarkAt(i) & (1 << mark)) != 0)
