@@ -135,7 +135,7 @@ namespace ajkControls
             node.Depth = depth;
             orderedNode.Add(node);
             index++;
-            if (node.Exanded == false) return;
+            if (node.IsExpanded == false) return;
             depth++;
             foreach (TreeNode subNode in node.TreeNodes)
             {
@@ -192,7 +192,7 @@ namespace ajkControls
                 int x = node.Depth * lineHeight-hScrollBar.Value;
                 if(node.TreeNodes.Count != 0)
                 {
-                    if (node.Exanded)
+                    if (node.IsExpanded)
                     {
                         e.Graphics.DrawImage(minusIcon.GetImage(lineHeight, IconImage.ColorStyle.White), new Point(x, y));
                     }
@@ -263,12 +263,21 @@ namespace ajkControls
             if (selectedNode != node)
             {
                 selectedNode = node;
-                if (SelectedNodeChanged != null) SelectedNodeChanged(this,node);
+                if (SelectedNodeChanged != null) SelectedNodeChanged(this, node);
             }
-            if(leftArea && node.TreeNodes.Count != 0)
+            if (leftArea && node.TreeNodes.Count != 0)
             {
-                node.Exanded = !node.Exanded;
+                node.IsExpanded = !node.IsExpanded;
+                if (node.IsExpanded)
+                {
+                    node.Expanded();
+                }
+                else
+                {
+                    node.Collapsed();
+                }
             }
+            node.Selected();
             OnNodeClicked(new NodeClickedEventArgs(e, node));
             Refresh();
         }
@@ -294,16 +303,18 @@ namespace ajkControls
             switch (e.KeyCode)
             {
                 case Keys.Left:
-                    if (selectedNode.Exanded)
+                    if (selectedNode.IsExpanded)
                     {
-                        selectedNode.Exanded = false;
+                        selectedNode.IsExpanded = false;
+                        selectedNode.Expanded();
                         Refresh();
                     }
                     break;
                 case Keys.Right:
-                    if (!selectedNode.Exanded && selectedNode.TreeNodes.Count != 0)
+                    if (!selectedNode.IsExpanded && selectedNode.TreeNodes.Count != 0)
                     {
-                        selectedNode.Exanded = true;
+                        selectedNode.IsExpanded = true;
+                        selectedNode.Collapsed();
                         Refresh();
                     }
                     break;

@@ -20,7 +20,7 @@ namespace ajkControls
         private static IconImage closeFolderIcon = new IconImage(Properties.Resources.folder);
         public override void DrawNode(Graphics graphics, int x, int y, Font font, Color color, Color backgroundColor, Color selectedColor, int lineHeight, bool selected)
         {
-            if(Exanded)
+            if(IsExpanded)
             {
                 graphics.DrawImage(openFolderIcon.GetImage(lineHeight, IconImage.ColorStyle.Original), new Point(x, y));
             }

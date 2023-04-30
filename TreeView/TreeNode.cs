@@ -10,9 +10,24 @@ namespace ajkControls
     public class TreeNode
     {
         public List<TreeNode> TreeNodes = new List<TreeNode>();
-        public bool Exanded { get; set; }
+        public bool IsExpanded { get; set; }
 
         public virtual string Text { get; set; }
+
+        public virtual void Expanded()
+        {
+
+        }
+
+        public virtual void Collapsed()
+        {
+
+        }
+
+        public virtual void Selected()
+        {
+
+        }
 
         internal int Index { get; set; }
         internal int Depth { get; set; }
