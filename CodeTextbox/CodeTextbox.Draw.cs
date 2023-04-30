@@ -251,7 +251,7 @@ namespace ajkControls.CodeTextbox
 
         private void drawChars(GraWin graphics, Rectangle clipRect)
         {
-            sw.Reset();
+            //sw.Reset();
 
             StringBuilder sb = new StringBuilder(256);
             WinApi.SetBkMode(graphics.DC, 1);
@@ -580,8 +580,8 @@ namespace ajkControls.CodeTextbox
             WinApi.DeleteObject((IntPtr)WinApi.SelectObject(graphics.DC, hOldFont));
             //g.ReleaseHdc(hDC);
 
-            sw.Stop();
-            System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
+            //sw.Stop();
+            //System.Diagnostics.Debug.Print("draw : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
 
         }
 
