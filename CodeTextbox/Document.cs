@@ -577,6 +577,7 @@ namespace ajkControls.CodeTextbox
                 if (blockStartIndexs[i] > index + replaceLength)
                 {
                     blockStartIndexs[i] = blockStartIndexs[i] - replaceLength + array.Length;
+                    blockCashActive = false;
                 }
             }
             visibleLines = visibleLines + changedLine;
