@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.doubleBufferedDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.doubleBufferedDrawBox = new ajkControls.Primitive.DoubleBufferedDrawBox();
             this.SuspendLayout();
             // 
             // doubleBufferedDrawBox
@@ -51,6 +51,6 @@
 
         #endregion
 
-        private DoubleBufferedDrawBox doubleBufferedDrawBox;
+        private ajkControls.Primitive.DoubleBufferedDrawBox doubleBufferedDrawBox;
     }
 }

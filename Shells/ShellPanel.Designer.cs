@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.logView = new ajkControls.LogView();
+            this.logView = new ajkControls.LogView.LogView();
             this.textBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
@@ -71,7 +71,7 @@
 
         #endregion
 
-        private LogView logView;
+        private LogView.LogView logView;
         private System.Windows.Forms.TextBox textBox;
     }
 }

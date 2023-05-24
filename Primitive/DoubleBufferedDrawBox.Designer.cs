@@ -1,4 +1,4 @@
-﻿namespace ajkControls
+﻿namespace ajkControls.Primitive
 {
     partial class DoubleBufferedDrawBox
     {

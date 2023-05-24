@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace ajkControls
+namespace ajkControls.Primitive
 {
 	/// <summary>
 	/// Specifies type of text data.

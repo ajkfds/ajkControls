@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections;
 
-namespace ajkControls
+namespace ajkControls.ColorLabel
 {
     public partial class ColorLabelList : UserControl, IEnumerable<ColorLabel>
     {
@@ -43,7 +43,7 @@ namespace ajkControls
             }
         }
 
-        private List<ColorLabel> labels = new List<ajkControls.ColorLabel>();
+        private List<ColorLabel> labels = new List<ajkControls.ColorLabel.ColorLabel>();
 
         public void Clear()
         {

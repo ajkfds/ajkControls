@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace ajkControls
+namespace ajkControls.SelectionForm
 {
-    public class SelectionItem : TreeNode
+    public class SelectionItem : TreeView.TreeNode
     {
         public SelectionItem(string text, Color color)
         {
             this.Text = text;
             this.Color = color;
         }
-        public SelectionItem(string text, Color color, ajkControls.IconImage icon, ajkControls.IconImage.ColorStyle iconColorStyle)
+        public SelectionItem(string text, Color color, ajkControls.Primitive.IconImage icon, ajkControls.Primitive.IconImage.ColorStyle iconColorStyle)
         {
             this.Text = text;
             this.Color = color;
@@ -22,8 +22,8 @@ namespace ajkControls
             this.iconColorStyle = iconColorStyle;
         }
 
-        private ajkControls.IconImage icon = null;
-        private ajkControls.IconImage.ColorStyle iconColorStyle;
+        private ajkControls.Primitive.IconImage icon = null;
+        private ajkControls.Primitive.IconImage.ColorStyle iconColorStyle;
 
         private Color Color;
 

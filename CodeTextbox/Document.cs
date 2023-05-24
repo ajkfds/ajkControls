@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ajkControls.Primitive;
 
 namespace ajkControls.CodeTextbox
 {
@@ -105,11 +106,11 @@ namespace ajkControls.CodeTextbox
         public Action<int, int, byte, string> Replaced;
 
 
-        ResizableArray<char> chars;
-        ResizableArray<byte> colors;
-        ResizableArray<byte> marks;
-        ResizableArray<int> newLineIndex;
-        ResizableArray<bool> lineVisible;
+        Primitive.ResizableArray<char> chars;
+        Primitive.ResizableArray<byte> colors;
+        Primitive.ResizableArray<byte> marks;
+        Primitive.ResizableArray<int> newLineIndex;
+        Primitive.ResizableArray<bool> lineVisible;
         private int visibleLines = 0;
         List<int> collapsedLines = new List<int>();
 

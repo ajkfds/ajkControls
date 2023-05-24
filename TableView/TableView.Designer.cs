@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
-            this.doubleBufferedDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.doubleBufferedDrawBox = new ajkControls.Primitive.DoubleBufferedDrawBox();
             this.SuspendLayout();
             // 
             // vScrollBar
@@ -49,7 +49,7 @@
             this.doubleBufferedDrawBox.Name = "doubleBufferedDrawBox";
             this.doubleBufferedDrawBox.Size = new System.Drawing.Size(613, 606);
             this.doubleBufferedDrawBox.TabIndex = 1;
-            this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.DoubleBufferedDrawBox_DoubleBufferedPaint);
+            this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.Primitive.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.DoubleBufferedDrawBox_DoubleBufferedPaint);
             this.doubleBufferedDrawBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.DoubleBufferedDrawBox_MouseMove);
             this.doubleBufferedDrawBox.Resize += new System.EventHandler(this.DoubleBufferedDrawBox_Resize);
             // 
@@ -68,6 +68,6 @@
         #endregion
 
         private System.Windows.Forms.VScrollBar vScrollBar;
-        private DoubleBufferedDrawBox doubleBufferedDrawBox;
+        private ajkControls.Primitive.DoubleBufferedDrawBox doubleBufferedDrawBox;
     }
 }

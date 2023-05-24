@@ -1,4 +1,4 @@
-﻿namespace ajkControls
+﻿namespace ajkControls.TextView
 {
     partial class TextView
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dBDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.dBDrawBox = new ajkControls.Primitive.DoubleBufferedDrawBox();
             this.SuspendLayout();
             // 
             // dBDrawBox
@@ -38,7 +38,7 @@
             this.dBDrawBox.Name = "dBDrawBox";
             this.dBDrawBox.Size = new System.Drawing.Size(505, 475);
             this.dBDrawBox.TabIndex = 0;
-            this.dBDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dBDrawBox_DoubleBufferedPaint);
+            this.dBDrawBox.DoubleBufferedPaint += new ajkControls.Primitive.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dBDrawBox_DoubleBufferedPaint);
             // 
             // TextView
             // 
@@ -53,6 +53,6 @@
 
         #endregion
 
-        private DoubleBufferedDrawBox dBDrawBox;
+        private Primitive.DoubleBufferedDrawBox dBDrawBox;
     }
 }

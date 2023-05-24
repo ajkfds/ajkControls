@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace ajkControls
+namespace ajkControls.ColorLabel
 {
     public class ColorLabel : IDisposable
     {
@@ -64,13 +64,13 @@ namespace ajkControls
         }
         public class labelIconImage : labelItem
         {
-            public labelIconImage(IconImage iconImage,IconImage.ColorStyle colorStyle)
+            public labelIconImage(Primitive.IconImage iconImage, Primitive.IconImage.ColorStyle colorStyle)
             {
                 this.IconImage = iconImage;
                 this.ColorStyle = colorStyle;
             }
-            public IconImage IconImage;
-            public IconImage.ColorStyle ColorStyle;
+            public Primitive.IconImage IconImage;
+            public Primitive.IconImage.ColorStyle ColorStyle;
 
             public Size GetSize(int height)
             {
@@ -158,7 +158,7 @@ namespace ajkControls
             if (!text.EndsWith("\n") && lines.Length != 0) items.Remove(items.Last());
         }
 
-        public void AppendIconImage(IconImage iconImage,IconImage.ColorStyle colorStyle)
+        public void AppendIconImage(Primitive.IconImage iconImage, Primitive.IconImage.ColorStyle colorStyle)
         {
             items.Add(new labelIconImage(iconImage,colorStyle));
             

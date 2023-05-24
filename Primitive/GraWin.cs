@@ -8,7 +8,7 @@ using Control = System.Windows.Forms.Control;
 using SystemInformation = System.Windows.Forms.SystemInformation;
 using Marshal = System.Runtime.InteropServices.Marshal;
 
-namespace ajkControls
+namespace ajkControls.Primitive
 {
 	public class GraWin
 	{
@@ -31,17 +31,17 @@ namespace ajkControls
 		public GraWin(IntPtr hWnd, FontInfo fontInfo)
 		{
 			_Window = hWnd;
-			_DC = WinApi.GetDC(_Window);
+			_DC = Primitive.WinApi.GetDC(_Window);
 			FontInfo = fontInfo;
 		}
 
 		public void Dispose()
 		{
-			WinApi.SelectObject(_MemDC, _OrgMemBmp);
+			Primitive.WinApi.SelectObject(_MemDC, _OrgMemBmp);
 
 			// release DC
-			WinApi.ReleaseDC(_Window, _DC);
-			WinApi.DeleteDC(_MemDC);
+			Primitive.WinApi.ReleaseDC(_Window, _DC);
+			Primitive.WinApi.DeleteDC(_MemDC);
 
 			// free objects lastly used
 			Utl.SafeDeleteObject(_Pen);
@@ -60,11 +60,11 @@ namespace ajkControls
 		{
 
 			// create offscreen from the window DC
-			_MemDC = WinApi.CreateCompatibleDC(_DC);
-			_MemBmp = WinApi.CreateCompatibleBitmap(_DC, paintRect.Width, paintRect.Height);
+			_MemDC = Primitive.WinApi.CreateCompatibleDC(_DC);
+			_MemBmp = Primitive.WinApi.CreateCompatibleBitmap(_DC, paintRect.Width, paintRect.Height);
 			_Offset = paintRect.Location;
 			_MemDcSize = paintRect.Size;
-			_OrgMemBmp = WinApi.SelectObject(_MemDC, _MemBmp);
+			_OrgMemBmp = Primitive.WinApi.SelectObject(_MemDC, _MemBmp);
 		}
 
 		/// <summary>
@@ -75,13 +75,13 @@ namespace ajkControls
 			const uint SRCCOPY = 0x00CC0020;
 
 			// flush cached graphic update
-			WinApi.BitBlt(_DC, _Offset.X, _Offset.Y, _MemDcSize.Width, _MemDcSize.Height,
+			Primitive.WinApi.BitBlt(_DC, _Offset.X, _Offset.Y, _MemDcSize.Width, _MemDcSize.Height,
 				_MemDC, 0, 0, SRCCOPY);
 			RemoveClipRect();
 
 			// dispose resources used in off-screen rendering
-			WinApi.SelectObject(_MemDC, _OrgMemBmp);
-			WinApi.DeleteDC(_MemDC);
+			Primitive.WinApi.SelectObject(_MemDC, _OrgMemBmp);
+			Primitive.WinApi.DeleteDC(_MemDC);
 			_MemDC = IntPtr.Zero;
 			Utl.SafeDeleteObject(_MemBmp);
 			_MemBmp = IntPtr.Zero;
@@ -106,9 +106,9 @@ namespace ajkControls
 				// create font handle from Font instance of .NET
 				unsafe
 				{
-					WinApi.LOGFONTW logicalFont;
+					Primitive.WinApi.LOGFONTW logicalFont;
 
-					WinApi.CreateLogFont(IntPtr.Zero, value, out logicalFont);
+					Primitive.WinApi.CreateLogFont(IntPtr.Zero, value, out logicalFont);
 
 					//// apply anti-alias method that user prefered
 					//if (UserPref.Antialias == Antialias.None)
@@ -118,7 +118,7 @@ namespace ajkControls
 					//else if (UserPref.Antialias == Antialias.Subpixel)
 					//	logicalFont.quality = 5; // CLEARTYPE_QUALITY
 
-					_Font = WinApi.CreateFontIndirectW(&logicalFont);
+					_Font = Primitive.WinApi.CreateFontIndirectW(&logicalFont);
 				}
 			}
 		}
@@ -140,7 +140,7 @@ namespace ajkControls
 			{
 				Utl.SafeDeleteObject(_Pen);
 				_ForeColor = (value.R) | (value.G << 8) | (value.B << 16);
-				_Pen = WinApi.CreatePen(0, 1, _ForeColor);
+				_Pen = Primitive.WinApi.CreatePen(0, 1, _ForeColor);
 			}
 		}
 
@@ -153,7 +153,7 @@ namespace ajkControls
 			{
 				Utl.SafeDeleteObject(_Brush);
 				int colorRef = (value.R) | (value.G << 8) | (value.B << 16);
-				_Brush = WinApi.CreateSolidBrush(colorRef);
+				_Brush = Primitive.WinApi.CreateSolidBrush(colorRef);
 			}
 		}
 
@@ -165,16 +165,16 @@ namespace ajkControls
 			unsafe
 			{
 				// make RECT structure
-				WinApi.RECT r = new WinApi.RECT();
+				Primitive.WinApi.RECT r = new Primitive.WinApi.RECT();
 				r.left = clipRect.X - _Offset.X;
 				r.top = clipRect.Y - _Offset.Y;
 				r.right = r.left + clipRect.Width;
 				r.bottom = r.top + clipRect.Height;
 
 				// create rectangle region and select it as a clipping region
-				IntPtr clipRegion = WinApi.CreateRectRgnIndirect(&r);
-				WinApi.SelectClipRgn(DC, clipRegion);
-				WinApi.DeleteObject(clipRegion); // SelectClipRgn copies given region thus we can delete this
+				IntPtr clipRegion = Primitive.WinApi.CreateRectRgnIndirect(&r);
+				Primitive.WinApi.SelectClipRgn(DC, clipRegion);
+				Primitive.WinApi.DeleteObject(clipRegion); // SelectClipRgn copies given region thus we can delete this
 			}
 		}
 
@@ -183,7 +183,7 @@ namespace ajkControls
 		/// </summary>
 		public void RemoveClipRect()
 		{
-			WinApi.SelectClipRgn(DC, IntPtr.Zero);
+			Primitive.WinApi.SelectClipRgn(DC, IntPtr.Zero);
 		}
 		#endregion
 
@@ -202,15 +202,15 @@ namespace ajkControls
 			y = position.Y - _Offset.Y;
 
 			newFont = _Font;
-			oldFont = WinApi.SelectObject(DC, newFont);
-			oldForeColor = WinApi.SetTextColor(DC, foreColor);
+			oldFont = Primitive.WinApi.SelectObject(DC, newFont);
+			oldForeColor = Primitive.WinApi.SetTextColor(DC, foreColor);
 
-			WinApi.SetTextAlign(DC, false);
-			WinApi.SetBkMode(DC, TRANSPARENT);
-			WinApi.ExtTextOut(DC, x, y, 0, text);
+			Primitive.WinApi.SetTextAlign(DC, false);
+			Primitive.WinApi.SetBkMode(DC, TRANSPARENT);
+			Primitive.WinApi.ExtTextOut(DC, x, y, 0, text);
 
-			WinApi.SetTextColor(DC, oldForeColor);
-			WinApi.SelectObject(DC, oldFont);
+			Primitive.WinApi.SetTextColor(DC, oldForeColor);
+			Primitive.WinApi.SelectObject(DC, oldFont);
 		}
 
 		/// <summary>
@@ -237,10 +237,10 @@ namespace ajkControls
 			Size size;
 			int[] extents = new int[text.Length];
 
-			oldFont = WinApi.SelectObject(DC, _Font); // measuring do not need to be done in offscreen buffer.
+			oldFont = Primitive.WinApi.SelectObject(DC, _Font); // measuring do not need to be done in offscreen buffer.
 
 			// calculate width of given text and graphical distance from left end to where the each char is at
-			size = WinApi.GetTextExtent(DC, text, text.Length, clipWidth, out drawableLength, out extents);
+			size = Primitive.WinApi.GetTextExtent(DC, text, text.Length, clipWidth, out drawableLength, out extents);
 
 			// calculate width of the drawable part
 			if (drawableLength == 0)
@@ -271,7 +271,7 @@ namespace ajkControls
 			//	while (Document.IsNotDividableIndex(text, drawableLength));
 			//}
 
-			WinApi.SelectObject(DC, oldFont);
+			Primitive.WinApi.SelectObject(DC, oldFont);
 
 			return size;
 		}
@@ -291,13 +291,13 @@ namespace ajkControls
 			toX -= _Offset.X;
 			toY -= _Offset.Y;
 
-			oldPen = WinApi.SelectObject(DC, _Pen);
+			oldPen = Primitive.WinApi.SelectObject(DC, _Pen);
 
-			WinApi.MoveToEx(DC, fromX, fromY, IntPtr.Zero);
-			WinApi.LineTo(DC, toX, toY);
-			WinApi.SetPixel(DC, toX, toY, _ForeColor);
+			Primitive.WinApi.MoveToEx(DC, fromX, fromY, IntPtr.Zero);
+			Primitive.WinApi.LineTo(DC, toX, toY);
+			Primitive.WinApi.SetPixel(DC, toX, toY, _ForeColor);
 
-			WinApi.SelectObject(DC, oldPen);
+			Primitive.WinApi.SelectObject(DC, oldPen);
 		}
 
 		/// <summary>
@@ -313,21 +313,21 @@ namespace ajkControls
 
 			unsafe
 			{
-				WinApi.POINT[] points = new WinApi.POINT[5];
-				points[0] = new WinApi.POINT(x, y);
-				points[1] = new WinApi.POINT(x + width, y);
-				points[2] = new WinApi.POINT(x + width, y + height);
-				points[3] = new WinApi.POINT(x, y + height);
-				points[4] = new WinApi.POINT(x, y);
+				Primitive.WinApi.POINT[] points = new Primitive.WinApi.POINT[5];
+				points[0] = new Primitive.WinApi.POINT(x, y);
+				points[1] = new Primitive.WinApi.POINT(x + width, y);
+				points[2] = new Primitive.WinApi.POINT(x + width, y + height);
+				points[3] = new Primitive.WinApi.POINT(x, y + height);
+				points[4] = new Primitive.WinApi.POINT(x, y);
 
-				oldPen = WinApi.SelectObject(DC, _Pen);
+				oldPen = Primitive.WinApi.SelectObject(DC, _Pen);
 
-				fixed (WinApi.POINT* p = points)
+				fixed (Primitive.WinApi.POINT* p = points)
 				{
-					WinApi.Polyline(DC, p, 5);
+					Primitive.WinApi.Polyline(DC, p, 5);
 				}
 
-				WinApi.SelectObject(DC, oldPen);
+				Primitive.WinApi.SelectObject(DC, oldPen);
 			}
 		}
 
@@ -342,17 +342,17 @@ namespace ajkControls
 			x -= _Offset.X;
 			y -= _Offset.Y;
 
-			oldPen = WinApi.SelectObject(DC, NullPen);
-			oldBrush = WinApi.SelectObject(DC, _Brush);
+			oldPen = Primitive.WinApi.SelectObject(DC, NullPen);
+			oldBrush = Primitive.WinApi.SelectObject(DC, _Brush);
 
 #if !PocketPC
-			WinApi.Rectangle(DC, x, y, x + width + 1, y + height + 1);
+			Primitive.WinApi.Rectangle(DC, x, y, x + width + 1, y + height + 1);
 #else
-			WinApi.Rectangle( DC, x, y, x+width, y+height );
+			Primitive.WinApi.Rectangle( DC, x, y, x+width, y+height );
 #endif
 
-			WinApi.SelectObject(DC, oldPen);
-			WinApi.SelectObject(DC, oldBrush);
+			Primitive.WinApi.SelectObject(DC, oldPen);
+			Primitive.WinApi.SelectObject(DC, oldBrush);
 		}
 		#endregion
 
@@ -364,7 +364,7 @@ namespace ajkControls
 				const int PS_NULL = 5;
 				if (_NullPen == IntPtr.Zero)
 				{
-					_NullPen = WinApi.CreatePen(PS_NULL, 0, 0);
+					_NullPen = Primitive.WinApi.CreatePen(PS_NULL, 0, 0);
 				}
 				return _NullPen;
 			}
@@ -387,7 +387,7 @@ namespace ajkControls
 			{
 				if (gdiObj != IntPtr.Zero)
 				{
-					WinApi.DeleteObject(gdiObj);
+					Primitive.WinApi.DeleteObject(gdiObj);
 				}
 			}
 		}

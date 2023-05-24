@@ -1,4 +1,4 @@
-﻿namespace ajkControls
+﻿namespace ajkControls.SelectionForm
 {
     partial class SelectionForm
     {
@@ -30,7 +30,7 @@
         {
             ajkControls.CodeTextbox.CodeDrawStyle codeDrawStyle1 = new ajkControls.CodeTextbox.CodeDrawStyle();
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
-            this.doubleBufferedDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.doubleBufferedDrawBox = new ajkControls.Primitive.DoubleBufferedDrawBox();
             this.codeTextbox = new ajkControls.CodeTextbox.CodeTextbox();
             this.SuspendLayout();
             // 
@@ -50,7 +50,7 @@
             this.doubleBufferedDrawBox.Name = "doubleBufferedDrawBox";
             this.doubleBufferedDrawBox.Size = new System.Drawing.Size(257, 387);
             this.doubleBufferedDrawBox.TabIndex = 2;
-            this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.doubleBufferedDrawBox_DoubleBufferedPaint);
+            this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.Primitive.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.doubleBufferedDrawBox_DoubleBufferedPaint);
             // 
             // codeTextbox
             // 
@@ -93,6 +93,6 @@
 
         private CodeTextbox.CodeTextbox codeTextbox;
         private System.Windows.Forms.VScrollBar vScrollBar;
-        private DoubleBufferedDrawBox doubleBufferedDrawBox;
+        private Primitive.DoubleBufferedDrawBox doubleBufferedDrawBox;
     }
 }

@@ -1,4 +1,4 @@
-﻿// file: WinApi.cs
+﻿// file: Primitive.WinApi.cs
 // brief: Sgry's Win32API glues.
 //=========================================================
 using System;
@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Debug = System.Diagnostics.Debug;
 
-namespace ajkControls
+namespace ajkControls.Primitive
 {
 	using System;
 	using System.Collections.Generic;
@@ -722,7 +722,7 @@ namespace ajkControls
 				fixed (int* pExtents = extents)
 				fixed (int* pFitLength = &fitLength)
 					bOk = GetTextExtentExPointW(hdc, text, textLen, maxWidth, pFitLength, pExtents, &size);
-				Debug.Assert(bOk != 0, "failed to calculate text width (LE:" + WinApi.GetLastError() + ")");
+				Debug.Assert(bOk != 0, "failed to calculate text width (LE:" + Primitive.WinApi.GetLastError() + ")");
 				return new Size(size.width, size.height);
 			}
 		}

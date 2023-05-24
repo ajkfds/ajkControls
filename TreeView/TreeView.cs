@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ajkControls.Primitive;
 
-namespace ajkControls
+namespace ajkControls.TreeView
 {
     public partial class TreeView : UserControl
     {

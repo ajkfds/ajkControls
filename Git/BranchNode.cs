@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using ajkControls.Primitive;
 
 namespace ajkControls.Git
 {
-    public class BranchNode : TreeNode
+    public class BranchNode : ajkControls.TreeView.TreeNode
     {
         public BranchNode(string text)
         {

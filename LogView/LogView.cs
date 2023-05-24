@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ajkControls
+namespace ajkControls.LogView
 {
     public partial class LogView : UserControl
     {

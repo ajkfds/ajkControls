@@ -11,7 +11,7 @@ using Control = System.Windows.Forms.Control;
 using SystemInformation = System.Windows.Forms.SystemInformation;
 using Marshal = System.Runtime.InteropServices.Marshal;
 
-namespace ajkControls
+namespace ajkControls.Primitive
 {
 	/// <summary>
 	/// Platform API for Windows.
@@ -21,22 +21,22 @@ namespace ajkControls
 		#region Fields
 		const string LineSelectClipFormatName = "MSDEVLineSelect";
 		const string RectSelectClipFormatName = "MSDEVColumnSelect";
-		UInt32 _CF_LINEOBJECT = WinApi.CF_PRIVATEFIRST + 1;
-		UInt32 _CF_RECTSELECT = WinApi.CF_PRIVATEFIRST + 2;
+		UInt32 _CF_LINEOBJECT = Primitive.WinApi.CF_PRIVATEFIRST + 1;
+		UInt32 _CF_RECTSELECT = Primitive.WinApi.CF_PRIVATEFIRST + 2;
 		#endregion
 
 		#region Init / Dispose
 		public PlatWin()
 		{
-			_CF_LINEOBJECT = WinApi.RegisterClipboardFormatW(LineSelectClipFormatName);
-			_CF_RECTSELECT = WinApi.RegisterClipboardFormatW(RectSelectClipFormatName);
+			_CF_LINEOBJECT = Primitive.WinApi.RegisterClipboardFormatW(LineSelectClipFormatName);
+			_CF_RECTSELECT = Primitive.WinApi.RegisterClipboardFormatW(RectSelectClipFormatName);
 		}
 		#endregion
 
 		#region UI Notification
 		public void MessageBeep()
 		{
-			WinApi.MessageBeep(0);
+			Primitive.WinApi.MessageBeep(0);
 		}
 		#endregion
 
@@ -68,7 +68,7 @@ namespace ajkControls
 			try
 			{
 				// open clipboard
-				rc = WinApi.OpenClipboard(IntPtr.Zero);
+				rc = Primitive.WinApi.OpenClipboard(IntPtr.Zero);
 				if (rc == 0)
 				{
 					return null;
@@ -76,23 +76,23 @@ namespace ajkControls
 				clipboardOpened = true;
 
 				// distinguish type of data in the clipboard
-				if (WinApi.IsClipboardFormatAvailable(_CF_LINEOBJECT) != 0)
+				if (Primitive.WinApi.IsClipboardFormatAvailable(_CF_LINEOBJECT) != 0)
 				{
-					formatID = WinApi.CF_UNICODETEXT;
+					formatID = Primitive.WinApi.CF_UNICODETEXT;
 					dataType = TextDataType.Line;
 				}
-				else if (WinApi.IsClipboardFormatAvailable(_CF_RECTSELECT) != 0)
+				else if (Primitive.WinApi.IsClipboardFormatAvailable(_CF_RECTSELECT) != 0)
 				{
-					formatID = WinApi.CF_UNICODETEXT;
+					formatID = Primitive.WinApi.CF_UNICODETEXT;
 					dataType = TextDataType.Rectangle;
 				}
-				else if (WinApi.IsClipboardFormatAvailable(WinApi.CF_UNICODETEXT) != 0)
+				else if (Primitive.WinApi.IsClipboardFormatAvailable(Primitive.WinApi.CF_UNICODETEXT) != 0)
 				{
-					formatID = WinApi.CF_UNICODETEXT;
+					formatID = Primitive.WinApi.CF_UNICODETEXT;
 				}
-				else if (WinApi.IsClipboardFormatAvailable(WinApi.CF_TEXT) != 0)
+				else if (Primitive.WinApi.IsClipboardFormatAvailable(Primitive.WinApi.CF_TEXT) != 0)
 				{
-					formatID = WinApi.CF_TEXT;
+					formatID = Primitive.WinApi.CF_TEXT;
 				}
 				if (formatID == UInt32.MaxValue)
 				{
@@ -100,7 +100,7 @@ namespace ajkControls
 				}
 
 				// get handle of the clipboard data
-				dataHandle = WinApi.GetClipboardData(formatID);
+				dataHandle = Primitive.WinApi.GetClipboardData(formatID);
 				if (dataHandle == IntPtr.Zero)
 				{
 					return null;
@@ -114,7 +114,7 @@ namespace ajkControls
 				}
 
 				// retrieve data
-				if (formatID == WinApi.CF_TEXT)
+				if (formatID == Primitive.WinApi.CF_TEXT)
 					data = Utl.MyPtrToStringAnsi(dataPtr);
 				else
 					data = Marshal.PtrToStringUni(dataPtr);
@@ -128,7 +128,7 @@ namespace ajkControls
 				}
 				if (clipboardOpened)
 				{
-					WinApi.CloseClipboard();
+					Primitive.WinApi.CloseClipboard();
 				}
 			}
 
@@ -158,7 +158,7 @@ namespace ajkControls
 			try
 			{
 				// open clipboard
-				rc = WinApi.OpenClipboard(IntPtr.Zero);
+				rc = Primitive.WinApi.OpenClipboard(IntPtr.Zero);
 				if (rc == 0)
 				{
 					return;
@@ -166,31 +166,31 @@ namespace ajkControls
 				clipboardOpened = true;
 
 				// clear clipboard first
-				WinApi.EmptyClipboard();
+				Primitive.WinApi.EmptyClipboard();
 
 				// set normal text data
 				dataHdl = Utl.MyStringToHGlobalUni(text);
-				WinApi.SetClipboardData(WinApi.CF_UNICODETEXT, dataHdl);
+				Primitive.WinApi.SetClipboardData(Primitive.WinApi.CF_UNICODETEXT, dataHdl);
 
 				// set addional text data
 				if (dataType == TextDataType.Line)
 				{
 					// allocate dummy text (this is needed for PocketPC)
 					dataHdl = Utl.MyStringToHGlobalUni("");
-					WinApi.SetClipboardData(_CF_LINEOBJECT, dataHdl);
+					Primitive.WinApi.SetClipboardData(_CF_LINEOBJECT, dataHdl);
 				}
 				else if (dataType == TextDataType.Rectangle)
 				{
 					// allocate dummy text (this is needed for PocketPC)
 					dataHdl = Utl.MyStringToHGlobalUni("");
-					WinApi.SetClipboardData(_CF_RECTSELECT, dataHdl);
+					Primitive.WinApi.SetClipboardData(_CF_RECTSELECT, dataHdl);
 				}
 			}
 			finally
 			{
 				if (clipboardOpened)
 				{
-					WinApi.CloseClipboard();
+					Primitive.WinApi.CloseClipboard();
 				}
 			}
 		}
@@ -246,7 +246,7 @@ namespace ajkControls
 			public static IntPtr MyGlobalLock(IntPtr handle)
 			{
 #if !PocketPC
-				return WinApi.GlobalLock(handle);
+				return Primitive.WinApi.GlobalLock(handle);
 #else
 				return handle;
 #endif
@@ -255,7 +255,7 @@ namespace ajkControls
 			public static void MyGlobalUnlock(IntPtr handle)
 			{
 #if !PocketPC
-				WinApi.GlobalUnlock(handle);
+				Primitive.WinApi.GlobalUnlock(handle);
 #else
 				// do nothing
 #endif

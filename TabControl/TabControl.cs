@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using ajkControls.Primitive;
 
-namespace ajkControls
+namespace ajkControls.TabControl
 {
     public class TabControl : System.Windows.Forms.TabControl
     {
@@ -81,7 +82,7 @@ namespace ajkControls
                 return;
 
             System.Windows.Forms.TabPage page = this.TabPages[this.SelectedIndex];
-            ajkControls.TabPage tabPage = page as ajkControls.TabPage;
+            ajkControls.TabControl.TabPage tabPage = page as ajkControls.TabControl.TabPage;
 
             Rectangle pageRect = new Rectangle(
                 page.Bounds.X - 2,
@@ -94,7 +95,7 @@ namespace ajkControls
             for (int i = 0; i < this.TabPages.Count; i++)
             {
                 page = this.TabPages[i];
-                tabPage = page as ajkControls.TabPage;
+                tabPage = page as ajkControls.TabControl.TabPage;
 
                 Rectangle tabRect = this.GetTabRect(i);
 
@@ -189,7 +190,7 @@ namespace ajkControls
                 if(e.X > tabRect.Left && e.Y > tabRect.Top && e.X < tabRect.Width+tabRect.Left && e.Y < tabRect.Height + tabRect.Top)
                 {
                     System.Windows.Forms.TabPage page = this.TabPages[i];
-                    ajkControls.TabPage tabPage = page as ajkControls.TabPage;
+                    ajkControls.TabControl.TabPage tabPage = page as ajkControls.TabControl.TabPage;
                     if (tabPage == null) break;
                     if (!tabPage.CloseButtonEnable) break;
                     if(e.X > tabRect.Left + tabRect.Width - FontHeight)

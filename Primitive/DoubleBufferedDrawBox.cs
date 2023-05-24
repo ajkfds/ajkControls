@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ajkControls
+namespace ajkControls.Primitive
 {
     public partial class DoubleBufferedDrawBox : UserControl
     {

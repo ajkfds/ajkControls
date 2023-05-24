@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace ajkControls
+namespace ajkControls.Primitive
 {
     public class BufferedGraphics
     {
@@ -23,16 +23,16 @@ namespace ajkControls
 		public BufferedGraphics(IntPtr hWnd)
 		{
 			_Window = hWnd;
-			_DC = WinApi.GetDC(_Window);
+			_DC = Primitive.WinApi.GetDC(_Window);
 		}
 
 		public virtual void Dispose()
 		{
-			WinApi.SelectObject(_MemDC, _OrgMemBmp);
+			Primitive.WinApi.SelectObject(_MemDC, _OrgMemBmp);
 
 			// release DC
-			WinApi.ReleaseDC(_Window, _DC);
-			WinApi.DeleteDC(_MemDC);
+			Primitive.WinApi.ReleaseDC(_Window, _DC);
+			Primitive.WinApi.DeleteDC(_MemDC);
 
 			// free objects lastly used
 		}
@@ -47,11 +47,11 @@ namespace ajkControls
 		{
 
 			// create offscreen from the window DC
-			_MemDC = WinApi.CreateCompatibleDC(_DC);
-			_MemBmp = WinApi.CreateCompatibleBitmap(_DC, paintRect.Width, paintRect.Height);
+			_MemDC = Primitive.WinApi.CreateCompatibleDC(_DC);
+			_MemBmp = Primitive.WinApi.CreateCompatibleBitmap(_DC, paintRect.Width, paintRect.Height);
 			Offset = paintRect.Location;
 			_MemDcSize = paintRect.Size;
-			_OrgMemBmp = WinApi.SelectObject(_MemDC, _MemBmp);
+			_OrgMemBmp = Primitive.WinApi.SelectObject(_MemDC, _MemBmp);
 		}
 
 		/// <summary>
@@ -62,13 +62,13 @@ namespace ajkControls
 			const uint SRCCOPY = 0x00CC0020;
 
 			// flush cached graphic update
-			WinApi.BitBlt(_DC, Offset.X, Offset.Y, _MemDcSize.Width, _MemDcSize.Height,
+			Primitive.WinApi.BitBlt(_DC, Offset.X, Offset.Y, _MemDcSize.Width, _MemDcSize.Height,
 				_MemDC, 0, 0, SRCCOPY);
-			WinApi.SelectClipRgn(DC, IntPtr.Zero); // RemoveClipRect
+			Primitive.WinApi.SelectClipRgn(DC, IntPtr.Zero); // RemoveClipRect
 
 			// dispose resources used in off-screen rendering
-			WinApi.SelectObject(_MemDC, _OrgMemBmp);
-			WinApi.DeleteDC(_MemDC);
+			Primitive.WinApi.SelectObject(_MemDC, _OrgMemBmp);
+			Primitive.WinApi.DeleteDC(_MemDC);
 			_MemDC = IntPtr.Zero;
 			safeDeleteObject(_MemBmp);
 			_MemBmp = IntPtr.Zero;
@@ -92,7 +92,7 @@ namespace ajkControls
 		{
 			if (gdiObj != IntPtr.Zero)
 			{
-				WinApi.DeleteObject(gdiObj);
+				Primitive.WinApi.DeleteObject(gdiObj);
 			}
 		}
 	}

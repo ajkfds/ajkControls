@@ -57,7 +57,7 @@ namespace ajkControls.CodeTextbox
         #region Message Handler
 
         IntPtr _OriginalWndProcObj = IntPtr.Zero;
-        WinApi.WNDPROC _CustomWndProcObj = null;
+        Primitive.WinApi.WNDPROC _CustomWndProcObj = null;
 
         protected override void OnHandleCreated(EventArgs e)
         {
@@ -75,15 +75,15 @@ namespace ajkControls.CodeTextbox
 
             // set default value for each scroll bar
             // (setting scroll bar range forces the window to have style of WS_VSCROLL/WS_HSCROLL)
-            //WinApi.SetScrollRange(Handle, false, 0, 1, 1);
-            //WinApi.SetScrollRange(Handle, true, 0, 1, 1);
+            //Primitive.WinApi.SetScrollRange(Handle, false, 0, 1, 1);
+            //Primitive.WinApi.SetScrollRange(Handle, true, 0, 1, 1);
 
             //base.Cursor = Cursors.IBeam;
             //this.Font = base.Font;
             //this.BorderStyle = _BorderStyle;
 
-            //WinApi.CreateCaret(Handle, _CaretSize);
-            //WinApi.SetCaretPos(0, 0);
+            //Primitive.WinApi.CreateCaret(Handle, _CaretSize);
+            //Primitive.WinApi.SetCaretPos(0, 0);
 
             //// calculate scrollbar width
             //using (ScrollBar sb = new VScrollBar())
@@ -95,21 +95,21 @@ namespace ajkControls.CodeTextbox
         {
             const int GWL_WNDPROC = -4;
 
-            _OriginalWndProcObj = WinApi.GetWindowLong(Handle, GWL_WNDPROC);
+            _OriginalWndProcObj = Primitive.WinApi.GetWindowLong(Handle, GWL_WNDPROC);
             if (_CustomWndProcObj == null)
             {
-                _CustomWndProcObj = new WinApi.WNDPROC(this.CustomWndProc);
+                _CustomWndProcObj = new Primitive.WinApi.WNDPROC(this.CustomWndProc);
             }
 
-            WinApi.SetWindowLong(Handle, GWL_WNDPROC, _CustomWndProcObj);
+            Primitive.WinApi.SetWindowLong(Handle, GWL_WNDPROC, _CustomWndProcObj);
         }
 
         //region Custom Window Procedure (handling v/h scroll and paint event etc.)
         IntPtr CustomWndProc(IntPtr window, UInt32 message, IntPtr wParam, IntPtr lParam)
         {
-            if (message == WinApi.WM_PAINT)
+            if (message == Primitive.WinApi.WM_PAINT)
             {
-                WinApi.PAINTSTRUCT ps;
+                Primitive.WinApi.PAINTSTRUCT ps;
 
                 // .NET's Paint event does not inform invalidated region when double buffering was disabled.
                 // In addition to this, Control.SetStyle is not supported in Compact Framework
@@ -117,12 +117,12 @@ namespace ajkControls.CodeTextbox
                 // Therefore painting logic is called here.
                 unsafe
                 {
-                    WinApi.BeginPaint(window, &ps);
+                    Primitive.WinApi.BeginPaint(window, &ps);
 
                     Rectangle rect = new Rectangle(ps.paint.left, ps.paint.top, ps.paint.right - ps.paint.left, ps.paint.bottom - ps.paint.top);
                     draw(rect);
 
-                    WinApi.EndPaint(window, &ps);
+                    Primitive.WinApi.EndPaint(window, &ps);
                 }
 
                 // return zero here to prevent executing original painting logic of Control class.
@@ -130,7 +130,7 @@ namespace ajkControls.CodeTextbox
                 // we will get invalid(?) update region from BeginPaint API in Windows XP or former.)
                 return IntPtr.Zero;
             }
-            return WinApi.CallWindowProc(_OriginalWndProcObj, window, message, wParam, lParam);
+            return Primitive.WinApi.CallWindowProc(_OriginalWndProcObj, window, message, wParam, lParam);
         }
 
         /// <summary>
@@ -367,8 +367,8 @@ namespace ajkControls.CodeTextbox
         // draw image
         private int tabSize = 4;
 
-        private static IconImage plusIcon = new IconImage(Properties.Resources.plus);
-        private static IconImage minusIcon = new IconImage(Properties.Resources.minus);
+        private static Primitive.IconImage plusIcon = new Primitive.IconImage(Properties.Resources.plus);
+        private static Primitive.IconImage minusIcon = new Primitive.IconImage(Properties.Resources.minus);
 
         private int xOffset = 0;
         private int caretX = 0;

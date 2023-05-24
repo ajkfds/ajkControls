@@ -35,9 +35,9 @@
             this.fetchBtn = new System.Windows.Forms.Button();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.tableView = new ajkControls.TableView.TableView();
-            this.logView = new ajkControls.LogView();
+            this.logView = new ajkControls.LogView.LogView();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.treeView = new ajkControls.TreeView();
+            this.treeView = new ajkControls.TreeView.TreeView();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.panel.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -179,13 +179,13 @@
 
         private TableView.TableView tableView;
         private System.Windows.Forms.Button refreshBtn;
-        private LogView logView;
+        private LogView.LogView logView;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel;
         private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.Button fetchBtn;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Splitter splitter2;
-        private TreeView treeView;
+        private ajkControls.TreeView.TreeView treeView;
     }
 }

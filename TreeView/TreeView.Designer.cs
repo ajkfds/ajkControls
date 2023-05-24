@@ -1,4 +1,4 @@
-﻿namespace ajkControls
+﻿namespace ajkControls.TreeView
 {
     partial class TreeView
     {
@@ -30,7 +30,7 @@
         {
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
             this.hScrollBar = new System.Windows.Forms.HScrollBar();
-            this.dbDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.dbDrawBox = new ajkControls.Primitive.DoubleBufferedDrawBox();
             this.SuspendLayout();
             // 
             // vScrollBar
@@ -58,7 +58,7 @@
             this.dbDrawBox.Name = "dbDrawBox";
             this.dbDrawBox.Size = new System.Drawing.Size(336, 540);
             this.dbDrawBox.TabIndex = 2;
-            this.dbDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dBDrawBox_DoubleBufferedPaint);
+            this.dbDrawBox.DoubleBufferedPaint += new ajkControls.Primitive.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dBDrawBox_DoubleBufferedPaint);
             this.dbDrawBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dbDrawBox_KeyDown);
             this.dbDrawBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dbDrawBox_KeyPress);
             this.dbDrawBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dbDrawBox_MouseClick);
@@ -83,6 +83,6 @@
 
         private System.Windows.Forms.VScrollBar vScrollBar;
         private System.Windows.Forms.HScrollBar hScrollBar;
-        private DoubleBufferedDrawBox dbDrawBox;
+        private Primitive.DoubleBufferedDrawBox dbDrawBox;
     }
 }

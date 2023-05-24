@@ -1,4 +1,4 @@
-﻿namespace ajkControls
+﻿namespace ajkControls.ColorLabel
 {
     partial class ColorLabelList
     {
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
-            this.doubleBufferedDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.doubleBufferedDrawBox = new ajkControls.Primitive.DoubleBufferedDrawBox();
             this.SuspendLayout();
             // 
             // vScrollBar
@@ -49,7 +49,7 @@
             this.doubleBufferedDrawBox.Name = "doubleBufferedDrawBox";
             this.doubleBufferedDrawBox.Size = new System.Drawing.Size(593, 497);
             this.doubleBufferedDrawBox.TabIndex = 0;
-            this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.doubleBufferedDrawBox_DoubleBufferedPaint);
+            this.doubleBufferedDrawBox.DoubleBufferedPaint += new ajkControls.Primitive.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.doubleBufferedDrawBox_DoubleBufferedPaint);
             this.doubleBufferedDrawBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.doubleBufferedDrawBox_KeyDown);
             this.doubleBufferedDrawBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.doubleBufferedDrawBox_KeyPress);
             this.doubleBufferedDrawBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.doubleBufferedDrawBox_KeyUp);
@@ -71,7 +71,7 @@
 
         #endregion
 
-        private DoubleBufferedDrawBox doubleBufferedDrawBox;
+        private Primitive.DoubleBufferedDrawBox doubleBufferedDrawBox;
         private System.Windows.Forms.VScrollBar vScrollBar;
     }
 }

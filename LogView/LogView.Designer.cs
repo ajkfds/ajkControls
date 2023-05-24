@@ -1,4 +1,4 @@
-﻿namespace ajkControls
+﻿namespace ajkControls.LogView
 {
     partial class LogView
     {
@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
             this.timer = new System.Windows.Forms.Timer(this.components);
-            this.dbDrawBox = new ajkControls.DoubleBufferedDrawBox();
+            this.dbDrawBox = new ajkControls.Primitive.DoubleBufferedDrawBox();
             this.SuspendLayout();
             // 
             // vScrollBar
@@ -54,7 +54,7 @@
             this.dbDrawBox.Name = "dbDrawBox";
             this.dbDrawBox.Size = new System.Drawing.Size(500, 370);
             this.dbDrawBox.TabIndex = 0;
-            this.dbDrawBox.DoubleBufferedPaint += new ajkControls.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dbDrawBox_DoubleBufferedPaint);
+            this.dbDrawBox.DoubleBufferedPaint += new ajkControls.Primitive.DoubleBufferedDrawBox.DoubleBufferedPaintHandler(this.dbDrawBox_DoubleBufferedPaint);
             this.dbDrawBox.Resize += new System.EventHandler(this.dbDrawBox_Resize);
             // 
             // LogView
@@ -71,7 +71,7 @@
 
         #endregion
 
-        private DoubleBufferedDrawBox dbDrawBox;
+        private ajkControls.Primitive.DoubleBufferedDrawBox dbDrawBox;
         private System.Windows.Forms.VScrollBar vScrollBar;
         private System.Windows.Forms.Timer timer;
     }
