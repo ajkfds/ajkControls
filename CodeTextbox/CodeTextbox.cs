@@ -150,13 +150,13 @@ namespace ajkControls.CodeTextbox
         {
             return true;
 
-            if (keyData == Keys.Right || keyData == Keys.Left ||
-                keyData == Keys.Up || keyData == Keys.Down)
-            {
-                return true;
-            }
+            //if (keyData == Keys.Right || keyData == Keys.Left ||
+            //    keyData == Keys.Up || keyData == Keys.Down)
+            //{
+            //    return true;
+            //}
 
-            return base.IsInputKey(keyData);
+            //return base.IsInputKey(keyData);
         }
 
         public void Cut()
