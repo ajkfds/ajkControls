@@ -53,17 +53,13 @@
     <Compile Include="CodeTextbox\CodeTextbox.Designer.cs">
       <DependentUpon>CodeTextbox.cs</DependentUpon>
     </Compile>
-    <Compile Include="CodeTextbox\CodeTextbox.Draw.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="CodeTextbox\CodeTextbox.Highlight.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="CodeTextbox\CodeTextbox.Mouse.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="CodeTextbox\CodeTextboxGraphics.cs" />
     <Compile Include="CodeTextbox\Document.cs" />
+    <Compile Include="CodeTextbox\DrawCache.cs" />
+    <Compile Include="CodeTextbox\Drawer.cs" />
+    <Compile Include="CodeTextbox\Highlighter.cs" />
+    <Compile Include="CodeTextbox\KeyHandler.cs" />
+    <Compile Include="CodeTextbox\MouseHandler.cs" />
     <Compile Include="ColorLabel\ColorLabel.cs" />
     <Compile Include="ColorLabel\ColorLabelList.cs">
       <SubType>UserControl</SubType>
@@ -201,13 +197,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeTextbox\CodeTextbox.Keys.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="CodeTextbox\CodeTextbox.Properties.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="CodeTextbox\CodeTextbox.Invalidate.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <None Include="Resources\dot.png" />

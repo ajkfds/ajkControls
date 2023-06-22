@@ -39,6 +39,8 @@
             this.hScrollBar.Name = "hScrollBar";
             this.hScrollBar.Size = new System.Drawing.Size(576, 20);
             this.hScrollBar.TabIndex = 1;
+            this.hScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar_Scroll);
+            this.hScrollBar.ValueChanged += new System.EventHandler(this.hScrollBar_ValueChanged);
             // 
             // vScrollBar
             // 
@@ -63,13 +65,13 @@
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CodeTextbox_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CodeTextbox_KeyPress);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.CodeTextbox_KeyUp);
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseDoubleClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseDown);
             this.MouseEnter += new System.EventHandler(this.CodeTextbox_MouseEnter);
             this.MouseLeave += new System.EventHandler(this.CodeTextbox_MouseLeave);
             this.MouseHover += new System.EventHandler(this.CodeTextbox_MouseHover);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseUp);
-            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseDoubleClick);
             this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.CodeTextbox_PreviewKeyDown);
             this.Resize += new System.EventHandler(this.CodeTextbox_Resize);
             this.ResumeLayout(false);

@@ -14,135 +14,89 @@ namespace ajkControls.CodeTextbox
 {
     public partial class CodeTextbox : UserControl
     {
+        public bool Editable { get; set; } = true;
+
+        public int TabSize { get; set; } = 4;
+        public Color TabColor { get; set; } = Color.LightGray;
+        public Color CrColor { get; set; } = Color.LightGray;
+        public Color LfColor { get; set; } = Color.LightGray;
+        public Color CarletColor { get; set; } = Color.LightGray;
+        public Color CarletUnderlineColor { get; set; } = Color.LightGray;
+        public Color BlockUnderlineColor { get; set; } = Color.LightGray;
+        public Color SelectionColor { get; set; } = Color.CadetBlue;
+        public Color LeftColumnColor { get; set; } = Color.Gray;
+        public Color LineNumberColor { get; set; } = Color.Gray;
+
         public override Color BackColor
         {
             get { return base.BackColor; }
             set
             {
                 if (base.BackColor == value) return; // avoid infinite loop on VS designer
-
                 base.BackColor = value;
-                reGenarateBuffer = true;
+                Drawer.ReGenarateBuffer = true;
             }
         }
-
-
-        private Color tabColor = Color.LightGray;
-        public Color TabColor
+        private bool multiLine = true;
+        public bool MultiLine
         {
             get
             {
-                return tabColor;
+                return multiLine;
             }
             set
             {
-                tabColor = value;
+                if (multiLine == value) return;
+                multiLine = value;
+                System.IntPtr handle = Handle; // avoid windowhandle not created error
+                Invoke(new Action(Refresh));
+                if (multiLine == false)
+                {
+                    if (ScrollBarVisible) ScrollBarVisible = false;
+                    Height = Drawer.charSizeY;
+                    Drawer.ResizeDrawBuffer();
+                }
             }
         }
 
-        private Color crColor = Color.LightGray;
-        public Color CrColor
+        public override Font Font
         {
-            get
-            {
-                return crColor;
-            }
+            get { return base.Font; }
             set
             {
-                crColor = value;
+                base.Font = value;
+                size = value.SizeInPoints;
+                Drawer.ResizeCharSize();
             }
         }
 
-        private Color lfColor = Color.LightGray;
-        public Color LfColor
+        private CodeDrawStyle style = new CodeDrawStyle();
+        public CodeDrawStyle Style
         {
             get
             {
-                return lfColor;
+                return style;
             }
             set
             {
-                lfColor = value;
+                if (style == value) return;
+                style = value;
+                Drawer.ReGenarateBuffer = true;
+            }
+        }
+        public bool ScrollBarVisible
+        {
+            get
+            {
+                return vScrollBar.Visible;
+            }
+            set
+            {
+                vScrollBar.Visible = value;
+                hScrollBar.Visible = value;
             }
         }
 
-        private Color carletColor = Color.LightGray;
-        public Color CarletColor
-        {
-            get
-            {
-                return carletColor;
-            }
-            set
-            {
-                carletColor = value;
-            }
-        }
-
-        private Color carletUnderlineColor = Color.LightGray;
-        public Color CarletUnderlineColor
-        {
-            get
-            {
-                return carletUnderlineColor;
-            }
-            set
-            {
-                carletUnderlineColor = value;
-            }
-        }
-
-        private Color blockUnderlineColor = Color.LightGray;
-        public Color BlockUnderlineColor
-        {
-            get
-            {
-                return blockUnderlineColor;
-            }
-            set
-            {
-                blockUnderlineColor = value;
-            }
-        }
-
-        private Color selectionColor = Color.CadetBlue;
-        public Color SelectionColor
-        {
-            get
-            {
-                return selectionColor;
-            }
-            set
-            {
-                selectionColor = value;
-            }
-        }
-
-        private Color leftColumnColor = Color.Gray;
-        public Color LeftColumnColor
-        {
-            get
-            {
-                return leftColumnColor;
-            }
-            set
-            {
-                leftColumnColor = value;
-            }
-        }
-
-        private Color lineNumberColor = Color.Gray;
-        public Color LineNumberColor
-        {
-            get
-            {
-                return lineNumberColor;
-            }
-            set
-            {
-                lineNumberColor = value;
-            }
-        }
 
     }
 }

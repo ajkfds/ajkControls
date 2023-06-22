@@ -1,4 +1,24 @@
-﻿using System;
+﻿//Copyright(c) 2018 ajkfds
+
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -7,43 +27,104 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using System.Runtime.InteropServices;
 
-
+/// <summary>
+/// CodeTextbox Image Draw Module
+/// </summary>
 namespace ajkControls.CodeTextbox
 {
-    public partial class CodeTextbox : UserControl
+    public class Drawer
     {
-        int charSizeX = 0;
-        int charSizeY = 0;
-        int visibleLines = 10;
-        private void resizeCharSize()
+        public Drawer(CodeTextbox codeTextBox,HScrollBar hScrollBar,VScrollBar vScrollBar)
         {
-            Graphics g = this.CreateGraphics();
-            Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(g, "A", Font, new Size(100, 100), TextFormatFlags.NoPadding);
+            this.codeTextbox = codeTextBox;
+            this.vScrollBar = vScrollBar;
+            this.hScrollBar = hScrollBar;
+        }
+
+        CodeTextbox codeTextbox;
+        HScrollBar hScrollBar;
+        VScrollBar vScrollBar;
+
+
+        private static Primitive.IconImage plusIcon = new Primitive.IconImage(Properties.Resources.plus);
+        private static Primitive.IconImage minusIcon = new Primitive.IconImage(Properties.Resources.minus);
+
+        private int[] actualLineNumbers = new int[] { };
+        public int charSizeX = 1;
+        public int charSizeY = 1;
+        public int visibleLines = 10;
+
+        public int xOffset = 0;
+
+
+        // char size cache
+        public int caretX = 0;
+        public int caretY = 0;
+        public void ResizeCharSize()
+        {
+            Graphics g = codeTextbox.CreateGraphics();
+            Size fontSize = System.Windows.Forms.TextRenderer.MeasureText(g, "A", codeTextbox.Font, new Size(100, 100), TextFormatFlags.NoPadding);
             charSizeX = fontSize.Width;
             charSizeY = fontSize.Height;
-            resizeDrawBuffer();
-            reGenarateBuffer = true;
+            ResizeDrawBuffer();
+            ReGenarateBuffer = true;
         }
 
-        private void resizeDrawBuffer()
+        public void ResizeDrawBuffer()
         {
-            visibleLines = (int)Math.Ceiling((double)(Height / charSizeY));
+            visibleLines = (int)Math.Ceiling((double)(codeTextbox.Height / charSizeY));
             vScrollBar.LargeChange = visibleLines;
-            UpdateVScrollBarRange();
         }
 
+        public void InvalidateLines(int beginLine, int endLine)
+        {
+            int beginDrawLine = 0;
+            int endDrawLine = actualLineNumbers.Length;
 
-        // character & mark graphics buffer
-        volatile bool reGenarateBuffer = true;
+            for (int i = 0; i < actualLineNumbers.Length; i++)
+            {
+                if (actualLineNumbers[i] < beginLine) beginDrawLine = i;
+                if (endLine < actualLineNumbers[i])
+                {
+                    endDrawLine = i;
+                    break;
+                }
+            }
+            codeTextbox.Invalidate(new Rectangle(0, beginDrawLine * charSizeY, codeTextbox.Width, (endDrawLine - beginDrawLine) * charSizeY + 100));
+        }
+
+        public void Clean()
+        {
+            actualLineNumbers = new int[] { };
+        }
+
+        public int GetActualLineNo(int drawLineNumber)
+        {
+            if (actualLineNumbers.Length == 0) return 0;
+            if (actualLineNumbers.Length < drawLineNumber) return actualLineNumbers.Last();
+            return actualLineNumbers[drawLineNumber];
+        }
+
+        public Point GetCaretTopPoint()
+        {
+            return new Point(caretX, caretY);
+        }
+
+        public Point GetCaretBottomPoint()
+        {
+            return new Point(caretX, caretY + charSizeY);
+        }
+
+        // character & mark graphics Cache
+        public volatile bool ReGenarateBuffer = true;
         private Bitmap[] markBitmap = new Bitmap[8];
         private Bitmap plusBitmap;
         private Bitmap minusBitmap;
         private Bitmap selectionBitmap;
 
-        private void createGraphicsBuffer()
+        private void createGraphicsCashe()
         {
             unsafe
             {
@@ -51,14 +132,14 @@ namespace ajkControls.CodeTextbox
                 for (int mark = 0; mark < 8; mark++)
                 {
                     if (markBitmap[mark] != null) markBitmap[mark].Dispose();
-                    markBitmap[mark] = new Bitmap(charSizeX, charSizeY,System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    markBitmap[mark] = new Bitmap(charSizeX, charSizeY, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     using (Graphics gc = Graphics.FromImage(markBitmap[mark]))
                     {
                         gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         gc.Clear(Color.Transparent);
                         drawMark(gc, mark);
                     }
-//                    markBitmap[mark].Save(@"mark" + mark.ToString() + ".bmp");
+                    //                    markBitmap[mark].Save(@"mark" + mark.ToString() + ".bmp");
                 }
 
             }
@@ -68,19 +149,19 @@ namespace ajkControls.CodeTextbox
                 Graphics g = Graphics.FromImage(selectionBitmap);
 
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                g.Clear(System.Drawing.Color.FromArgb(150, SelectionColor.R, SelectionColor.G, SelectionColor.B));
+                g.Clear(System.Drawing.Color.FromArgb(150, codeTextbox.SelectionColor.R, codeTextbox.SelectionColor.G, codeTextbox.SelectionColor.B));
             }
 
             {
                 plusBitmap = new Bitmap(charSizeY, charSizeY);
                 Graphics g = Graphics.FromImage(plusBitmap);
-                g.Clear(leftColumnColor);
+                g.Clear(codeTextbox.LeftColumnColor);
                 g.DrawImage(plusIcon.GetImage(charSizeY, Primitive.IconImage.ColorStyle.Blue), 0, 0);
             }
             {
                 minusBitmap = new Bitmap(charSizeY, charSizeY);
                 Graphics g = Graphics.FromImage(minusBitmap);
-                g.Clear(leftColumnColor);
+                g.Clear(codeTextbox.LeftColumnColor);
                 g.DrawImage(minusIcon.GetImage(charSizeY, Primitive.IconImage.ColorStyle.Blue), 0, 0);
             }
 
@@ -95,9 +176,9 @@ namespace ajkControls.CodeTextbox
             g.Clear(Color.Black);
             Pen pen = new Pen(Color.White, 2);
 
-            switch (Style.MarkStyle[mark])
+            switch (codeTextbox.Style.MarkStyle[mark])
             {
-                case MarkStyleEnum.underLine:
+                case CodeTextbox.MarkStyleEnum.underLine:
                     for (int i = 0; i < 2; i++)
                     {
                         g.DrawLine(pen,
@@ -106,7 +187,7 @@ namespace ajkControls.CodeTextbox
                         );
                     }
                     break;
-                case MarkStyleEnum.wave:
+                case CodeTextbox.MarkStyleEnum.wave:
                     //         0.25*-1 0.25*0  0.25*1 0.25*2 0.25*3 0.25*4 0.25*5   
                     // 0.8                :       +                    :       +     
                     // 0.85               :                            :            
@@ -129,7 +210,7 @@ namespace ajkControls.CodeTextbox
                             );
                     }
                     break;
-                case MarkStyleEnum.wave_inv:
+                case CodeTextbox.MarkStyleEnum.wave_inv:
                     //         0.25*-1 0.25*0  0.25*1 0.25*2 0.25*3 0.25*4 0.25*5   
                     // 0.8                :       +                    :       +     
                     // 0.85               :                            :            
@@ -152,8 +233,8 @@ namespace ajkControls.CodeTextbox
                             );
                     }
                     break;
-                case MarkStyleEnum.fill:
-                    g.FillRectangle(new SolidBrush(Color.White), -charSizeX, 0, charSizeX*2, charSizeY);
+                case CodeTextbox.MarkStyleEnum.fill:
+                    g.FillRectangle(new SolidBrush(Color.White), -charSizeX, 0, charSizeX * 2, charSizeY);
                     break;
             }
 
@@ -162,10 +243,10 @@ namespace ajkControls.CodeTextbox
             cm.Matrix11 = 0;
             cm.Matrix22 = 0;
             cm.Matrix33 = 0;
-            cm.Matrix40 = (float)Style.MarkColor[mark].R / 255;
-            cm.Matrix41 = (float)Style.MarkColor[mark].G / 255;
-            cm.Matrix42 = (float)Style.MarkColor[mark].B / 255;
-            cm.Matrix03 = (float)Style.MarkColor[mark].A / 255;
+            cm.Matrix40 = (float)codeTextbox.Style.MarkColor[mark].R / 255;
+            cm.Matrix41 = (float)codeTextbox.Style.MarkColor[mark].G / 255;
+            cm.Matrix42 = (float)codeTextbox.Style.MarkColor[mark].B / 255;
+            cm.Matrix03 = (float)codeTextbox.Style.MarkColor[mark].A / 255;
             cm.Matrix44 = 0;
 
             System.Drawing.Imaging.ImageAttributes ia = new System.Drawing.Imaging.ImageAttributes();
@@ -189,29 +270,28 @@ namespace ajkControls.CodeTextbox
         SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
-        private void draw(Rectangle clipRect)
+        public void Draw(Rectangle clipRect)
         {
             unsafe
             {
+                Document document = codeTextbox.Document;
                 StringBuilder sb = new StringBuilder();
 
-                if (reGenarateBuffer)
+                if (ReGenarateBuffer)
                 {
-                    createGraphicsBuffer();
-                    reGenarateBuffer = false;
+                    createGraphicsCashe();
+                    ReGenarateBuffer = false;
                 }
                 if (actualLineNumbers.Length != visibleLines + 2)
                 {
                     actualLineNumbers = new int[visibleLines + 2];
                 }
 
-                Primitive.GraWin graphics = new Primitive.GraWin(this.Handle,new Primitive.FontInfo(Font));
+                Primitive.GraWin graphics = new Primitive.GraWin(codeTextbox.Handle, new Primitive.FontInfo(codeTextbox.Font));
 
                 graphics.BeginPaint(clipRect);
 
-                //                Graphics g = this.CreateGraphics();
-                //                g.Clear(BackColor);
-                graphics.BackColor = BackColor;
+                graphics.BackColor = codeTextbox.BackColor;
 
                 if (document == null)
                 {
@@ -220,7 +300,7 @@ namespace ajkControls.CodeTextbox
                 }
                 lock (document)
                 {
-                    if (multiLine)
+                    if (codeTextbox.MultiLine)
                     {
                         int lines = document.Lines;
                         if (lines < 999) lines = 999;
@@ -235,13 +315,13 @@ namespace ajkControls.CodeTextbox
 
                     int drawLine = 0;
                     int line = lineStart;
-                    if (!multiLine) drawLine = document.Lines;
+                    if (!codeTextbox.MultiLine) drawLine = document.Lines;
 
-                    drawChars(graphics,clipRect);
+                    drawChars(graphics, clipRect);
 
                     drawLine = 0;
                     line = lineStart;
-                    if (!multiLine) drawLine = document.Lines;
+                    if (!codeTextbox.MultiLine) drawLine = document.Lines;
                 }
 
                 graphics.EndPaint();
@@ -251,31 +331,23 @@ namespace ajkControls.CodeTextbox
 
         private void drawChars(Primitive.GraWin graphics, Rectangle clipRect)
         {
+            Document document = codeTextbox.Document;
             //sw.Reset();
+            int scrollH = hScrollBar.Value * charSizeX;
 
             StringBuilder sb = new StringBuilder(256);
-            Primitive.WinApi.SetBkMode(graphics.DC, 1);
 
-            {
-                // left column
-                IntPtr hrgn = Primitive.WinApi.CreateRectRgn(-clipRect.X,-clipRect.Y, charSizeX * (xOffset - 1) + charSizeX / 2, Height);
-                IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(leftColumnColor));
-                Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
-                Primitive.WinApi.DeleteObject(hbrush);
-                Primitive.WinApi.DeleteObject(hrgn);
-            }
-
-            IntPtr tabPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(tabColor));
-            IntPtr lfPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(lfColor));
-            IntPtr crPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(crColor));
-            IntPtr hFont = this.Font.ToHfont();
+            IntPtr tabPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.TabColor));
+            IntPtr lfPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.LfColor));
+            IntPtr crPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.CrColor));
+            IntPtr hFont = codeTextbox.Font.ToHfont();
             IntPtr hOldFont = (IntPtr)Primitive.WinApi.SelectObject(graphics.DC, hFont);
 
             //IntPtr oldPen = (IntPtr)Primitive.WinApi.SelectObject(graphics.DC, tabPen);
             int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
             int drawLine = 0;
             int line = lineStart;
-            if (!multiLine) drawLine = document.Lines;
+            if (!codeTextbox.MultiLine) drawLine = document.Lines;
 
             int x = -clipRect.X;
             int y = -clipRect.Y;
@@ -297,15 +369,15 @@ namespace ajkControls.CodeTextbox
             while (line <= document.Lines)
             {
                 if (drawLine >= visibleLines + 2) break; // exit : out of visible area
-                if (y > clipRect.Y + clipRect.Height+charSizeY) break;
+                if (y > clipRect.Y + clipRect.Height + charSizeY) break;
 
                 if (!document.IsVisibleLine(line)) // skip invisible lines
                 {
-                    Primitive.WinApi.MoveToEx(graphics.DC, (int)(xOffset * charSizeX), (int)(y-1), IntPtr.Zero);
-                    Primitive.WinApi.LineTo(graphics.DC, (int)(Width), (int)(y - 1));
-                    Primitive.WinApi.LineTo(graphics.DC, (int)(Width), (int)(y));
+                    Primitive.WinApi.MoveToEx(graphics.DC, (int)(xOffset * charSizeX), (int)(y - 1), IntPtr.Zero);
+                    Primitive.WinApi.LineTo(graphics.DC, (int)(codeTextbox.Width), (int)(y - 1));
+                    Primitive.WinApi.LineTo(graphics.DC, (int)(codeTextbox.Width), (int)(y));
                     Primitive.WinApi.LineTo(graphics.DC, (int)(xOffset * charSizeX), (int)(y));
-                    Primitive.WinApi.SetPixel(graphics.DC, (int)(Width), (int)(y-1), Primitive.WinApi.GetColor(blockUnderlineColor));
+                    Primitive.WinApi.SetPixel(graphics.DC, (int)(codeTextbox.Width), (int)(y - 1), Primitive.WinApi.GetColor(codeTextbox.BlockUnderlineColor));
 
                     line++;
                     while (line < document.Lines)
@@ -318,8 +390,8 @@ namespace ajkControls.CodeTextbox
                 actualLineNumbers[drawLine] = line;
 
                 // draw line numbers (right padding)
-                x = (xOffset - 3) * charSizeX - clipRect.X; 
-                if (multiLine)
+                x = (xOffset - 3) * charSizeX - clipRect.X;
+                if (codeTextbox.MultiLine)
                 {
                     if (document.IsBlockHeadLine(line))
                     {
@@ -348,11 +420,7 @@ namespace ajkControls.CodeTextbox
 
                     string lineString = line.ToString();
                     Primitive.WinApi.SetTextColor(graphics.DC, Primitive.WinApi.GetColor(Color.Silver));
-//                    Primitive.WinApi.TextOut(graphics.DC, x - lineString.Length * charSizeX, y , lineString, lineString.Length);
                     Primitive.WinApi.ExtTextOut(graphics.DC, x - lineString.Length * charSizeX, y, 0, lineString);
-
-                    //                    Point point = new Point(x - lineString.Length * charSizeX, y);
-                    //                    graphics.DrawText(lineString, ref point, Color.Silver);
                 }
 
                 sw.Start();
@@ -362,9 +430,9 @@ namespace ajkControls.CodeTextbox
                 int lineX;
                 int start;
                 int end;
-                
+
                 // draw charactors
-                x = xOffset * charSizeX - clipRect.X;
+                x = xOffset * charSizeX - clipRect.X - scrollH;
                 lineX = 0;
                 start = document.GetLineStartIndex(line);
                 end = start + document.GetLineLength(line);
@@ -377,7 +445,7 @@ namespace ajkControls.CodeTextbox
                         int xIncrement = 1;
                         if (ch == '\t')
                         {
-                            xIncrement = tabSize - (lineX % tabSize);
+                            xIncrement = codeTextbox.TabSize - (lineX % codeTextbox.TabSize);
                             Primitive.WinApi.SelectObject(graphics.DC, tabPen);
                             Primitive.WinApi.MoveToEx(graphics.DC, x + 2, y + charSizeY - 2, IntPtr.Zero);
                             Primitive.WinApi.LineTo(graphics.DC, x - 2 + xIncrement * charSizeX, y + charSizeY - 2);
@@ -426,13 +494,10 @@ namespace ajkControls.CodeTextbox
                                 i++;
                             }
 
-                            int colorNo = Primitive.WinApi.GetColor(Style.ColorPallet[color]);
+                            int colorNo = Primitive.WinApi.GetColor(codeTextbox.Style.ColorPallet[color]);
 
                             Primitive.WinApi.SetTextColor(graphics.DC, colorNo);
-                            //Primitive.WinApi.TextOut(graphics.DC, x, y, sb.ToString(), sb.Length);
                             Primitive.WinApi.ExtTextOut(graphics.DC, x, y, 0, sb.ToString());
-//                            Point point = new Point(x, y);
-//                            graphics.DrawText(sb.ToString(), ref point, Style.ColorPallet[color]);
 
                             xIncrement = sb.Length;
                             sb.Clear();
@@ -445,8 +510,8 @@ namespace ajkControls.CodeTextbox
 
                 Primitive.WinApi.SetBkMode(graphics.DC, 1);
 
-
-                x = xOffset * charSizeX;
+                // draw mark
+                x = xOffset * charSizeX - scrollH;
                 lineX = 0;
                 start = document.GetLineStartIndex(line);
                 end = start + document.GetLineLength(line);
@@ -459,7 +524,7 @@ namespace ajkControls.CodeTextbox
                         int xIncrement = 1;
                         if (ch == '\t')
                         {
-                            xIncrement = tabSize - (lineX % tabSize);
+                            xIncrement = codeTextbox.TabSize - (lineX % codeTextbox.TabSize);
                         }
 
                         // selection
@@ -467,7 +532,7 @@ namespace ajkControls.CodeTextbox
                         {
                             if (ch == '\t')
                             {   // tab
-                                xIncrement = tabSize - (lineX % tabSize);
+                                xIncrement = codeTextbox.TabSize - (lineX % codeTextbox.TabSize);
                                 IntPtr pSource = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
                                 IntPtr hbmp = selectionBitmap.GetHbitmap(Color.Black);
                                 IntPtr pOrig = Primitive.WinApi.SelectObject(pSource, hbmp);
@@ -505,7 +570,7 @@ namespace ajkControls.CodeTextbox
                         // mark
                         if (document.GetMarkAt(i) != 0)
                         {
-                            for (int mark = 7; mark >= 0 ; mark--)
+                            for (int mark = 7; mark >= 0; mark--)
                             {
                                 //if ((document.GetMarkAt(i) & (1 << mark)) != 0) drawMarkGdi(hDC, x, y, mark);
                                 if ((document.GetMarkAt(i) & (1 << mark)) != 0)
@@ -528,10 +593,10 @@ namespace ajkControls.CodeTextbox
                         }
 
                         // caret
-                        if (i == document.CaretIndex & Editable)
+                        if (i == document.CaretIndex & codeTextbox.Editable)
                         {
                             IntPtr hrgn = Primitive.WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
-                            IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(CarletColor));
+                            IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(codeTextbox.CarletColor));
                             Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
                             Primitive.WinApi.DeleteObject(hbrush);
                             Primitive.WinApi.DeleteObject(hrgn);
@@ -546,10 +611,10 @@ namespace ajkControls.CodeTextbox
 
 
                 // carlet at EOF
-                if (line == document.Lines && document.Length == document.CaretIndex && Editable)
+                if (line == document.Lines && document.Length == document.CaretIndex && codeTextbox.Editable)
                 {
                     IntPtr hrgn = Primitive.WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
-                    IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(CarletColor));
+                    IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(codeTextbox.CarletColor));
                     Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
                     Primitive.WinApi.DeleteObject(hbrush);
                     Primitive.WinApi.DeleteObject(hrgn);
@@ -566,11 +631,21 @@ namespace ajkControls.CodeTextbox
             caretY += clipRect.Y;
 
             // underline @ carlet
-            if (Editable)
+            if (codeTextbox.Editable)
             {
                 Primitive.WinApi.SelectObject(graphics.DC, tabPen);
-                Primitive.WinApi.MoveToEx(graphics.DC, xOffset*charSizeX - clipRect.X, caretY + charSizeY - clipRect.Y, IntPtr.Zero);
-                Primitive.WinApi.LineTo(graphics.DC, Width - clipRect.X, caretY + charSizeY - clipRect.Y);
+                Primitive.WinApi.MoveToEx(graphics.DC, xOffset * charSizeX - clipRect.X, caretY + charSizeY - clipRect.Y, IntPtr.Zero);
+                Primitive.WinApi.LineTo(graphics.DC, codeTextbox.Width - clipRect.X, caretY + charSizeY - clipRect.Y);
+            }
+
+            Primitive.WinApi.SetBkMode(graphics.DC, 1);
+            {
+                // left column
+                IntPtr hrgn = Primitive.WinApi.CreateRectRgn(-clipRect.X, -clipRect.Y, charSizeX * (xOffset - 1) + charSizeX / 2, codeTextbox.Height);
+                IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(codeTextbox.LeftColumnColor));
+                Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
+                Primitive.WinApi.DeleteObject(hbrush);
+                Primitive.WinApi.DeleteObject(hrgn);
             }
 
             //Primitive.WinApi.SelectObject(hDC, oldPen);
@@ -585,11 +660,15 @@ namespace ajkControls.CodeTextbox
 
         }
 
-        private int hitIndex(int x, int y)
+
+
+
+        public int hitIndex(int x, int y)
         {
+            Document document = codeTextbox.Document;
             //int line = y / charSizeY + vScrollBar.Value+1;
             if (y < 0) return 0;
-            int line = GetActualLineNo(y / charSizeY);
+            int line = codeTextbox.GetActualLineNo(y / charSizeY);
             if (line > document.Lines - 1) line = document.Lines - 1;
             if (line < 1) line = 1;
             int hitX = x / charSizeX - xOffset;
@@ -604,7 +683,7 @@ namespace ajkControls.CodeTextbox
                 if (ch == '\r' || ch == '\n') break;
                 if (ch == '\t')
                 {
-                    xPos = xPos + tabSize - (xPos % tabSize);
+                    xPos = xPos + codeTextbox.TabSize - (xPos % codeTextbox.TabSize);
                 }
                 else
                 {
@@ -631,6 +710,7 @@ namespace ajkControls.CodeTextbox
 
         public int getX(int targetIndex)
         {
+            Document document = codeTextbox.Document;
             int line = document.GetLineAt(targetIndex);
             int index = document.GetLineStartIndex(line);
             int nextLineIndex = index + document.GetLineLength(line);
@@ -642,7 +722,7 @@ namespace ajkControls.CodeTextbox
                 if (ch == '\r' || ch == '\n') break;
                 if (ch == '\t')
                 {
-                    xPos = xPos + tabSize - (xPos % tabSize);
+                    xPos = xPos + codeTextbox.TabSize - (xPos % codeTextbox.TabSize);
                 }
                 else
                 {
@@ -661,8 +741,9 @@ namespace ajkControls.CodeTextbox
             return index;
         }
 
-        private int getXPos(int index, int line)
+        public int getXPos(int index, int line)
         {
+            Document document = codeTextbox.Document;
             int i = document.GetLineStartIndex(line);
             int xPos = 0;
             char ch = document.GetCharAt(i);
@@ -671,7 +752,7 @@ namespace ajkControls.CodeTextbox
                 if (ch == '\r' || ch == '\n') break;
                 if (ch == '\t')
                 {
-                    xPos = xPos + tabSize - (xPos % tabSize);
+                    xPos = xPos + codeTextbox.TabSize - (xPos % codeTextbox.TabSize);
                 }
                 else
                 {
@@ -683,8 +764,9 @@ namespace ajkControls.CodeTextbox
             return xPos;
         }
 
-        private int getIndex(int xPos, int line)
+        public int getIndex(int xPos, int line)
         {
+            Document document = codeTextbox.Document;
             int index = document.GetLineStartIndex(line);
             int nextLineIndex = index + document.GetLineLength(line);
 
@@ -695,14 +777,14 @@ namespace ajkControls.CodeTextbox
                 if (ch == '\r' || ch == '\n') break;
                 if (ch == '\t')
                 {
-                    x = x + tabSize - (x % tabSize);
+                    x = x + codeTextbox.TabSize - (x % codeTextbox.TabSize);
                 }
                 else
                 {
                     x++;
                 }
                 index++;
-//                ch = document.GetCharAt(index);
+                //                ch = document.GetCharAt(index);
             }
 
             if (index > 0 && index < nextLineIndex && document.GetCharAt(index) == '\n' && document.GetCharAt(index - 1) == '\r')

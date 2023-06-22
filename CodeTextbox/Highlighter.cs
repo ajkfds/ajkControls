@@ -1,31 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-
-using System.Runtime.InteropServices;
-
 
 namespace ajkControls.CodeTextbox
 {
-
-    public partial class CodeTextbox : UserControl
+    public class Highlighter
     {
+        public Highlighter(CodeTextbox codeTextbox)
+        {
+            this.codeTextbox = codeTextbox;
+        }
+
+        CodeTextbox codeTextbox;
+
         private List<int> highlightStarts = new List<int>();
         private List<int> highlighLasts = new List<int>();
 
-        private void hilightUpdateWhenDocReplaced(int index, int replaceLength, byte colorIndex, string text)
+        public void HilightUpdateWhenDocReplaced(int index, int replaceLength, byte colorIndex, string text)
         {
             if (highlightStarts.Count == 0) return;
 
             int change = text.Length - replaceLength;
 
-            for(int i = 0; i < highlightStarts.Count; i++)
+            for (int i = 0; i < highlightStarts.Count; i++)
             {
                 //     start    last
                 //       +=======+
@@ -44,24 +43,24 @@ namespace ajkControls.CodeTextbox
 
                 if (index <= start) // a0 | a1 | a2
                 {
-                    if (index+replaceLength < start)
+                    if (index + replaceLength < start)
                     { // a0
                         highlightStarts[i] += change;
                         highlighLasts[i] += change;
                     }
-                    else if (index+replaceLength <= last) 
+                    else if (index + replaceLength <= last)
                     { // a1
                         highlightStarts[i] = index;
-                        highlighLasts[i] = index+ change;
+                        highlighLasts[i] = index + change;
                     }
                     else
                     { // a2
                         highlighLasts[i] += change;
                     }
                 }
-                else if(index <= highlighLasts[i]+1) // b0 | b1
+                else if (index <= highlighLasts[i] + 1) // b0 | b1
                 {
-                    if (index + replaceLength <= last+1)
+                    if (index + replaceLength <= last + 1)
                     { // b0
                         highlighLasts[i] += change;
                     }
@@ -80,7 +79,7 @@ namespace ajkControls.CodeTextbox
         public void MoveToNextHighlight(out bool moved)
         {
             moved = false;
-            int i = GetHighlightIndex(document.CaretIndex);
+            int i = GetHighlightIndex(codeTextbox.Document.CaretIndex);
             if (i == -1) return;
             i++;
             if (i >= highlightStarts.Count) return;
@@ -89,9 +88,9 @@ namespace ajkControls.CodeTextbox
             moved = true;
         }
 
-        public void GetHighlightPosition(int highlightIndex,out int highlightStart,out int highlightLast)
+        public void GetHighlightPosition(int highlightIndex, out int highlightStart, out int highlightLast)
         {
-            if(highlightIndex > highlightStarts.Count)
+            if (highlightIndex > highlightStarts.Count)
             {
                 highlightStart = -1;
                 highlightLast = -1;
@@ -103,6 +102,7 @@ namespace ajkControls.CodeTextbox
 
         public void SelectHighlight(int highlightIndex)
         {
+            Document document = codeTextbox.Document;
             document.CaretIndex = highlightStarts[highlightIndex];
             document.SelectionStart = highlightStarts[highlightIndex];
             document.SelectionLast = highlighLasts[highlightIndex] + 1;
@@ -113,13 +113,15 @@ namespace ajkControls.CodeTextbox
             if (highlightStarts.Count == 0) return -1;
             for (int i = 0; i < highlightStarts.Count; i++)
             {
-                if (highlightStarts[i] <= index && index <= highlighLasts[i]+1) return i;
+                if (highlightStarts[i] <= index && index <= highlighLasts[i] + 1) return i;
             }
             return -1;
         }
 
         public void ClearHighlight()
         {
+            Document document = codeTextbox.Document;
+
             if (highlightStarts.Count == 0) return;
             for (int i = 0; i < highlightStarts.Count; i++)
             {
@@ -132,12 +134,13 @@ namespace ajkControls.CodeTextbox
             highlightStarts.Clear();
             highlighLasts.Clear();
 
-            Invalidate();
+            codeTextbox.Invalidate();
         }
 
         public void AppendHighlight(int highlightStart, int highlightLast)
         {
-            document.SetMarkAt(highlightStart, highlightLast- highlightStart + 1, 7);
+            Document document = codeTextbox.Document;
+            document.SetMarkAt(highlightStart, highlightLast - highlightStart + 1, 7);
             //for (int index = highlightStart; index <= highlightLast; index++)
             //{
             //    document.SetMarkAt(index, 7);
@@ -145,11 +148,12 @@ namespace ajkControls.CodeTextbox
             highlightStarts.Add(highlightStart);
             highlighLasts.Add(highlightLast);
 
-            Invalidate();
+            codeTextbox.Invalidate();
         }
 
         public void ReDrawHighlight()
         {
+            Document document = codeTextbox.Document;
             for (int j = 0; j < highlightStarts.Count; j++)
             {
                 document.SetMarkAt(highlightStarts[j], highlighLasts[j] - highlightStarts[j] + 1, 7);
@@ -158,8 +162,7 @@ namespace ajkControls.CodeTextbox
                 //    document.SetMarkAt(index, 7);
                 //}
             }
-            Invalidate();
+            codeTextbox.Update();
         }
-
     }
 }

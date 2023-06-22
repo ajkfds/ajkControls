@@ -1,4 +1,24 @@
-﻿using System;
+﻿//Copyright(c) 2018 ajkfds
+
+//Permission is hereby granted, free of charge, to any person obtaining a codeTextbox.Copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, codeTextbox.Copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+
+//The above codeTextbox.Copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR codeTextbox.CopyRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -7,37 +27,51 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using System.Runtime.InteropServices;
 
 
 namespace ajkControls.CodeTextbox
 {
-
-    public partial class CodeTextbox : UserControl
+    public class KeyHandler
     {
+        public KeyHandler(CodeTextbox codeTextBox, Drawer drawer, HScrollBar hScrollBar, VScrollBar vScrollBar)
+        {
+            this.codeTextbox = codeTextBox;
+            this.vScrollBar = vScrollBar;
+            this.hScrollBar = hScrollBar;
+            this.drawer = drawer;
+        }
+
+
+        CodeTextbox codeTextbox;
+        HScrollBar hScrollBar;
+        VScrollBar vScrollBar;
+        Drawer drawer;
         private bool skipKeyPress = false;
         private int prevXPos = -1;
 
 
-        private void CodeTextbox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        public void PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
 
         }
 
-        private void CodeTextbox_KeyDown(object sender, KeyEventArgs e)
+        public void KeyDown(object sender, KeyEventArgs e)
         {
+            Document document = codeTextbox.Document;
+
             skipKeyPress = false;
-            if (document == null || !Editable) return;
+            if (document == null || !codeTextbox.Editable) return;
 
             int lineBeforeEdit = document.GetLineAt(document.CaretIndex);
-            if (BeforeKeyDown != null) BeforeKeyDown(this, e);
+
+            codeTextbox.CallBeforeKeyDown(e);
             if (e.Handled)
             {
                 skipKeyPress = true;
-                selectionChanged();
-                scrollToCaret();
-                Invoke(new Action(Refresh));
+                codeTextbox.selectionChanged();
+                codeTextbox.scrollToCaret();
+                codeTextbox.Invoke(new Action(codeTextbox.Refresh));
                 return;
             }
 
@@ -51,76 +85,76 @@ namespace ajkControls.CodeTextbox
                 case Keys.C:
                     if (e.Modifiers == Keys.Control)
                     {
-                        Copy();
-                        scrollToCaret();
-                        selectionChanged();
-                        if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+                        codeTextbox.Copy();
+                        codeTextbox.scrollToCaret();
+                        codeTextbox.selectionChanged();
+                        codeTextbox.CallCarletLineChanged(EventArgs.Empty);
                         e.Handled = true;
-                        Invalidate();
+                        codeTextbox.Invalidate();
                     }
                     break;
                 case Keys.X:
                     if (e.Modifiers == Keys.Control)
                     {
-                        Cut();
-                        scrollToCaret();
-                        selectionChanged();
+                        codeTextbox.Cut();
+                        codeTextbox.scrollToCaret();
+                        codeTextbox.selectionChanged();
                         e.Handled = true;
-                        Invalidate();
+                        codeTextbox.Invalidate();
                     }
                     break;
                 case Keys.V:
                     if (e.Modifiers == Keys.Control)
                     {
-                        Paste();
-                        scrollToCaret();
-                        selectionChanged();
+                        codeTextbox.Paste();
+                        codeTextbox.scrollToCaret();
+                        codeTextbox.selectionChanged();
                         e.Handled = true;
-                        Invalidate();
+                        codeTextbox.Invalidate();
                     }
                     break;
                 case Keys.Z:
                     if (e.Modifiers == Keys.Control)
                     {
-                        Undo();
+                        codeTextbox.Undo();
                         e.Handled = true;
-                        Invalidate();
+                        codeTextbox.Invalidate();
                     }
                     break;
                 case Keys.A:
-                    if(e.Modifiers == Keys.Control)
+                    if (e.Modifiers == Keys.Control)
                     {
-                        SelectAll();
+                        codeTextbox.SelectAll();
                         e.Handled = true;
-                        Invalidate();
+                        codeTextbox.Invalidate();
                     }
                     break;
                 case Keys.Left:
                     {
                         int index = document.SelectionLast;
-                        keyLeft(sender, e);
-                        Invalidate(document.SelectionStart, index);
+                        handleLeftKey(sender, e);
+                        codeTextbox.Invalidate(document.SelectionStart, index);
                     }
                     break;
                 case Keys.Right:
                     {
                         int index = document.SelectionStart;
-                        keyRight(sender, e);
-                        Invalidate(index, document.SelectionLast);
+                        handleRightKey(sender, e);
+                        codeTextbox.Invalidate(index, document.SelectionLast);
                     }
                     break;
                 case Keys.Up:
                     {
                         int index = document.SelectionLast;
-                        keyUp(sender, e);
-                        Invalidate(document.SelectionStart, index);
+                        handleUpKey(sender, e);
+                        codeTextbox.Invalidate(document.SelectionStart, index);
                     }
                     break;
                 case Keys.Down:
                     {
                         int index = document.SelectionStart;
-                        keyDown(sender, e);
-                        Invalidate(index, document.SelectionLast);
+                        handleDownKey(sender, e);
+                        codeTextbox.Invalidate(index, document.SelectionLast);
                     }
                     break;
                 case Keys.Delete:
@@ -131,30 +165,30 @@ namespace ajkControls.CodeTextbox
                             if (document.CaretIndex == document.Length) break;
                             if (document.CaretIndex != document.Length - 1 && document.GetCharAt(document.CaretIndex) == '\r' && document.GetCharAt(document.CaretIndex + 1) == '\n')
                             {
-                                documentReplace(document.CaretIndex, 2, 0, "");
+                                codeTextbox.documentReplace(document.CaretIndex, 2, 0, "");
                             }
                             else
                             {
-                                documentReplace(document.CaretIndex, 1, 0, "");
+                                codeTextbox.documentReplace(document.CaretIndex, 1, 0, "");
                             }
                             redrawToLast = true;
                         }
                         else
                         {
                             if (document.GetLineAt(document.SelectionStart) != document.GetLineAt(document.SelectionLast)) redrawToLast = true;
-                            documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
+                            codeTextbox.documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
                         }
-                        UpdateVScrollBarRange();
-                        caretChanged();
-                        selectionChanged();
+                        codeTextbox.UpdateVScrollBarRange();
+                        codeTextbox.caretChanged();
+                        codeTextbox.selectionChanged();
                         e.Handled = true;
                         if (redrawToLast)
                         {
-                            Invalidate(document.SelectionStart, document.Length - 1);
+                            codeTextbox.Invalidate(document.SelectionStart, document.Length - 1);
                         }
                         else
                         {
-                            Invalidate(document.SelectionStart, document.SelectionLast);
+                            codeTextbox.Invalidate(document.SelectionStart, document.SelectionLast);
                         }
                     }
                     break;
@@ -164,34 +198,34 @@ namespace ajkControls.CodeTextbox
                         if (document.CaretIndex == 0) break;
                         if (document.CaretIndex > 1 && document.GetCharAt(document.CaretIndex - 2) == '\r' && document.GetCharAt(document.CaretIndex - 1) == '\n')
                         {
-                            documentReplace(document.CaretIndex - 2, 2, 0, "");
+                            codeTextbox.documentReplace(document.CaretIndex - 2, 2, 0, "");
                         }
                         else
                         {
-                            documentReplace(document.CaretIndex - 1, 1, 0, "");
+                            codeTextbox.documentReplace(document.CaretIndex - 1, 1, 0, "");
                         }
                     }
                     else
                     {
-                        documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
+                        codeTextbox.documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "");
                     }
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    selectionChanged();
+                    codeTextbox.UpdateVScrollBarRange();
+                    codeTextbox.caretChanged();
+                    codeTextbox.selectionChanged();
                     e.Handled = true;
-                    Invalidate();
+                    codeTextbox.Invalidate();
                     break;
                 case Keys.Enter:
-                    if (!multiLine) break;
+                    if (!codeTextbox.MultiLine) break;
                     if (e.Modifiers == Keys.Shift)
                     {
                         if (document.SelectionStart == document.SelectionLast)
                         {
-                            documentReplace(document.CaretIndex, 0, 0, "\n");
+                            codeTextbox.documentReplace(document.CaretIndex, 0, 0, "\n");
                         }
                         else
                         {
-                            documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "\n");
+                            codeTextbox.documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "\n");
                         }
                         if (document.CaretIndex >= document.SelectionStart) document.SelectionStart = document.SelectionStart + 1;
                         if (document.CaretIndex >= document.SelectionLast) document.SelectionStart = document.SelectionLast + 1;
@@ -201,23 +235,23 @@ namespace ajkControls.CodeTextbox
                     {
                         if (document.SelectionStart == document.SelectionLast)
                         {
-                            documentReplace(document.CaretIndex, 0, 0, "\r\n");
+                            codeTextbox.documentReplace(document.CaretIndex, 0, 0, "\r\n");
                         }
                         else
                         {
-                            documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "\r\n");
+                            codeTextbox.documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, 0, "\r\n");
                         }
                         if (document.CaretIndex >= document.SelectionStart) document.SelectionStart = document.SelectionStart + 2;
                         if (document.CaretIndex >= document.SelectionLast) document.SelectionStart = document.SelectionLast + 2;
                         document.CaretIndex = document.CaretIndex + 2;
                     }
                     document.SelectionLast = document.SelectionStart;
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    scrollToCaret();
-                    selectionChanged();
+                    codeTextbox.UpdateVScrollBarRange();
+                    codeTextbox.caretChanged();
+                    codeTextbox.scrollToCaret();
+                    codeTextbox.selectionChanged();
                     e.Handled = true;
-                    Invalidate();
+                    codeTextbox.Invalidate();
                     break;
                 case Keys.Tab:
                     // multiple lines indent
@@ -231,7 +265,7 @@ namespace ajkControls.CodeTextbox
                         {
                             if (document.GetCharAt(document.GetLineStartIndex(i)) == '\t' || document.GetCharAt(document.GetLineStartIndex(i)) == ' ')
                             {
-                                documentReplace(document.GetLineStartIndex(i), 1, 0, "");
+                                codeTextbox.documentReplace(document.GetLineStartIndex(i), 1, 0, "");
                             }
                         }
                         document.SelectionStart = document.GetLineStartIndex(lineStart);
@@ -241,27 +275,27 @@ namespace ajkControls.CodeTextbox
                     {
                         for (int i = lineStart; i < lineLast; i++)
                         {
-                            documentReplace(document.GetLineStartIndex(i), 0, 0, "\t");
+                            codeTextbox.documentReplace(document.GetLineStartIndex(i), 0, 0, "\t");
                         }
                         document.SelectionStart = document.GetLineStartIndex(lineStart);
                         document.SelectionLast = document.GetLineStartIndex(lineLast);
                     }
-                    UpdateVScrollBarRange();
-                    caretChanged();
-                    scrollToCaret();
-                    selectionChanged();
+                    codeTextbox.UpdateVScrollBarRange();
+                    codeTextbox.caretChanged();
+                    codeTextbox.scrollToCaret();
+                    codeTextbox.selectionChanged();
                     e.Handled = true;
-                    Invalidate();
+                    codeTextbox.Invalidate();
                     break;
                 default:
                     break;
             }
 
-            if (AfterKeyDown != null) AfterKeyDown(this, e);
+            codeTextbox.CallAfterKeyDown(e);
             int lineAfterEdit = document.GetLineAt(document.CaretIndex);
             if (lineBeforeEdit != lineAfterEdit)
             {
-                if (CarletLineChanged != null) CarletLineChanged(this, EventArgs.Empty);
+                codeTextbox.CallCarletLineChanged(EventArgs.Empty);
             }
 
             if (e.Handled)
@@ -278,8 +312,9 @@ namespace ajkControls.CodeTextbox
                 //}
             }
         }
-        private void keyLeft(object sender, KeyEventArgs e)
+        private void handleLeftKey(object sender, KeyEventArgs e)
         {
+            Document document = codeTextbox.Document;
             if (document.CaretIndex < 1) return;
             bool onSelectionLast = false;
             if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
@@ -305,7 +340,7 @@ namespace ajkControls.CodeTextbox
                 }
             }
 
-            caretChanged();
+            codeTextbox.caretChanged();
             if ((e.Modifiers & Keys.Shift) == Keys.Shift)
             {
                 if (onSelectionLast)
@@ -322,13 +357,14 @@ namespace ajkControls.CodeTextbox
                 document.SelectionStart = document.CaretIndex;
                 document.SelectionLast = document.CaretIndex;
             }
-            selectionChanged();
-//            Invoke(new Action(dbDrawBox.Refresh));
+            codeTextbox.selectionChanged();
+            //            Invoke(new Action(dbDrawBox.Refresh));
             e.Handled = true;
         }
 
-        private void keyRight(object sender, KeyEventArgs e)
+        private void handleRightKey(object sender, KeyEventArgs e)
         {
+            Document document = codeTextbox.Document;
             if (document.CaretIndex >= document.Length) return;
             bool onSelectionStart = false;
             if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
@@ -353,7 +389,7 @@ namespace ajkControls.CodeTextbox
                 }
             }
 
-            caretChanged();
+            codeTextbox.caretChanged();
             if ((e.Modifiers & Keys.Shift) == Keys.Shift)
             {
                 if (onSelectionStart)
@@ -370,13 +406,14 @@ namespace ajkControls.CodeTextbox
                 document.SelectionStart = document.CaretIndex;
                 document.SelectionLast = document.CaretIndex;
             }
-            selectionChanged();
+            codeTextbox.selectionChanged();
             e.Handled = true;
         }
 
-        private void keyUp(object sender, KeyEventArgs e)
+        public void handleUpKey(object sender, KeyEventArgs e)
         {
-            if (!multiLine) return;
+            Document document = codeTextbox.Document;
+            if (!codeTextbox.MultiLine) return;
             bool onSelectionLast = false;
             if (document.SelectionLast == document.CaretIndex && document.SelectionStart != document.SelectionLast)
             {
@@ -387,7 +424,7 @@ namespace ajkControls.CodeTextbox
 
 
             int headindex = document.GetLineStartIndex(line);
-            int xPosition = getXPos(document.CaretIndex, line);
+            int xPosition = drawer.getXPos(document.CaretIndex, line);
             if (prevXPos > xPosition)
             {
                 xPosition = prevXPos;
@@ -408,11 +445,11 @@ namespace ajkControls.CodeTextbox
 
 
             headindex = document.GetLineStartIndex(line);
-            document.CaretIndex = getIndex(xPosition, line);
+            document.CaretIndex = drawer.getIndex(xPosition, line);
 
             if (prevXPos == -1) prevXPos = xPosition;
- 
-            caretChanged();
+
+            codeTextbox.caretChanged();
             if (e.Modifiers == Keys.Shift)
             {
                 if (onSelectionLast)
@@ -429,13 +466,14 @@ namespace ajkControls.CodeTextbox
                 document.SelectionStart = document.CaretIndex;
                 document.SelectionLast = document.CaretIndex;
             }
-            scrollToCaret();
-            selectionChanged();
+            codeTextbox.scrollToCaret();
+            codeTextbox.selectionChanged();
             e.Handled = true;
         }
-        private void keyDown(object sender, KeyEventArgs e)
+        private void handleDownKey(object sender, KeyEventArgs e)
         {
-            if (!multiLine) return;
+            Document document = codeTextbox.Document;
+            if (!codeTextbox.MultiLine) return;
             bool onSelectionStart = false;
             if (document.SelectionStart == document.CaretIndex && document.SelectionStart != document.SelectionLast)
             {
@@ -445,7 +483,7 @@ namespace ajkControls.CodeTextbox
             if (line == document.Lines) return; // last line
 
             int headindex = document.GetLineStartIndex(line);
-            int xPosition = getXPos(document.CaretIndex, line);
+            int xPosition = drawer.getXPos(document.CaretIndex, line);
             if (prevXPos > xPosition)
             {
                 xPosition = prevXPos;
@@ -459,15 +497,15 @@ namespace ajkControls.CodeTextbox
             line++;
 
             // skip invisible lines
-            while (line < document.Lines-1 && !document.IsVisibleLine(line))
+            while (line < document.Lines - 1 && !document.IsVisibleLine(line))
             {
                 line++;
             }
             if (!document.IsVisibleLine(line)) line = document.GetLineAt(document.CaretIndex);
 
-            document.CaretIndex = getIndex(xPosition, line);
+            document.CaretIndex = drawer.getIndex(xPosition, line);
 
-            caretChanged();
+            codeTextbox.caretChanged();
             if (e.Modifiers == Keys.Shift)
             {
                 if (onSelectionStart)
@@ -484,33 +522,36 @@ namespace ajkControls.CodeTextbox
                 document.SelectionStart = document.CaretIndex;
                 document.SelectionLast = document.CaretIndex;
             }
-            selectionChanged();
-            scrollToCaret();
+            codeTextbox.selectionChanged();
+            codeTextbox.scrollToCaret();
             e.Handled = true;
 
-//            System.Diagnostics.Debug.Print("prevXPos",prevXPos.ToString());
+            //            System.Diagnostics.Debug.Print("prevXPos",prevXPos.ToString());
         }
 
 
 
-        private void CodeTextbox_KeyUp(object sender, KeyEventArgs e)
+        public void KeyUp(object sender, KeyEventArgs e)
         {
 
         }
 
-        private void CodeTextbox_KeyPress(object sender, KeyPressEventArgs e)
+        public void KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (document == null || !Editable) return;
+            Document document = codeTextbox.Document;
+
+            if (document == null || !codeTextbox.Editable) return;
             if (skipKeyPress)
             {
                 skipKeyPress = false;
                 e.Handled = true;
                 return;
             }
-            if (BeforeKeyPressed != null) BeforeKeyPressed(this, e);
+
+            codeTextbox.CallBeforeKeyPressed(e);
             if (e.Handled)
             {
-                Invalidate();
+                codeTextbox.Invalidate();
                 return;
             }
 
@@ -531,36 +572,36 @@ namespace ajkControls.CodeTextbox
                     sw.Start();
                     if (inChar == '\t' || inChar == ' ')
                     {   // use default color for tab and space
-                        documentReplace(document.CaretIndex, 0, 0, inChar.ToString());
+                        codeTextbox.documentReplace(document.CaretIndex, 0, 0, inChar.ToString());
                     }
                     else
                     {
-                        documentReplace(document.CaretIndex, 0, document.GetColorAt(prevIndex), inChar.ToString());
+                        codeTextbox.documentReplace(document.CaretIndex, 0, document.GetColorAt(prevIndex), inChar.ToString());
                     }
                     document.CaretIndex++;
-                    UpdateVScrollBarRange();
+                    codeTextbox.UpdateVScrollBarRange();
                     sw.Stop();
-                    System.Diagnostics.Debug.Print("edit : " + sw.Elapsed.TotalMilliseconds.ToString()+"ms");
+                    System.Diagnostics.Debug.Print("edit : " + sw.Elapsed.TotalMilliseconds.ToString() + "ms");
                 }
                 else
                 {
                     redrawToLast = true;
 
-                    documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, document.GetColorAt(prevIndex), inChar.ToString());
+                    codeTextbox.documentReplace(document.SelectionStart, document.SelectionLast - document.SelectionStart, document.GetColorAt(prevIndex), inChar.ToString());
                     document.CaretIndex = document.SelectionStart + 1;
                     document.SelectionStart = document.CaretIndex;
                     document.SelectionLast = document.CaretIndex;
-                    UpdateVScrollBarRange();
+                    codeTextbox.UpdateVScrollBarRange();
                 }
             }
-            if (AfterKeyPressed != null) AfterKeyPressed(this, e);
+            codeTextbox.CallAfterKeyPressed(e);
             if (redrawToLast)
             {
-                Invalidate(document.SelectionStart, document.Length - 1);
+                codeTextbox.Invalidate(document.SelectionStart, document.Length - 1);
             }
             else
             {
-                Invalidate(document.SelectionStart, document.SelectionLast);
+                codeTextbox.Invalidate(document.SelectionStart, document.SelectionLast);
             }
             //if (InvokeRequired)
             //{
@@ -571,7 +612,7 @@ namespace ajkControls.CodeTextbox
             //    Refresh();
             //}
 
-            Update(); // redraw invalidate area
+            codeTextbox.Update(); // redraw codeTextbox.Invalidate area
         }
 
     }

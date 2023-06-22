@@ -39,12 +39,66 @@ namespace ajkControls.CodeTextbox
         public CodeTextbox()
         {
             InitializeComponent();
-//            dbDrawBox.SetImeEnable(true);
-            resizeCharSize();
+
+
+            //            dbDrawBox.SetImeEnable(true);
+            Drawer.ResizeCharSize();
             this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.CodeTextbox_MouseWheel);
 
             this.vScrollBar.Width = Global.ScrollBarWidth;
             this.hScrollBar.Height = Global.ScrollBarWidth;
+
+        }
+
+        #region Handler Definition
+
+        Drawer _drawer;
+        private Drawer Drawer
+        {
+            get
+            {   // initialize drawer instance here to support code designer instantiation
+                if (_drawer == null) _drawer = new Drawer(this, hScrollBar, vScrollBar);
+                return _drawer;
+            }
+        }
+        private KeyHandler _keyHandler;
+        private KeyHandler KeyHandler
+        {
+            get
+            {
+                if (_keyHandler == null) _keyHandler = new KeyHandler(this, Drawer, hScrollBar, vScrollBar);
+                return _keyHandler;
+            }
+        }
+
+        MouseHandler _mouseHandler;
+        private MouseHandler MouseHandler
+        {
+            get
+            {
+                if (_mouseHandler == null) _mouseHandler = new MouseHandler(this, Drawer, this.hScrollBar, this.vScrollBar);
+                return _mouseHandler;
+            }
+        }
+        Highlighter _highlighter;
+        private Highlighter Highlighter
+        {
+            get
+            {
+                if (_highlighter == null) _highlighter = new Highlighter(this);
+                return _highlighter;
+            }
+        }
+
+        #endregion
+
+
+        public enum MarkStyleEnum
+        {
+            underLine,
+            wave,
+            wave_inv,
+            fill
         }
 
         public event EventHandler CarletLineChanged;
@@ -54,6 +108,27 @@ namespace ajkControls.CodeTextbox
         public event KeyEventHandler BeforeKeyDown;
         public event Action SelectionChanged;
 
+        internal void CallCarletLineChanged(EventArgs e)
+        {
+            if (CarletLineChanged != null) CarletLineChanged(this, e);
+        }
+        internal void CallAfterKeyPressed(KeyPressEventArgs e)
+        {
+            if (AfterKeyPressed != null) AfterKeyPressed(this, e);
+        }
+        internal void CallAfterKeyDown(KeyEventArgs e)
+        {
+            if (AfterKeyDown != null) AfterKeyDown(this, e);
+        }
+        internal void CallBeforeKeyPressed(KeyPressEventArgs e)
+        {
+            if (BeforeKeyPressed != null) BeforeKeyPressed(this, e);
+        }
+        internal void CallBeforeKeyDown(KeyEventArgs e)
+        {
+            if (BeforeKeyDown != null) BeforeKeyDown(this, e);
+        }
+
         #region Message Handler
 
         IntPtr _OriginalWndProcObj = IntPtr.Zero;
@@ -62,36 +137,10 @@ namespace ajkControls.CodeTextbox
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-
-            //_HighlighterDelayTimer = new WinFormsTimer();
-            //_HighlighterDelayTimer.Tick += delegate {
-            //    _HighlighterDelayTimer.Enabled = false;
-            //    if (_Impl != null)
-            //        _Impl.ExecHighlighter();
-            //};
-
             // rewrite window procedure at first
             RewriteWndProc();
-
-            // set default value for each scroll bar
-            // (setting scroll bar range forces the window to have style of WS_VSCROLL/WS_HSCROLL)
-            //Primitive.WinApi.SetScrollRange(Handle, false, 0, 1, 1);
-            //Primitive.WinApi.SetScrollRange(Handle, true, 0, 1, 1);
-
-            //base.Cursor = Cursors.IBeam;
-            //this.Font = base.Font;
-            //this.BorderStyle = _BorderStyle;
-
-            //Primitive.WinApi.CreateCaret(Handle, _CaretSize);
-            //Primitive.WinApi.SetCaretPos(0, 0);
-
-            //// calculate scrollbar width
-            //using (ScrollBar sb = new VScrollBar())
-            //{
-            //    _ScrollBarWidth = sb.Width;
-            //}
         }
-        void RewriteWndProc()
+        private void RewriteWndProc()
         {
             const int GWL_WNDPROC = -4;
 
@@ -100,11 +149,10 @@ namespace ajkControls.CodeTextbox
             {
                 _CustomWndProcObj = new Primitive.WinApi.WNDPROC(this.CustomWndProc);
             }
-
             Primitive.WinApi.SetWindowLong(Handle, GWL_WNDPROC, _CustomWndProcObj);
         }
 
-        //region Custom Window Procedure (handling v/h scroll and paint event etc.)
+        // Custom Window Procedure (partilly based on Azuki Editor Code
         IntPtr CustomWndProc(IntPtr window, UInt32 message, IntPtr wParam, IntPtr lParam)
         {
             if (message == Primitive.WinApi.WM_PAINT)
@@ -120,7 +168,7 @@ namespace ajkControls.CodeTextbox
                     Primitive.WinApi.BeginPaint(window, &ps);
 
                     Rectangle rect = new Rectangle(ps.paint.left, ps.paint.top, ps.paint.right - ps.paint.left, ps.paint.bottom - ps.paint.top);
-                    draw(rect);
+                    Drawer.Draw(rect);
 
                     Primitive.WinApi.EndPaint(window, &ps);
                 }
@@ -133,13 +181,9 @@ namespace ajkControls.CodeTextbox
             return Primitive.WinApi.CallWindowProc(_OriginalWndProcObj, window, message, wParam, lParam);
         }
 
-        /// <summary>
-        /// Erases background.
-        /// Note that Azuki does nothing on an event of redrawing background
-        /// so just ignores WM_ERASEBKGND message.
-        /// </summary>
         protected override void OnPaintBackground(PaintEventArgs e)
         {
+            // restrict erace back ground
             //DO_NOT//base.OnPaintBackground( e );
         }
 
@@ -149,14 +193,6 @@ namespace ajkControls.CodeTextbox
         protected override bool IsInputKey(Keys keyData)
         {
             return true;
-
-            //if (keyData == Keys.Right || keyData == Keys.Left ||
-            //    keyData == Keys.Up || keyData == Keys.Down)
-            //{
-            //    return true;
-            //}
-
-            //return base.IsInputKey(keyData);
         }
 
         public void Cut()
@@ -225,20 +261,6 @@ namespace ajkControls.CodeTextbox
             Invoke(new Action(Refresh));
         }
 
-        private CodeDrawStyle style = new CodeDrawStyle();
-        public CodeDrawStyle Style
-        {
-            get
-            {
-                return style;
-            }
-            set
-            {
-                if (style == value) return;
-                style = value;
-                reGenarateBuffer = true;
-            }
-        }
 
         private float size = 8;
         private void CodeTextbox_MouseWheel(object sender, MouseEventArgs e)
@@ -269,43 +291,107 @@ namespace ajkControls.CodeTextbox
         }
 
 
-        public bool ScrollBarVisible
+        #region Message Handler
+
+        // key handler
+        private void CodeTextbox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            get
-            {
-                return vScrollBar.Visible;
-            }
-            set
-            {
-                vScrollBar.Visible = value;
-                hScrollBar.Visible = value;
-            }
+            KeyHandler.PreviewKeyDown(sender, e);
         }
 
-        public bool Editable { get; set; } = true;
-
-        private bool multiLine = true;
-        public bool MultiLine {
-            get
-            {
-                return multiLine;
-            }
-            set
-            {
-                if (multiLine == value) return;
-                multiLine = value;
-                System.IntPtr handle = Handle; // avoid windowhandle not created error
-                Invoke(new Action(Refresh));
-                if (multiLine == false)
-                {
-                    if (ScrollBarVisible) ScrollBarVisible = false;
-                    Height = charSizeY;
-                    resizeDrawBuffer();
-                }
-            }
+        private void CodeTextbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            KeyHandler.KeyDown(sender, e);
         }
 
+        private void CodeTextbox_KeyUp(object sender, KeyEventArgs e)
+        {
+            KeyHandler.KeyUp(sender, e);
+        }
 
+        private void CodeTextbox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            KeyHandler.KeyPress(sender, e);
+        }
+
+        // mouse handler
+        private void CodeTextbox_MouseEnter(object sender, EventArgs e)
+        {
+            MouseHandler.CodeTextbox_MouseEnter(sender, e);
+        }
+
+        private void CodeTextbox_MouseHover(object sender, EventArgs e)
+        {
+            MouseHandler.CodeTextbox_MouseHover(sender, e);
+        }
+        private void CodeTextbox_MouseDown(object sender, MouseEventArgs e)
+        {
+            MouseHandler.CodeTextbox_MouseDown(sender, e);
+        }
+
+        private void CodeTextbox_MouseMove(object sender, MouseEventArgs e)
+        {
+            MouseHandler.CodeTextbox_MouseMove(sender, e);
+        }
+
+        private void CodeTextbox_MouseUp(object sender, MouseEventArgs e)
+        {
+            MouseHandler.CodeTextbox_MouseUp(sender, e);
+        }
+        private void CodeTextbox_MouseLeave(object sender, EventArgs e)
+        {
+            MouseHandler.CodeTextbox_MouseLeave(sender, e);
+        }
+
+        private void CodeTextbox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            MouseHandler.CodeTextbox_MouseDoubleClick(sender, e);
+        }
+
+        // highlight handler
+        private void hilightUpdateWhenDocReplaced(int index, int replaceLength, byte colorIndex, string text)
+        {
+            Highlighter.HilightUpdateWhenDocReplaced(index, replaceLength, colorIndex, text);
+        }
+        public void MoveToNextHighlight(out bool moved)
+        {
+            Highlighter.MoveToNextHighlight(out moved);
+        }
+
+        public void GetHighlightPosition(int highlightIndex, out int highlightStart, out int highlightLast)
+        {
+            Highlighter.GetHighlightPosition(highlightIndex, out highlightStart, out highlightLast);
+        }
+
+        public void SelectHighlight(int highlightIndex)
+        {
+            Highlighter.SelectHighlight(highlightIndex);
+        }
+
+        public int GetHighlightIndex(int index)
+        {
+            return Highlighter.GetHighlightIndex(index);
+        }
+
+        public void ClearHighlight()
+        {
+            Highlighter.ClearHighlight();
+        }
+
+        public void AppendHighlight(int highlightStart, int highlightLast)
+        {
+            Highlighter.AppendHighlight(highlightStart, highlightLast);
+        }
+
+        public void ReDrawHighlight()
+        {
+            Highlighter.ReDrawHighlight();
+        }
+
+        // drawer
+
+
+        #endregion
 
         protected Document document;
         public virtual Document Document
@@ -328,7 +414,7 @@ namespace ajkControls.CodeTextbox
                 {
                     document.Replaced = hilightUpdateWhenDocReplaced;
                 }
-                actualLineNumbers = new int[] { };
+                Drawer.Clean();
                 UpdateVScrollBarRange();
                 caretChanged();
                 scrollToCaret();
@@ -336,15 +422,17 @@ namespace ajkControls.CodeTextbox
             }
         }
 
-        public override Font Font
+
+
+
+        public Point GetCaretTopPoint()
         {
-            get { return base.Font; }
-            set
-            {
-                base.Font = value;
-                size = value.SizeInPoints;
-                resizeCharSize();
-            }
+            return Drawer.GetCaretTopPoint();
+        }
+
+        public Point GetCaretBottomPoint()
+        {
+            return Drawer.GetCaretBottomPoint();
         }
 
         //
@@ -352,7 +440,7 @@ namespace ajkControls.CodeTextbox
         private void CodeTextbox_Resize(object sender, EventArgs e)
         {
             //            System.Diagnostics.Debug.Print("codeTextbox_resize");
-            resizeDrawBuffer();
+            Drawer.ResizeDrawBuffer();
         }
 
         private void dbDrawBox_Resize(object sender, EventArgs e)
@@ -361,40 +449,26 @@ namespace ajkControls.CodeTextbox
             //            resizeCharSize();
         }
 
-
-
-
         // draw image
-        private int tabSize = 4;
-
-        private static Primitive.IconImage plusIcon = new Primitive.IconImage(Properties.Resources.plus);
-        private static Primitive.IconImage minusIcon = new Primitive.IconImage(Properties.Resources.minus);
-
-        private int xOffset = 0;
-        private int caretX = 0;
-        private int caretY = 0;
-        private int[] actualLineNumbers = new int[] { };
-
-
         public int GetActualLineNo(int drawLineNumber)
         {
-            if (actualLineNumbers.Length < drawLineNumber) return actualLineNumbers.Last();
-            return actualLineNumbers[drawLineNumber];
+            return Drawer.GetActualLineNo(drawLineNumber);
         }
         public int GetIndexAt(int x, int y)
         {
-            return hitIndex(x, y);
+            return Drawer.hitIndex(x, y);
         }
 
-        public Point GetCaretTopPoint()
+        public void Invalidate(int beginIndex, int endIndex)
         {
-            return new Point(caretX, caretY);
+            lock (document)
+            {
+                Drawer.InvalidateLines(document.GetLineAt(beginIndex), document.GetLineAt(endIndex));
+            }
         }
 
-        public Point GetCaretBottomPoint()
-        {
-            return new Point(caretX, caretY + charSizeY);
-        }
+
+
 
 
         public void SetSelection(int index, int length)
@@ -409,13 +483,13 @@ namespace ajkControls.CodeTextbox
 
         // UI ///////////////////////////////////////////////////////////////////////////////
 
-        private enum uiState
+        internal enum uiState
         {
             idle,
             selecting
         }
 
-        private uiState state = CodeTextbox.uiState.idle;
+        internal uiState state = CodeTextbox.uiState.idle;
 
         private void vScrollBar_ValueChanged(object sender, EventArgs e)
         {
@@ -427,7 +501,17 @@ namespace ajkControls.CodeTextbox
         {
 
         }
+        private void hScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
 
+        }
+
+        private void hScrollBar_ValueChanged(object sender, EventArgs e)
+        {
+            if (document == null) return;
+            selectionChanged();
+            Invoke(new Action(Refresh));
+        }
 
 
         public void ScrollToCaret()
@@ -444,7 +528,7 @@ namespace ajkControls.CodeTextbox
 
 
 
-        private void caretChanged()
+        internal void caretChanged()
         {
             if (document == null) return;
             if (document.CaretIndex == 0) return;
@@ -457,7 +541,7 @@ namespace ajkControls.CodeTextbox
         }
 
 
-        private void selectionChanged()
+        internal void selectionChanged()
         {
             if (document == null) return;
 
@@ -480,7 +564,7 @@ namespace ajkControls.CodeTextbox
             int line = lineStart;
             while (line < document.Lines)
             {
-                if (drawLine >= visibleLines + 2)
+                if (drawLine >= Drawer.visibleLines + 2)
                 {
                     break;
                 }
@@ -505,7 +589,7 @@ namespace ajkControls.CodeTextbox
         /// <summary>
         /// move vscrollbar to carlet visible position
         /// </summary>
-        private void scrollToCaret()
+        internal void scrollToCaret()
         {
             if (document == null) return;
 
@@ -516,9 +600,9 @@ namespace ajkControls.CodeTextbox
                 if (line < 1) vScrollBar.Value = 0;
                 else vScrollBar.Value = line - 1;
             }
-            else if (line >= visibleLines + vScrollBar.Value)
+            else if (line >= Drawer.visibleLines + vScrollBar.Value)
             {
-                int v = line - visibleLines;
+                int v = line - Drawer.visibleLines;
                 if (v < vScrollBar.Minimum)
                 {
                     vScrollBar.Value = vScrollBar.Minimum;
@@ -555,10 +639,10 @@ namespace ajkControls.CodeTextbox
             {
                 vScrollBar.Value = startLine;
             }
-            else if (lastLine > visibleLines + vScrollBar.Value)
+            else if (lastLine > Drawer.visibleLines + vScrollBar.Value)
             {
-                int v = lastLine - visibleLines;
-                if (v >= 0) vScrollBar.Value = lastLine - visibleLines;
+                int v = lastLine - Drawer.visibleLines;
+                if (v >= 0) vScrollBar.Value = lastLine - Drawer.visibleLines;
             }
             else
             {
@@ -566,12 +650,10 @@ namespace ajkControls.CodeTextbox
             }
         }
 
-        private void UpdateVScrollBarRange()
+        internal void UpdateVScrollBarRange()
         {
             if (document != null) vScrollBar.Maximum = document.VisibleLines;
         }
-
-
 
     }
 }
