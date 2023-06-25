@@ -43,7 +43,7 @@ namespace ajkControls.CodeTextbox
         private static Primitive.IconImage plusIcon = new Primitive.IconImage(Properties.Resources.plus);
         private static Primitive.IconImage minusIcon = new Primitive.IconImage(Properties.Resources.minus);
 
-        private int[] actualLineNumbers = new int[] { };
+        public int[] actualLineNumbers = new int[] { };
         public int charSizeX = 1;
         public int charSizeY = 1;
         public int visibleLines = 10;
@@ -63,8 +63,14 @@ namespace ajkControls.CodeTextbox
             ReGenarateBuffer = true;
         }
 
+        public IntPtr tabPen;
+        public IntPtr lfPen;
+        public IntPtr crPen;
         public void ResizeDrawBuffer()
         {
+            tabPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.TabColor));
+            lfPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.LfColor));
+            crPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.CrColor));
             visibleLines = (int)Math.Ceiling((double)(codeTextbox.Height / charSizeY));
         }
 
@@ -209,6 +215,39 @@ namespace ajkControls.CodeTextbox
 
             canvas.Dispose();
             g.Dispose();
+        }
+
+        public void DrawCr(Primitive.GraWin graphics,int x,int y)
+        {
+            Primitive.WinApi.SelectObject(graphics.DC, crPen);
+            Primitive.WinApi.MoveToEx(graphics.DC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.2), IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.6));
+            Primitive.WinApi.MoveToEx(graphics.DC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6), IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, (int)(x + charSizeX * 0.9), (int)(y + charSizeY * 0.6));
+            Primitive.WinApi.MoveToEx(graphics.DC, (int)(x + charSizeX * 0.4), (int)(y + charSizeY * 0.4), IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6));
+            Primitive.WinApi.MoveToEx(graphics.DC, (int)(x + charSizeX * 0.4), (int)(y + charSizeY * 0.8), IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, (int)(x + charSizeX * 0.2), (int)(y + charSizeY * 0.6));
+        }
+
+        public void DrawLf(Primitive.GraWin graphics, int x, int y)
+        {
+            Primitive.WinApi.SelectObject(graphics.DC, lfPen);
+            Primitive.WinApi.MoveToEx(graphics.DC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.2), IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8));
+            Primitive.WinApi.MoveToEx(graphics.DC, (int)(x + charSizeX * 0.4), (int)(y + charSizeY * 0.6), IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8));
+            Primitive.WinApi.MoveToEx(graphics.DC, (int)(x + charSizeX * 0.8), (int)(y + charSizeY * 0.6), IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, (int)(x + charSizeX * 0.6), (int)(y + charSizeY * 0.8));
+        }
+
+        public void DrawTab(Primitive.GraWin graphics,int x,int y, int xIncrement)
+        {
+            Primitive.WinApi.SelectObject(graphics.DC, tabPen);
+            Primitive.WinApi.MoveToEx(graphics.DC, x + 2, y + charSizeY - 2, IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, x - 2 + xIncrement * charSizeX, y + charSizeY - 2);
+            Primitive.WinApi.MoveToEx(graphics.DC, x - 2 + xIncrement * charSizeX, y + charSizeY - 2, IntPtr.Zero);
+            Primitive.WinApi.LineTo(graphics.DC, x - 2 + xIncrement * charSizeX, y + charSizeY - 8);
         }
 
     }

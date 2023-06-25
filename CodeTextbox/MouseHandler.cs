@@ -64,9 +64,9 @@ namespace ajkControls.CodeTextbox
 
             if (e.Button == MouseButtons.Left)
             {
-                if (e.X < drawer.xOffset * drawer.charSizeX) // block folding control
+                if (e.X < drawer.Cache.xOffset * drawer.Cache.charSizeX) // block folding control
                 {
-                    int drawLine = e.Y / drawer.charSizeY;
+                    int drawLine = e.Y / drawer.Cache.charSizeY;
                     int line = codeTextbox.GetActualLineNo(drawLine);
                     if (document.IsCollapsed(line))
                     {

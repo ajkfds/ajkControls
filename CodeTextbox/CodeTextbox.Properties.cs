@@ -34,7 +34,7 @@ namespace ajkControls.CodeTextbox
             {
                 if (base.BackColor == value) return; // avoid infinite loop on VS designer
                 base.BackColor = value;
-                Drawer.ReGenarateBuffer = true;
+                Drawer.Cache.ReGenarateBuffer = true;
             }
         }
         private bool multiLine = true;
@@ -53,7 +53,7 @@ namespace ajkControls.CodeTextbox
                 if (multiLine == false)
                 {
                     if (ScrollBarVisible) ScrollBarVisible = false;
-                    Height = Drawer.charSizeY;
+                    Height = Drawer.Cache.charSizeY;
                     Drawer.ResizeDrawBuffer();
                 }
             }
@@ -81,7 +81,7 @@ namespace ajkControls.CodeTextbox
             {
                 if (style == value) return;
                 style = value;
-                Drawer.ReGenarateBuffer = true;
+                Drawer.Cache.ReGenarateBuffer = true;
             }
         }
         public bool ScrollBarVisible

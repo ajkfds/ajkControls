@@ -564,7 +564,7 @@ namespace ajkControls.CodeTextbox
             int line = lineStart;
             while (line < document.Lines)
             {
-                if (drawLine >= Drawer.visibleLines + 2)
+                if (drawLine >= Drawer.Cache.visibleLines + 2)
                 {
                     break;
                 }
@@ -600,9 +600,9 @@ namespace ajkControls.CodeTextbox
                 if (line < 1) vScrollBar.Value = 0;
                 else vScrollBar.Value = line - 1;
             }
-            else if (line >= Drawer.visibleLines + vScrollBar.Value)
+            else if (line >= Drawer.Cache.visibleLines + vScrollBar.Value)
             {
-                int v = line - Drawer.visibleLines;
+                int v = line - Drawer.Cache.visibleLines;
                 if (v < vScrollBar.Minimum)
                 {
                     vScrollBar.Value = vScrollBar.Minimum;
@@ -639,10 +639,10 @@ namespace ajkControls.CodeTextbox
             {
                 vScrollBar.Value = startLine;
             }
-            else if (lastLine > Drawer.visibleLines + vScrollBar.Value)
+            else if (lastLine > Drawer.Cache.visibleLines + vScrollBar.Value)
             {
-                int v = lastLine - Drawer.visibleLines;
-                if (v >= 0) vScrollBar.Value = lastLine - Drawer.visibleLines;
+                int v = lastLine - Drawer.Cache.visibleLines;
+                if (v >= 0) vScrollBar.Value = lastLine - Drawer.Cache.visibleLines;
             }
             else
             {
