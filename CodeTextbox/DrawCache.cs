@@ -250,5 +250,87 @@ namespace ajkControls.CodeTextbox
             Primitive.WinApi.LineTo(graphics.DC, x - 2 + xIncrement * charSizeX, y + charSizeY - 8);
         }
 
+        public void DrawCarlet(Primitive.GraWin graphics, int x, int y)
+        {
+            IntPtr hrgn = Primitive.WinApi.CreateRectRgn(x, y + 2, x + 2, y + charSizeY - 2);
+            IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(codeTextbox.CarletColor));
+            Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
+            Primitive.WinApi.DeleteObject(hbrush);
+            Primitive.WinApi.DeleteObject(hrgn);
+        }
+
+        public void DrawMark(Primitive.GraWin graphics, int x, int y,int mark)
+        {
+            IntPtr pSource = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
+            IntPtr hbmp = markBitmap[mark].GetHbitmap(Color.Black);
+            IntPtr pOrig = Primitive.WinApi.SelectObject(pSource, hbmp);
+            Primitive.WinApi.AlphaBlend(
+                graphics.DC, x, y, markBitmap[mark].Width, markBitmap[mark].Height,
+                pSource, 0, 0, markBitmap[mark].Width, markBitmap[mark].Height,
+                new Primitive.WinApi.BLENDFUNCTION(Primitive.WinApi.AC_SRC_OVER, 0, 0xff, Primitive.WinApi.AC_SRC_ALPHA)
+                );
+            IntPtr pNew = Primitive.WinApi.SelectObject(pSource, pOrig);
+            Primitive.WinApi.DeleteObject(pNew);
+            Primitive.WinApi.DeleteObject(hbmp);
+            Primitive.WinApi.DeleteDC(pSource);
+        }
+
+        public void DrawSelection(Primitive.GraWin graphics, int x, int y)
+        {
+            IntPtr pSource = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
+            IntPtr hbmp = selectionBitmap.GetHbitmap(Color.Black);
+            IntPtr pOrig = Primitive.WinApi.SelectObject(pSource, hbmp);
+            Primitive.WinApi.AlphaBlend(
+                graphics.DC, x, y, selectionBitmap.Width, selectionBitmap.Height,
+                pSource, 0, 0, selectionBitmap.Width, selectionBitmap.Height,
+                new Primitive.WinApi.BLENDFUNCTION(Primitive.WinApi.AC_SRC_OVER, 0, 0xff, Primitive.WinApi.AC_SRC_ALPHA)
+                );
+            IntPtr pNew = Primitive.WinApi.SelectObject(pSource, pOrig);
+            Primitive.WinApi.DeleteObject(pNew);
+            Primitive.WinApi.DeleteObject(hbmp);
+            Primitive.WinApi.DeleteDC(pSource);
+        }
+
+        public void DrawSelection(Primitive.GraWin graphics, int x, int y,int xIncrement)
+        {
+            IntPtr pSource = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
+            IntPtr hbmp = selectionBitmap.GetHbitmap(Color.Black);
+            IntPtr pOrig = Primitive.WinApi.SelectObject(pSource, hbmp);
+            for (int j = 0; j < xIncrement; j++)
+            {
+                Primitive.WinApi.AlphaBlend(
+                    graphics.DC, x + j * charSizeX, y, selectionBitmap.Width, selectionBitmap.Height,
+                    pSource, 0, 0, selectionBitmap.Width, selectionBitmap.Height,
+                    new Primitive.WinApi.BLENDFUNCTION(Primitive.WinApi.AC_SRC_OVER, 0, 0xff, Primitive.WinApi.AC_SRC_ALPHA)
+                    );
+            }
+            IntPtr pNew = Primitive.WinApi.SelectObject(pSource, pOrig);
+            Primitive.WinApi.DeleteObject(pNew);
+            Primitive.WinApi.DeleteObject(hbmp);
+            Primitive.WinApi.DeleteDC(pSource);
+        }
+
+        public void DrawPuls(Primitive.GraWin graphics, int x, int y)
+        {
+            IntPtr hsrc = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
+            IntPtr hbmp = plusBitmap.GetHbitmap();
+            IntPtr porg = Primitive.WinApi.SelectObject(hsrc, hbmp);
+            Primitive.WinApi.BitBlt(graphics.DC, x, y, charSizeY, charSizeY, hsrc, 0, 0, (uint)Primitive.WinApi.TernaryRasterOperations.SRCCOPY);
+            Primitive.WinApi.DeleteObject(porg);
+            Primitive.WinApi.DeleteObject(hbmp);
+            Primitive.WinApi.DeleteDC(hsrc);
+        }
+
+        public void DrawMinus(Primitive.GraWin graphics, int x, int y)
+        {
+            IntPtr hsrc = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
+            IntPtr hbmp = minusBitmap.GetHbitmap();
+            IntPtr porg = Primitive.WinApi.SelectObject(hsrc, hbmp);
+            Primitive.WinApi.BitBlt(graphics.DC, x, y, charSizeY, charSizeY, hsrc, 0, 0, (uint)Primitive.WinApi.TernaryRasterOperations.SRCCOPY);
+            Primitive.WinApi.DeleteObject(porg);
+            Primitive.WinApi.DeleteObject(hbmp);
+            Primitive.WinApi.DeleteDC(hsrc);
+        }
+
     }
 }

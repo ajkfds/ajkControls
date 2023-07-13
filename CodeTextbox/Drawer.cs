@@ -109,7 +109,6 @@ namespace ajkControls.CodeTextbox
         }
 
         SolidBrush lineNumberTextBrush = new SolidBrush(Color.Silver);
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
         public void Draw(Rectangle clipRect)
         {
@@ -178,25 +177,21 @@ namespace ajkControls.CodeTextbox
 
             StringBuilder sb = new StringBuilder(256);
 
-//            IntPtr tabPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.TabColor));
-//            IntPtr lfPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.LfColor));
-//            IntPtr crPen = Primitive.WinApi.CreatePen(0, 1, Primitive.WinApi.GetColor(codeTextbox.CrColor));
             IntPtr hFont = codeTextbox.Font.ToHfont();
             IntPtr hOldFont = (IntPtr)Primitive.WinApi.SelectObject(graphics.DC, hFont);
 
-            //IntPtr oldPen = (IntPtr)Primitive.WinApi.SelectObject(graphics.DC, tabPen);
             int lineStart = document.GetActialLineNo(vScrollBar.Value + 1);
             int drawLine = 0;
-            int line = lineStart;
             if (!codeTextbox.MultiLine) drawLine = document.Lines;
 
             int x = -clipRect.X;
             int y = -clipRect.Y;
 
+            // skip invisible lines on the top side
             while (y < 0)
             {
-                if (document.Lines >= line) break;
-                if (!document.IsVisibleLine(line)) // skip invisible lines
+                if (document.Lines >= lineStart) break;
+                if (!document.IsVisibleLine(lineStart)) // skip invisible lines
                 {
                 }
                 else
@@ -204,9 +199,10 @@ namespace ajkControls.CodeTextbox
                     y = y + Cache.charSizeY;
                     drawLine++;
                 }
-                line++;
+                lineStart++;
             }
 
+            int line = lineStart;
             while (line <= document.Lines)
             {
                 if (drawLine >= Cache.visibleLines + 2) break; // exit : out of visible area
@@ -232,41 +228,7 @@ namespace ajkControls.CodeTextbox
 
                 // draw line numbers (right padding)
                 x = (Cache.xOffset - 3) * Cache.charSizeX - clipRect.X;
-                if (codeTextbox.MultiLine)
-                {
-                    if (document.IsBlockHeadLine(line))
-                    {
-                        if (document.IsCollapsed(line))
-                        {   // plus mark
-                            IntPtr hsrc = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
-                            IntPtr hbmp = Cache.plusBitmap.GetHbitmap();
-                            IntPtr porg = Primitive.WinApi.SelectObject(hsrc, hbmp);
-                            Primitive.WinApi.BitBlt(graphics.DC, x, y, Cache.charSizeY, Cache.charSizeY, hsrc, 0, 0, (uint)Primitive.WinApi.TernaryRasterOperations.SRCCOPY);
-                            Primitive.WinApi.DeleteObject(porg);
-                            Primitive.WinApi.DeleteObject(hbmp);
-                            Primitive.WinApi.DeleteDC(hsrc);
-                        }
-                        else
-                        {   // minus mark
-                            IntPtr hsrc = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
-                            IntPtr hbmp = Cache.minusBitmap.GetHbitmap();
-                            IntPtr porg = Primitive.WinApi.SelectObject(hsrc, hbmp);
-                            Primitive.WinApi.BitBlt(graphics.DC, x, y, Cache.charSizeY, Cache.charSizeY, hsrc, 0, 0, (uint)Primitive.WinApi.TernaryRasterOperations.SRCCOPY);
-                            Primitive.WinApi.DeleteObject(porg);
-                            Primitive.WinApi.DeleteObject(hbmp);
-                            Primitive.WinApi.DeleteDC(hsrc);
-                        }
-                    }
-                    x = x - Cache.charSizeX;
-
-                    string lineString = line.ToString();
-                    Primitive.WinApi.SetTextColor(graphics.DC, Primitive.WinApi.GetColor(Color.Silver));
-                    Primitive.WinApi.ExtTextOut(graphics.DC, x - lineString.Length * Cache.charSizeX, y, 0, lineString);
-                }
-
-                sw.Start();
-
-                Primitive.WinApi.SetBkMode(graphics.DC, 0);
+                Primitive.WinApi.SetBkMode(graphics.DC, 0); // set opaque background mode
 
                 int lineX;
                 int start;
@@ -331,7 +293,7 @@ namespace ajkControls.CodeTextbox
                     }
                 }
 
-                Primitive.WinApi.SetBkMode(graphics.DC, 1);
+                Primitive.WinApi.SetBkMode(graphics.DC, 1); // transperaent background mode
 
                 // draw mark
                 x = Cache.xOffset * Cache.charSizeX - scrollH;
@@ -354,38 +316,13 @@ namespace ajkControls.CodeTextbox
                         if (i >= document.SelectionStart && i < document.SelectionLast)
                         {
                             if (ch == '\t')
-                            {   // tab
+                            {   // tab selection
                                 xIncrement = codeTextbox.TabSize - (lineX % codeTextbox.TabSize);
-                                IntPtr pSource = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
-                                IntPtr hbmp = Cache.selectionBitmap.GetHbitmap(Color.Black);
-                                IntPtr pOrig = Primitive.WinApi.SelectObject(pSource, hbmp);
-                                for (int j = 0; j < xIncrement; j++)
-                                {
-                                    Primitive.WinApi.AlphaBlend(
-                                        graphics.DC, x + j * Cache.charSizeX, y, Cache.selectionBitmap.Width, Cache.selectionBitmap.Height,
-                                        pSource, 0, 0, Cache.selectionBitmap.Width, Cache.selectionBitmap.Height,
-                                        new Primitive.WinApi.BLENDFUNCTION(Primitive.WinApi.AC_SRC_OVER, 0, 0xff, Primitive.WinApi.AC_SRC_ALPHA)
-                                        );
-                                }
-                                IntPtr pNew = Primitive.WinApi.SelectObject(pSource, pOrig);
-                                Primitive.WinApi.DeleteObject(pNew);
-                                Primitive.WinApi.DeleteObject(hbmp);
-                                Primitive.WinApi.DeleteDC(pSource);
+                                Cache.DrawSelection(graphics, x, y, xIncrement);
                             }
                             else
-                            {
-                                IntPtr pSource = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
-                                IntPtr hbmp = Cache.selectionBitmap.GetHbitmap(Color.Black);
-                                IntPtr pOrig = Primitive.WinApi.SelectObject(pSource, hbmp);
-                                Primitive.WinApi.AlphaBlend(
-                                    graphics.DC, x, y, Cache.selectionBitmap.Width, Cache.selectionBitmap.Height,
-                                    pSource, 0, 0, Cache.selectionBitmap.Width, Cache.selectionBitmap.Height,
-                                    new Primitive.WinApi.BLENDFUNCTION(Primitive.WinApi.AC_SRC_OVER, 0, 0xff, Primitive.WinApi.AC_SRC_ALPHA)
-                                    );
-                                IntPtr pNew = Primitive.WinApi.SelectObject(pSource, pOrig);
-                                Primitive.WinApi.DeleteObject(pNew);
-                                Primitive.WinApi.DeleteObject(hbmp);
-                                Primitive.WinApi.DeleteDC(pSource);
+                            {   // selection
+                                Cache.DrawSelection(graphics, x, y);
                             }
                         }
 
@@ -395,34 +332,17 @@ namespace ajkControls.CodeTextbox
                         {
                             for (int mark = 7; mark >= 0; mark--)
                             {
-                                //if ((document.GetMarkAt(i) & (1 << mark)) != 0) drawMarkGdi(hDC, x, y, mark);
                                 if ((document.GetMarkAt(i) & (1 << mark)) != 0)
                                 {
-                                    IntPtr pSource = Primitive.WinApi.CreateCompatibleDC(graphics.DC);
-                                    IntPtr hbmp = Cache.markBitmap[mark].GetHbitmap(Color.Black);
-                                    IntPtr pOrig = Primitive.WinApi.SelectObject(pSource, hbmp);
-                                    Primitive.WinApi.AlphaBlend(
-                                        graphics.DC, x, y, Cache.markBitmap[mark].Width, Cache.markBitmap[mark].Height,
-                                        pSource, 0, 0, Cache.markBitmap[mark].Width, Cache.markBitmap[mark].Height,
-                                        new Primitive.WinApi.BLENDFUNCTION(Primitive.WinApi.AC_SRC_OVER, 0, 0xff, Primitive.WinApi.AC_SRC_ALPHA)
-                                        );
-                                    IntPtr pNew = Primitive.WinApi.SelectObject(pSource, pOrig);
-                                    Primitive.WinApi.DeleteObject(pNew);
-                                    Primitive.WinApi.DeleteObject(hbmp);
-                                    Primitive.WinApi.DeleteDC(pSource);
+                                    Cache.DrawMark(graphics, x, y, mark);
                                 }
-
                             }
                         }
 
                         // caret
                         if (i == document.CaretIndex & codeTextbox.Editable)
                         {
-                            IntPtr hrgn = Primitive.WinApi.CreateRectRgn(x, y + 2, x + 2, y + Cache.charSizeY - 2);
-                            IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(codeTextbox.CarletColor));
-                            Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
-                            Primitive.WinApi.DeleteObject(hbrush);
-                            Primitive.WinApi.DeleteObject(hrgn);
+                            Cache.DrawCarlet(graphics, x, y);
                             Cache.caretX = x;
                             Cache.caretY = y;
                         }
@@ -436,11 +356,7 @@ namespace ajkControls.CodeTextbox
                 // carlet at EOF
                 if (line == document.Lines && document.Length == document.CaretIndex && codeTextbox.Editable)
                 {
-                    IntPtr hrgn = Primitive.WinApi.CreateRectRgn(x, y + 2, x + 2, y + Cache.charSizeY - 2);
-                    IntPtr hbrush = Primitive.WinApi.CreateSolidBrush(Primitive.WinApi.GetColor(codeTextbox.CarletColor));
-                    Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
-                    Primitive.WinApi.DeleteObject(hbrush);
-                    Primitive.WinApi.DeleteObject(hrgn);
+                    Cache.DrawCarlet(graphics, x, y);
                     Cache.caretX = x;
                     Cache.caretY = y;
                 }
@@ -449,6 +365,7 @@ namespace ajkControls.CodeTextbox
                 drawLine++;
                 line++;
             }
+            Cache.actualLineNumbers[drawLine] = 0;
 
             Cache.caretX += clipRect.X;
             Cache.caretY += clipRect.Y;
@@ -469,6 +386,31 @@ namespace ajkControls.CodeTextbox
                 Primitive.WinApi.FillRgn(graphics.DC, hrgn, hbrush);
                 Primitive.WinApi.DeleteObject(hbrush);
                 Primitive.WinApi.DeleteObject(hrgn);
+            }
+
+            y = 0;
+            for(int dline = 0; dline < Cache.visibleLines; dline++)
+            {
+                if (Cache.actualLineNumbers[dline] == 0) break;
+                line = Cache.actualLineNumbers[dline];
+
+                // line number
+                string lineString = line.ToString();
+                Primitive.WinApi.SetTextColor(graphics.DC, Primitive.WinApi.GetColor(Color.Silver));
+                Primitive.WinApi.ExtTextOut(graphics.DC, Cache.xOffset * Cache.charSizeX- Cache.charSizeX - lineString.Length * Cache.charSizeX, y, 0, lineString);
+
+                if (document.IsBlockHeadLine(line))
+                {
+                    if (document.IsCollapsed(line))
+                    {   // plus mark
+                        Cache.DrawPuls(graphics, 0, y);
+                    }
+                    else
+                    {   // minus mark
+                        Cache.DrawMinus(graphics, 0, y);
+                    }
+                }
+                y = y + Cache.charSizeY;
             }
 
             Primitive.WinApi.DeleteObject((IntPtr)Primitive.WinApi.SelectObject(graphics.DC, hOldFont));
