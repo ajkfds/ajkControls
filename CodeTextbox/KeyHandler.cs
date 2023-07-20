@@ -545,6 +545,7 @@ namespace ajkControls.CodeTextbox
             {
                 skipKeyPress = false;
                 e.Handled = true;
+                codeTextbox.Update();
                 return;
             }
 
@@ -552,6 +553,7 @@ namespace ajkControls.CodeTextbox
             if (e.Handled)
             {
                 codeTextbox.Invalidate();
+                codeTextbox.Update();
                 return;
             }
 

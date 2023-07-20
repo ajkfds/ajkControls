@@ -365,7 +365,7 @@ namespace ajkControls.CodeTextbox
                 drawLine++;
                 line++;
             }
-            Cache.actualLineNumbers[drawLine] = 0;
+            if(drawLine < Cache.actualLineNumbers.Length) Cache.actualLineNumbers[drawLine] = 0;
 
             Cache.caretX += clipRect.X;
             Cache.caretY += clipRect.Y;
@@ -388,16 +388,54 @@ namespace ajkControls.CodeTextbox
                 Primitive.WinApi.DeleteObject(hrgn);
             }
 
-            y = 0;
-            for(int dline = 0; dline < Cache.visibleLines; dline++)
+            //y = 0;
+            //for(int dline = 0; dline < Cache.visibleLines; dline++)
+            //{
+            //    if (Cache.actualLineNumbers[dline] == 0) break;
+            //    line = Cache.actualLineNumbers[dline];
+
+            //    // line number
+            //    string lineString = line.ToString();
+            //    Primitive.WinApi.SetTextColor(graphics.DC, Primitive.WinApi.GetColor(Color.Silver));
+            //    Primitive.WinApi.ExtTextOut(graphics.DC, Cache.xOffset * Cache.charSizeX- Cache.charSizeX - lineString.Length * Cache.charSizeX, y, 0, lineString);
+
+            //    if (document.IsBlockHeadLine(line))
+            //    {
+            //        if (document.IsCollapsed(line))
+            //        {   // plus mark
+            //            Cache.DrawPuls(graphics, 0, y);
+            //        }
+            //        else
+            //        {   // minus mark
+            //            Cache.DrawMinus(graphics, 0, y);
+            //        }
+            //    }
+            //    y = y + Cache.charSizeY;
+            //}
+
+            line = lineStart;
+            y = -clipRect.Y;
+            drawLine = 0;
+            while (line <= document.Lines)
             {
-                if (Cache.actualLineNumbers[dline] == 0) break;
-                line = Cache.actualLineNumbers[dline];
+                if (drawLine >= Cache.visibleLines + 2) break; // exit : out of visible area
+                if (y > clipRect.Y + clipRect.Height + Cache.charSizeY) break;
+
+                if (!document.IsVisibleLine(line)) // skip invisible lines
+                {
+                    line++;
+                    while (line < document.Lines)
+                    {
+                        if (document.IsVisibleLine(line)) break;
+                        line++;
+                    }
+                    continue;
+                }
 
                 // line number
                 string lineString = line.ToString();
                 Primitive.WinApi.SetTextColor(graphics.DC, Primitive.WinApi.GetColor(Color.Silver));
-                Primitive.WinApi.ExtTextOut(graphics.DC, Cache.xOffset * Cache.charSizeX- Cache.charSizeX - lineString.Length * Cache.charSizeX, y, 0, lineString);
+                Primitive.WinApi.ExtTextOut(graphics.DC, Cache.xOffset * Cache.charSizeX - Cache.charSizeX - lineString.Length * Cache.charSizeX, y, 0, lineString);
 
                 if (document.IsBlockHeadLine(line))
                 {
@@ -410,7 +448,10 @@ namespace ajkControls.CodeTextbox
                         Cache.DrawMinus(graphics, 0, y);
                     }
                 }
+
                 y = y + Cache.charSizeY;
+                drawLine++;
+                line++;
             }
 
             Primitive.WinApi.DeleteObject((IntPtr)Primitive.WinApi.SelectObject(graphics.DC, hOldFont));
