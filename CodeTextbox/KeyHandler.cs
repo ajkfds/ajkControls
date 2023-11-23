@@ -190,6 +190,8 @@ namespace ajkControls.CodeTextbox
                         {
                             codeTextbox.Invalidate(document.SelectionStart, document.SelectionLast);
                         }
+                        e.Handled = true;
+                        codeTextbox.Invalidate();
                     }
                     break;
                 case Keys.Back:
